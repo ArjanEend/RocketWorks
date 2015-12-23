@@ -4,8 +4,8 @@ using System.Collections;
 public class StateMachine<T> {
 	private T owner;
 
-	private State<T> currentState;
-	private State<T> previousState;
+	private StateBase<T> currentState;
+	private StateBase<T> previousState;
 
 	public System.Type currentType
 	{
@@ -25,7 +25,7 @@ public class StateMachine<T> {
 			currentState.Update();
 	}
 	
-	public State<T> ChangeState(State<T> newState)
+	public StateBase<T> ChangeState(StateBase<T> newState)
 	{
 		previousState = currentState;
 		

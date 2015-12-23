@@ -1,7 +1,7 @@
 ﻿using System;
-public abstract class State<T>   {
+public abstract class StateBase<T>   {
 
-	public delegate State<T> OnFinish(State<T> next);
+	public delegate StateBase<T> OnFinish(StateBase<T> next);
 
 	protected T entity;
 	public OnFinish onFinish;

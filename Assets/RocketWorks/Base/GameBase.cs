@@ -6,7 +6,7 @@ namespace RocketWorks.Base
 {
     public class GameBase
     {
-        private SceneManager sceneManager;
+        private SceneHandler sceneManager;
 
         [RuntimeInitializeOnLoadMethod]
         private static void OnRuntimeInitialize()
@@ -17,7 +17,7 @@ namespace RocketWorks.Base
 
         public GameBase()
         {
-            sceneManager = SceneManager.Initialize();
+            sceneManager = SceneHandler.Initialize();
         }
     }
 }

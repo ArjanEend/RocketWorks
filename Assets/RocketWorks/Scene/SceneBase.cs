@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace RocketWorks.Scene
 {
-    public abstract class GameScene : State<SceneManager>
+    public abstract class SceneBase : StateBase<SceneHandler>
     {
         public delegate void OnPause(bool paused);
 
@@ -13,7 +13,7 @@ namespace RocketWorks.Scene
         public string sceneName = "";
         protected GameObject componentHolder;
 
-        public GameScene()
+        public SceneBase()
         {
             Debug.Log("New [Scene]");
             onPause = delegate { };
@@ -26,7 +26,7 @@ namespace RocketWorks.Scene
             componentHolder = new GameObject(sceneName);
         }
 
-        public virtual void Finish(GameScene next)
+        public virtual void Finish(SceneBase next)
         {
             onFinish.Invoke(next);
             onFinish = null;
