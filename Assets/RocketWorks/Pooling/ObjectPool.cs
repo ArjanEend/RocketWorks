@@ -31,7 +31,7 @@ public class ObjectPool<T> where T : IPoolable, new() {
 		for(int i = 0; i < objects.Count; i++)
 		{
 			index = (i + currentIndex) % (objects.Count);
-			if(!objects[index].active)
+			if(!objects[index].Alive)
 			{
 				currentIndex = index;
 				return objects[index];

@@ -1,12 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
 using RocketWorks.Scene;
+using RocketWorks.System;
 
 namespace RocketWorks.Base
 {
     public class GameBase
     {
-        private SceneHandler sceneManager;
+        protected SceneHandler sceneManager;
+        protected SystemManager systemManager;
 
         [RuntimeInitializeOnLoadMethod]
         private static void OnRuntimeInitialize()
@@ -17,7 +19,10 @@ namespace RocketWorks.Base
 
         public GameBase()
         {
-            sceneManager = SceneHandler.Initialize();
+            sceneManager = UnitySystemBase.Initialize<SceneHandler>();
+
+            systemManager = new SystemManager();
+            systemManager.AddSystem(sceneManager);
         }
     }
 }

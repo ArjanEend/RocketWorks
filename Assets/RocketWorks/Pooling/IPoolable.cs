@@ -1,10 +1,9 @@
 public interface IPoolable
 {
-	void Start();
-	bool active
+	void Reset();
+	bool Alive
 	{
 		get;
-		set;
 	}
 }
 

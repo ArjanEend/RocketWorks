@@ -19,7 +19,7 @@ public class PrefabPool : ObjectPool<PrefabPoolWrapper> {
 	public GameObject GetNext()
 	{
 		PrefabPoolWrapper instance = GetObject();
-		instance.Start();
+		instance.Reset();
 		return instance.gameObject;
 	}
 	

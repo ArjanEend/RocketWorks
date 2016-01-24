@@ -1,43 +1,20 @@
-﻿using UnityEngine;
+﻿using System;
+using RocketWorks.System;
+using UnityEngine;
 using UnityEngine.SceneManagement;
-using System.Collections;
 
 namespace RocketWorks.Scene
 {
-    public class SceneHandler : MonoBehaviour
+    public class SceneHandler : UnitySystemBase
     {
         private SceneBase currentScene;
         private UnityEngine.SceneManagement.SceneManager unitySceneManager;
 
         private StateMachine<SceneHandler> stateMachine;
 
-        private static SceneHandler instance;
-        public static SceneHandler Instance
+        public override void Initialize()
         {
-            get
-            {
-                if (instance == null)
-                {
-                    return Initialize();
-                }
-                else
-                {
-                    return instance;
-                }
-            }
-        }
-
-        public static SceneHandler Initialize()
-        {
-            if (instance != null)
-                Debug.LogError("SceneManager exists already!");
-
-            Debug.Log("New [SceneManager]");
-            GameObject go = new GameObject("[SceneManager]");
-            instance = go.AddComponent<SceneHandler>();
-            DontDestroyOnLoad(go);
-            DontDestroyOnLoad(instance);
-            return instance;
+            
         }
 
         private void Start()
@@ -97,5 +74,14 @@ namespace RocketWorks.Scene
             currentScene.OnLoaded();
         }
 
+        public override void Execute()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Destroy()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

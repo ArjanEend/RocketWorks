@@ -11,7 +11,7 @@ public class PrefabPoolWrapper : IPoolable {
 		}
 	}
 
-	public bool active {
+	public bool Alive {
 		get {
 			return go.activeSelf;
 		}
@@ -31,7 +31,7 @@ public class PrefabPoolWrapper : IPoolable {
 		go = spawned;
 	}
 
-	public void Start()
+	public void Reset()
 	{
 		go.SetActive(true);
 		go.SendMessage("OnEnable", SendMessageOptions.DontRequireReceiver);
