@@ -19,45 +19,46 @@ namespace RocketWorks.Entity
             get { return alive; }
         }
 
-        private Dictionary<Type, IComponent> components;
+        private IComponent[] components;
 
-        public Entity()
+        private int composition;
+
+        public Entity() {}
+        public Entity(int totalComponents)
         {
-			components = new Dictionary<Type, IComponent>();
+			components = new IComponent[totalComponents];
+            composition = 0;
         }
 
-        public T GetComponent<T>() where T : IComponent
+        public T GetComponent<T>(int i) where T : IComponent
         {
-            if (!components.ContainsKey(typeof(T)))
-                return default(T);
-
-            return (T)components[typeof(T)];
+            return (T)components[i];
         }
 
-        public T AddComponent<T>(T component) where T : IComponent
+        public bool HasComponents(int components)
         {
-			components.Add(typeof(T), component);
+            return (composition & components) == components;
+        }
+
+        public bool HasComposition(int composition)
+        {
+            return this.composition == composition;
+        }
+
+        public T AddComponent<T>(int i, T component) where T : IComponent
+        {
+			components[i] = component;
             return component;
         }
 
-		public T AddComponent<T>() where T : IComponent, new()
+        public void RemoveComponent(int i)
         {
-			return AddComponent<T>(new T());
-        }
-
-        public void RemoveComponent<T>() where T : IComponent
-        {
-            if (!components.ContainsKey(typeof(T)))
-                return;
-            else
-            {
-				components.Remove(typeof(T));
-            }
+            components[i] = null;
         }
 
         public void Reset()
         {
-            throw new NotImplementedException();
+            
         }
     }
 }

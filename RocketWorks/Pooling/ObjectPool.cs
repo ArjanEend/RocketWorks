@@ -2,7 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class ObjectPool<T> where T : IPoolable, new() {
+public class ObjectPool<T> where T : IPoolable, new()
+{
 
 	protected bool flexible = false;
 	protected List<T> objects;
@@ -21,7 +22,7 @@ public class ObjectPool<T> where T : IPoolable, new() {
 	{
 		for(int i = 0; i < amount; i++)
 		{
-			SpawnObject();
+			CreateObject();
 		}
 	}
 
@@ -41,7 +42,7 @@ public class ObjectPool<T> where T : IPoolable, new() {
 		if(flexible)
 		{
 			Debug.Log ("[ObjectPool] flexible, spawning new object: " + typeof(T).ToString());
-			return SpawnObject();
+			return CreateObject();
 		} else {
 			Debug.Log ("[ObjectPool] non-flexible, recycling object: " + currentIndex);
 			currentIndex++;
@@ -50,7 +51,7 @@ public class ObjectPool<T> where T : IPoolable, new() {
 		}
 	}
 
-	protected virtual T SpawnObject()
+	protected virtual T CreateObject()
 	{
 		T instance = new T();
 		objects.Add(instance);

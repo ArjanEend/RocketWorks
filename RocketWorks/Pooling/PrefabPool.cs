@@ -23,7 +23,7 @@ public class PrefabPool : ObjectPool<PrefabPoolWrapper> {
 		return instance.gameObject;
 	}
 	
-	override protected PrefabPoolWrapper SpawnObject()
+	override protected PrefabPoolWrapper CreateObject()
 	{
 		GameObject go = (GameObject)GameObject.Instantiate(prefab);
 		PrefabPoolWrapper instance = new PrefabPoolWrapper(go);

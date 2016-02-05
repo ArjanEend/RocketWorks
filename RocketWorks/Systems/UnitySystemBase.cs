@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-namespace RocketWorks.System
+namespace RocketWorks.Systems
 {
     public abstract class UnitySystemBase : MonoBehaviour, ISystem
     {

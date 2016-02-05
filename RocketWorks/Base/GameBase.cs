@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 using RocketWorks.Scene;
-using RocketWorks.System;
+using RocketWorks.Systems;
+using RocketWorks.Pooling;
 
 namespace RocketWorks.Base
 {
@@ -9,6 +10,8 @@ namespace RocketWorks.Base
     {
         protected SceneHandler sceneManager;
         protected SystemManager systemManager;
+
+        private EntityPool entityPool;
 
         [RuntimeInitializeOnLoadMethod]
         private static void OnRuntimeInitialize()
@@ -20,6 +23,8 @@ namespace RocketWorks.Base
         public GameBase()
         {
             sceneManager = UnitySystemBase.Initialize<SceneHandler>();
+
+            entityPool = new EntityPool();
 
             systemManager = new SystemManager();
             systemManager.AddSystem(sceneManager);

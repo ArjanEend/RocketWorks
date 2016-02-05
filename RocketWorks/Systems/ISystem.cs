@@ -1,4 +1,4 @@
-﻿namespace RocketWorks.System
+﻿namespace RocketWorks.Systems
 {
     public interface ISystem
     {

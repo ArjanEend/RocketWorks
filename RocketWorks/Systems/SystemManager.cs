@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace RocketWorks.System
+namespace RocketWorks.Systems
 {
     public class SystemManager : ISystemManager
     {
