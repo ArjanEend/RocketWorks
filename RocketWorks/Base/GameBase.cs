@@ -6,28 +6,21 @@ using RocketWorks.Pooling;
 
 namespace RocketWorks.Base
 {
-    public class GameBase
+    public abstract class GameBase
     {
-        protected SceneHandler sceneManager;
+        protected SceneHandler sceneHandler;
         protected SystemManager systemManager;
 
-        private EntityPool entityPool;
-
-        [RuntimeInitializeOnLoadMethod]
-        private static void OnRuntimeInitialize()
-        {
-            Debug.Log("[GameBase] Called from RuntimeInitialize!");
-            new GameBase();
-        }
+        protected EntityPool entityPool;
 
         public GameBase()
         {
-            sceneManager = UnitySystemBase.Initialize<SceneHandler>();
+            sceneHandler = UnitySystemBase.Initialize<SceneHandler>();
 
             entityPool = new EntityPool();
 
-            systemManager = new SystemManager();
-            systemManager.AddSystem(sceneManager);
+            systemManager = new SystemManager(entityPool);
+            systemManager.AddSystem(sceneHandler);
         }
     }
 }

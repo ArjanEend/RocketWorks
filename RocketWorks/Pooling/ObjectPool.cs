@@ -4,13 +4,15 @@ using System.Collections.Generic;
 
 public class ObjectPool<T> where T : IPoolable, new()
 {
-
-	protected bool flexible = false;
+	protected bool flexible = true;
 	protected List<T> objects;
 
 	private int currentIndex;
 
-	public ObjectPool(){}
+	public ObjectPool()
+    {
+        objects = new List<T>();
+    }
 	public ObjectPool(int amount, bool flexible)
 	{
 		this.flexible = flexible;
@@ -46,7 +48,7 @@ public class ObjectPool<T> where T : IPoolable, new()
 		} else {
 			Debug.Log ("[ObjectPool] non-flexible, recycling object: " + currentIndex);
 			currentIndex++;
-			currentIndex %= objects.Count;
+            currentIndex %= objects.Count;
 			return objects[currentIndex];
 		}
 	}

@@ -8,11 +8,16 @@ namespace RocketWorks.Systems
     {
         private EntityPool pool;
 
-        private Dictionary<Type, ISystem> systemBindings = new Dictionary<Type, ISystem>();
+        private List<ISystem> systems;
+
+        public SystemManager(EntityPool pool)
+        {
+            this.pool = pool;
+        }
 
         public void AddSystem(ISystem system)
         {
-            
+            system.Initialize();
         }
 
         public void RemoveSystem(ISystem system)
@@ -22,7 +27,10 @@ namespace RocketWorks.Systems
 
         public void UpdateSystems()
         {
-            
+            for(int i = 0; i < systems.Count; i++)
+            {
+                systems[i].Execute();
+            }
         }
     }
 }

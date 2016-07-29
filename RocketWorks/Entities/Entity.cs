@@ -3,10 +3,14 @@ using System.Collections;
 using System;
 using System.Collections.Generic;
 
-namespace RocketWorks.Entity
+namespace RocketWorks.Entities
 {
     public class Entity : IPoolable
     {
+        public delegate int ComponentChanged(IComponent comp);
+
+        public event ComponentChanged CompositionChangeEvent;
+
         private bool enabled;
         public bool Enabled
         {
@@ -45,15 +49,19 @@ namespace RocketWorks.Entity
             return this.composition == composition;
         }
 
-        public T AddComponent<T>(int i, T component) where T : IComponent
+        public T AddComponent<T>(T component) where T : IComponent
         {
-			components[i] = component;
+            if (CompositionChangeEvent == null)
+                return default(T);
+            int index = CompositionChangeEvent(component);
+			components[index - 1] = component;
+            composition |= index;
             return component;
         }
 
-        public void RemoveComponent(int i)
+        public void RemoveComponent<T>(T component)
         {
-            components[i] = null;
+            //components[i] = null;
         }
 
         public void Reset()
