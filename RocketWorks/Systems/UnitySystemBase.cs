@@ -1,11 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
+using RocketWorks.Pooling;
 
 namespace RocketWorks.Systems
 {
     public abstract class UnitySystemBase : MonoBehaviour, ISystem
     {
-        public static T Initialize<T>() where T : UnitySystemBase
+        public static T Initialize<T>(EntityPool pool) where T : UnitySystemBase
         {
             string className = typeof(T).Name;
             Debug.LogFormat("New [{0}]", className);
@@ -13,10 +14,10 @@ namespace RocketWorks.Systems
             T instance = go.AddComponent<T>();
             DontDestroyOnLoad(go);
             DontDestroyOnLoad(instance);
-            instance.Initialize();
+            instance.Initialize(pool);
             return instance;
         }
-        public abstract void Initialize();
+        public abstract void Initialize(EntityPool pool);
         public abstract void Execute();
         public abstract void Destroy();
     }

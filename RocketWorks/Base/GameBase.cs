@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 using RocketWorks.Scene;
 using RocketWorks.Systems;
 using RocketWorks.Pooling;
@@ -15,12 +14,15 @@ namespace RocketWorks.Base
 
         public GameBase()
         {
-            sceneHandler = UnitySystemBase.Initialize<SceneHandler>();
-
             entityPool = new EntityPool();
+            sceneHandler = UnitySystemBase.Initialize<SceneHandler>(entityPool);
 
             systemManager = new SystemManager(entityPool);
             systemManager.AddSystem(sceneHandler);
+
+            GameObject eventObject = new GameObject("[UpdateEvents]");
+            UnityEvents events = eventObject.AddComponent<UnityEvents>();
+            events.OnUpdate += systemManager.UpdateSystems;
         }
     }
 }

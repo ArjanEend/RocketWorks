@@ -2,14 +2,17 @@
 using System.Collections;
 using System;
 using System.Collections.Generic;
+using RocketWorks.Triggers;
 
 namespace RocketWorks.Entities
 {
     public class Entity : IPoolable
     {
-        public delegate int ComponentChanged(IComponent comp);
+        public delegate int ComponentChanged(IComponent comp, Entity entity);
+        public delegate void TriggerStarted(TriggerBase trigger);
 
         public event ComponentChanged CompositionChangeEvent;
+        public event TriggerStarted TriggerEvent;
 
         private bool enabled;
         public bool Enabled
@@ -53,7 +56,7 @@ namespace RocketWorks.Entities
         {
             if (CompositionChangeEvent == null)
                 return default(T);
-            int index = CompositionChangeEvent(component);
+            int index = CompositionChangeEvent(component, this);
 			components[index - 1] = component;
             composition |= index;
             return component;
@@ -62,6 +65,12 @@ namespace RocketWorks.Entities
         public void RemoveComponent<T>(T component)
         {
             //components[i] = null;
+        }
+
+        public void EmitTrigger(TriggerBase trigger)
+        {
+            if (TriggerEvent != null)
+                TriggerEvent(trigger);
         }
 
         public void Reset()

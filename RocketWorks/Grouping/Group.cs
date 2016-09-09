@@ -9,7 +9,8 @@ namespace RocketWorks.Grouping
         private int composition;
         public int Composition
         {
-            get; internal set;
+            get { return composition; }
+            internal set { composition = value; }
         }
 
         private Dictionary<Type, List<IComponent>> componentBindings = 
@@ -27,6 +28,11 @@ namespace RocketWorks.Grouping
         {
             Type type = component.GetType();
             componentBindings[type].Add(component);
+        }
+
+        public bool HasComponents(int components)
+        {
+            return (composition & components) != 0;
         }
 
         public List<IComponent> GetComponents(System.Type type)

@@ -2,6 +2,7 @@
 using RocketWorks.Systems;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using RocketWorks.Pooling;
 
 namespace RocketWorks.Scene
 {
@@ -12,7 +13,7 @@ namespace RocketWorks.Scene
 
         private StateMachine<SceneHandler> stateMachine;
 
-        public override void Initialize()
+        public override void Initialize(EntityPool pool)
         {
             
         }
@@ -76,7 +77,7 @@ namespace RocketWorks.Scene
 
         public override void Execute()
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
 
         public override void Destroy()

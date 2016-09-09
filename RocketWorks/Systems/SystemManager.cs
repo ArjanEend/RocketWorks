@@ -13,16 +13,19 @@ namespace RocketWorks.Systems
         public SystemManager(EntityPool pool)
         {
             this.pool = pool;
+            systems = new List<ISystem>();
         }
 
         public void AddSystem(ISystem system)
         {
-            system.Initialize();
+            system.Initialize(pool);
+            systems.Add(system);
         }
 
         public void RemoveSystem(ISystem system)
         {
-            
+            if (systems.Contains(system))
+                systems.Remove(system);
         }
 
         public void UpdateSystems()

@@ -4,11 +4,13 @@ using RocketWorks.Grouping;
 using System.Linq;
 using RocketWorks.Entities;
 using Entity = RocketWorks.Entities.Entity;
+using RocketWorks.Triggers;
 
 namespace RocketWorks.Pooling
 {
     public class EntityPool : ObjectPool<Entity> {
 
+        private Dictionary<Type, Action<TriggerBase>> triggers = new Dictionary<Type, Action<TriggerBase>>();
         private Dictionary<int, Group> typeGroups = new Dictionary<int, Group>();
         private List<Group> groupList = new List<Group>();
         private Dictionary<Type, int> components = new Dictionary<Type, int>();
@@ -39,8 +41,9 @@ namespace RocketWorks.Pooling
                 return typeGroups[bitMask];
             } else
             {
-                Group group = new Group();
+                Group group = new Group(types);
                 typeGroups.Add(bitMask, group);
+                group.Composition = bitMask;
                 return group;
             }
         }
@@ -49,11 +52,45 @@ namespace RocketWorks.Pooling
         {
             Entity entity = new Entity(componentIndices);
             entity.CompositionChangeEvent += OnCompositionChanged;
+            entity.TriggerEvent += OnTriggerAdded;
             return entity;
         }
 
-        private int OnCompositionChanged(IComponent comp)
+        public void ListenTo<T>(Action<T> action) where T : TriggerBase
         {
+            if(triggers.ContainsKey(typeof(T)))
+            {
+                triggers.Add(typeof(T), null);
+            }
+            triggers[typeof(T)] += action as Action<TriggerBase>;
+        }
+
+        private void OnTriggerAdded(TriggerBase trigger)
+        {
+            if (triggers.ContainsKey(trigger.GetType()))
+                return;
+
+            Action<TriggerBase> triggerActions = triggers[trigger.GetType()];
+            
+            Delegate[] invocationList = triggerActions.GetInvocationList();
+            for(int i = 0; i < invocationList.Length; i++)
+            {
+                if (trigger.Blocked)
+                    break;
+
+                invocationList[i].DynamicInvoke(trigger);
+            }
+        }
+
+        private int OnCompositionChanged(IComponent comp, Entity entity)
+        {
+            foreach(KeyValuePair<int, Group> group in typeGroups)
+            {
+                if(group.Value.HasComponents(components[comp.GetType()]))
+                {
+                    group.Value.AddComponent(comp);
+                }
+            }
             return components[comp.GetType()];
         }
     }
