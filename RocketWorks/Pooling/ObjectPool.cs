@@ -9,6 +9,20 @@ public class ObjectPool<T> where T : IPoolable, new()
 
 	private int currentIndex;
 
+	public bool IsDepleted
+	{
+		get {
+			if(this.flexible)
+				return false;
+			for(int i = 0; i < objects.Count; i++)
+			{
+				if(!objects[i].Alive)
+					return true; 
+			}
+			return true;
+		}
+	}
+
 	public ObjectPool()
     {
         objects = new List<T>();

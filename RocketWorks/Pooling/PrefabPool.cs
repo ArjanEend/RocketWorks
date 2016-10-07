@@ -16,10 +16,13 @@ public class PrefabPool : ObjectPool<PrefabPoolWrapper> {
 		GeneratePool(amount);
 	}
 
-	public GameObject GetNext()
+	public GameObject GetNext(bool autoStart = true)
 	{
 		PrefabPoolWrapper instance = GetObject();
-		instance.Reset();
+		
+		if(autoStart)
+			instance.Reset();
+		
 		return instance.gameObject;
 	}
 	
