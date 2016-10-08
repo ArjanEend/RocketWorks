@@ -5,7 +5,12 @@ namespace RocketWorks.State
     {
 
         protected T entity;
-        private StateFinished onFinish;
+        private StateFinished<T> onFinish;
+        public StateFinished<T> OnFinish
+        {
+            get { return onFinish; }
+            set { onFinish = value; }
+        }
 
         public virtual void RegisterState(T actor)
         {
@@ -17,7 +22,7 @@ namespace RocketWorks.State
         public abstract void Update();
         public abstract void FixedUpdate();
 
-        public void DispatchFinishEvent(IState next)
+        public void DispatchFinishEvent(IState<T> next)
         {
             if (onFinish != null)
                 onFinish(next);

@@ -37,7 +37,7 @@ namespace RocketWorks.State
                 currentState.Exit();
 
             currentState = newState;
-            newState.onFinish += ChangeState;
+            newState.OnFinish += ChangeState;
             newState.RegisterState(owner);
 
             if (currentState != null)
