@@ -3,7 +3,7 @@ namespace RocketWorks.State
 {
     public abstract class StateBase<T> : IState<T>
     {
-        protected T entity;
+        protected T actor;
 
         private StateFinished<T> onFinish;
         public StateFinished<T> OnFinish
@@ -14,7 +14,7 @@ namespace RocketWorks.State
 
         public void RegisterState(T actor)
         {
-            this.entity = actor;
+            this.actor = actor;
         }
 
         public abstract void Initialize();
