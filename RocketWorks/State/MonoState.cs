@@ -1,12 +1,13 @@
-﻿using System;
+﻿using UnityEngine;
 namespace RocketWorks.State
 {
-    public abstract class StateBase<T> : IState<T>
+    public abstract class MonoState<T> : IState<T> where T : Object
     {
-        protected T entity;
-        public StateFinished onFinish;
 
-        public void RegisterState(T actor)
+        protected T entity;
+        private StateFinished onFinish;
+
+        public virtual void RegisterState(T actor)
         {
             this.entity = actor;
         }
