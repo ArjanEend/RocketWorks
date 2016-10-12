@@ -17,7 +17,7 @@ public class ObjectPool<T> where T : IPoolable, new()
 			for(int i = 0; i < objects.Count; i++)
 			{
 				if(!objects[i].Alive)
-					return true; 
+					return false; 
 			}
 			return true;
 		}
