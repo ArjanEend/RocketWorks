@@ -29,17 +29,21 @@ namespace RocketWorks.State
         public abstract void OnUpdate();
         public abstract void OnFixedUpdate();
 
-        public void DispatchFinishEvent(IState<T> next)
+        public IState<T> DispatchFinishEvent(IState<T> next)
         {
             if (onFinish != null)
                 onFinish(next);
+
+            return this;
         }
 
-        public void DispatchFinishEvent<R>() where R : IState<T>
+        public R DispatchFinishEvent<R>() where R : IState<T>
         {
             Type type = typeof(R);
             if (onFinishType != null)
-                onFinishType(type);
+                return (R)onFinishType(type);
+
+            return default(R);
         }
     }
 }

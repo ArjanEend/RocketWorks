@@ -16,8 +16,8 @@ namespace RocketWorks.State
     public interface IState<T> : IState
     {
         void RegisterState(T entity);
-        void DispatchFinishEvent(IState<T> next);
-        void DispatchFinishEvent<R>() where R : IState<T>;
+        IState<T> DispatchFinishEvent(IState<T> next);
+        R DispatchFinishEvent<R>() where R : IState<T>;
         StateFinished<T> OnFinish
         {
             get;

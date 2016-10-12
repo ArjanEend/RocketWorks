@@ -14,6 +14,8 @@ namespace RocketWorks.State
 
 		private Dictionary<Type, IState<T>> stateDictionary;
 
+        private bool stateInitialized = false;
+
         public System.Type currentType
         {
             get { return currentState.GetType(); }
@@ -35,6 +37,11 @@ namespace RocketWorks.State
 
         public void Update()
         {
+            if (!stateInitialized && currentState != null)
+            {
+                stateInitialized = true;
+                currentState.Initialize();
+            }
             if (currentState != null)
                 currentState.OnUpdate();
         }
@@ -45,13 +52,13 @@ namespace RocketWorks.State
 				currentState.OnFixedUpdate();
 		}
 
-		public IState<T> ChangeState<R>() where R : IState<T>
+		public R ChangeState<R>() where R : IState<T>
 		{
 			Type type = typeof(R);
 			if(stateDictionary.ContainsKey(type))
-				return ChangeState(stateDictionary[type]);
+				return (R)ChangeState(stateDictionary[type]);
 
-			return null;
+			return default(R);
 		}
 
         public R GetState<R>() where R : IState<T>
@@ -86,9 +93,7 @@ namespace RocketWorks.State
             newState.OnFinish += ChangeState;
 			newState.OnFinishType += ChangeState;
             newState.RegisterState(owner);
-
-            if (currentState != null)
-                currentState.Initialize();
+            stateInitialized = false;
 
             return newState;
         }
