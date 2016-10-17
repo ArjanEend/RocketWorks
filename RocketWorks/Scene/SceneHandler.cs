@@ -57,7 +57,6 @@ namespace RocketWorks.Scene
             //and add the new one!
             RegisterScene(gScene);
             SceneManager.LoadScene(gScene.sceneName);
-            //Application.LoadLevel(gScene.sceneName);
             return gScene;
         }
 

@@ -21,7 +21,6 @@ namespace RocketWorks.State
 
         public virtual void RegisterState(T actor)
         {
-            Debug.Log(actor);
             this.actor = actor;
         }
 
