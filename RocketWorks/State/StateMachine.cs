@@ -12,6 +12,8 @@ namespace RocketWorks.State
         private IState<T> currentState;
         private IState<T> previousState;
 
+        public Action<IState<T>> StateChanged;
+
 		private Dictionary<Type, IState<T>> stateDictionary;
 
         private bool stateInitialized = false;
@@ -94,6 +96,9 @@ namespace RocketWorks.State
 			newState.OnFinishType += ChangeState;
             newState.RegisterState(owner);
             stateInitialized = false;
+
+            if(StateChanged != null)
+                StateChanged(newState);
 
             return newState;
         }
