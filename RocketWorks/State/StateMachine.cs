@@ -92,9 +92,12 @@ namespace RocketWorks.State
             }
 
             currentState = newState;
-            newState.OnFinish += ChangeState;
-			newState.OnFinishType += ChangeState;
-            newState.RegisterState(owner);
+            if(newState != null)
+            {
+                newState.OnFinish += ChangeState;
+                newState.OnFinishType += ChangeState;
+                newState.RegisterState(owner);
+            }
             stateInitialized = false;
 
             if(StateChanged != null)
