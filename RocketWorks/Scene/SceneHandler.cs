@@ -3,6 +3,7 @@ using RocketWorks.Systems;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using RocketWorks.Pooling;
+using RocketWorks.State;
 
 namespace RocketWorks.Scene
 {
@@ -34,14 +35,14 @@ namespace RocketWorks.Scene
         {
             if (currentScene != null)
                 UnregisterScene(currentScene);
-            scene.onFinish += LoadScene;
+            scene.OnFinish += LoadScene;
             scene.onPause += HandlePause;
             currentScene = scene;
         }
 
         public void UnregisterScene(SceneBase scene)
         {
-            scene.onFinish -= LoadScene;
+            scene.OnFinish -= LoadScene;
             scene.onPause += HandlePause;
         }
 
@@ -50,17 +51,16 @@ namespace RocketWorks.Scene
 
         }
 
-        private SceneBase LoadScene(StateBase<SceneHandler> scene)
+        private SceneBase LoadScene(IState<SceneHandler> scene)
         {
             SceneBase gScene = (SceneBase)scene;
             //and add the new one!
             RegisterScene(gScene);
             SceneManager.LoadScene(gScene.sceneName);
-            //Application.LoadLevel(gScene.sceneName);
             return gScene;
         }
 
-        private SceneBase LoadSceneWithLoader(StateBase<SceneHandler> scene)
+        private SceneBase LoadSceneWithLoader(IState<SceneHandler> scene)
         {
             SceneBase gScene = (SceneBase)scene;
             RegisterScene(gScene);

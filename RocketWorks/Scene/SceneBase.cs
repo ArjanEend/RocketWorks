@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using RocketWorks.State;
 
 namespace RocketWorks.Scene
 {
@@ -28,8 +29,8 @@ namespace RocketWorks.Scene
 
         public virtual void Finish(SceneBase next)
         {
-            onFinish.Invoke(next);
-            onFinish = null;
+            OnFinish.Invoke(next);
+            OnFinish = null;
             onPause = null;
         }
 

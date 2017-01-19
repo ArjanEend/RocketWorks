@@ -1,10 +1,10 @@
 ﻿using System;
+using UnityEngine;
 namespace RocketWorks.State
 {
-    public abstract class StateBase<T> : IState<T>
+    public abstract class MonoState<T> : MonoBehaviour, IState<T> where T : UnityEngine.Object
     {
         protected T actor;
-
         private StateFinished<T> onFinish;
         public StateFinished<T> OnFinish
         {
@@ -19,7 +19,7 @@ namespace RocketWorks.State
             set { onFinishType = value; }
         }
 
-        public void RegisterState(T actor)
+        public virtual void RegisterState(T actor)
         {
             this.actor = actor;
         }
@@ -32,8 +32,8 @@ namespace RocketWorks.State
         public IState<T> DispatchFinishEvent(IState<T> next)
         {
             if (onFinish != null)
-                onFinish(next);
-
+                return onFinish(next);
+            
             return this;
         }
 
