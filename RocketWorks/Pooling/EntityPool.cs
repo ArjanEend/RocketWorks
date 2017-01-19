@@ -21,8 +21,8 @@ namespace RocketWorks.Pooling
         {
             foreach (Type mytype in System.Reflection.Assembly.GetExecutingAssembly().GetTypes().Where(mytype => mytype.GetInterfaces().Contains(typeof(IComponent))))
             {
-                UnityEngine.Debug.Log(mytype);
-                components.Add(mytype, 1 << componentIndices);
+                UnityEngine.Debug.Log(mytype + " : " + (1 << componentIndices));
+                components.Add(mytype, componentIndices);
                 componentIndices++;
             }
             UnityEngine.Debug.Log(componentIndices);
@@ -33,7 +33,7 @@ namespace RocketWorks.Pooling
             int bitMask = 0;
             for(int i = 0; i < types.Length; i++)
             {
-                bitMask |= components[types[i]];
+                bitMask |= 1 << components[types[i]];
             }
 
             if(typeGroups.ContainsKey(bitMask))
@@ -48,12 +48,32 @@ namespace RocketWorks.Pooling
             }
         }
 
+        public int GetIndexOf(Type type)
+        {
+            return components[type];
+        }
+
         protected override Entity CreateObject()
         {
             Entity entity = new Entity(componentIndices);
             entity.CompositionChangeEvent += OnCompositionChanged;
             entity.TriggerEvent += OnTriggerAdded;
+            entity.DestroyEvent += OnEntityDestroyed;
             return entity;
+        }
+
+        public override Entity GetObject()
+        {
+            Entity ent = base.GetObject();
+            return ent;
+        }
+
+        private void OnEntityDestroyed(Entity ent)
+        {
+            foreach (KeyValuePair<int, Group> group in typeGroups)
+            {
+                group.Value.RemoveEntity(ent);
+            }
         }
 
         public void ListenTo<T>(Action<T> action) where T : TriggerBase
@@ -86,9 +106,9 @@ namespace RocketWorks.Pooling
         {
             foreach(KeyValuePair<int, Group> group in typeGroups)
             {
-                if(group.Value.HasComponents(components[comp.GetType()]))
+                if(group.Value.HasComponents(1 << components[comp.GetType()]))
                 {
-                    group.Value.AddComponent(comp);
+                    group.Value.AddEntity(entity);
                 }
             }
             return components[comp.GetType()];

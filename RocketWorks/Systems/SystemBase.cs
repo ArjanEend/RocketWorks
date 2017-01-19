@@ -13,10 +13,21 @@ namespace RocketWorks.Systems
         public abstract void Initialize(EntityPool pool);
         public abstract void Execute();
         public abstract void Destroy();
+        public virtual void Cleanup()
+        {
 
-        public void AddGroup(Group group)
+        }
+
+        public Group AddGroup(Group group)
         {
             groups.Add(group);
+            return group;
         }
+
+        //protected List<T> newList()
+      //  {
+
+       // }
+
     }
 }

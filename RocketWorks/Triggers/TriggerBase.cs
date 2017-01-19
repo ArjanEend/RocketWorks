@@ -1,7 +1,5 @@
 ﻿namespace RocketWorks.Triggers
 {
-    
-    
     public abstract class TriggerBase
     {
         private bool blocked = false;

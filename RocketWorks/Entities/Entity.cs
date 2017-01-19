@@ -10,9 +10,11 @@ namespace RocketWorks.Entities
     {
         public delegate int ComponentChanged(IComponent comp, Entity entity);
         public delegate void TriggerStarted(TriggerBase trigger);
+        public delegate void EntityEvent(Entity ent);
 
         public event ComponentChanged CompositionChangeEvent;
         public event TriggerStarted TriggerEvent;
+        public event EntityEvent DestroyEvent;
 
         private bool enabled;
         public bool Enabled
@@ -57,8 +59,8 @@ namespace RocketWorks.Entities
             if (CompositionChangeEvent == null)
                 return default(T);
             int index = CompositionChangeEvent(component, this);
-			components[index - 1] = component;
-            composition |= index;
+			components[index] = component;
+            composition |= 1 << index;
             return component;
         }
 
@@ -75,7 +77,13 @@ namespace RocketWorks.Entities
 
         public void Reset()
         {
-            
+            if (DestroyEvent != null)
+                DestroyEvent(this);
+
+            components = new IComponent[components.Length];
+            composition = 0;
+            TriggerEvent = null;
+            DestroyEvent = null;
         }
     }
 }
