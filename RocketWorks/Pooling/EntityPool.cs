@@ -106,7 +106,7 @@ namespace RocketWorks.Pooling
         {
             foreach(KeyValuePair<int, Group> group in typeGroups)
             {
-                if(group.Value.HasComponents(1 << components[comp.GetType()]))
+                if(group.Value.HasComponents(entity.Composition | (1 << components[comp.GetType()])))
                 {
                     group.Value.AddEntity(entity);
                 }

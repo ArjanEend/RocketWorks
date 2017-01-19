@@ -71,7 +71,7 @@ namespace RocketWorks.Grouping
 
         public bool HasComponents(int components)
         {
-            return (composition & components) != 0;
+            return (composition & components) == composition;
         }
 
         public void RemoveEntity(Entity entity)

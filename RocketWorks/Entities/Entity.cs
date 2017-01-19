@@ -31,6 +31,10 @@ namespace RocketWorks.Entities
         private IComponent[] components;
 
         private int composition;
+        public int Composition
+        {
+            get { return composition; }
+        }
 
         public Entity() {}
         public Entity(int totalComponents)
@@ -64,9 +68,17 @@ namespace RocketWorks.Entities
             return component;
         }
 
-        public void RemoveComponent<T>(T component)
+        public void RemoveComponent<T>(IComponent component) where T : IComponent
         {
-            //components[i] = null;
+            for(int i = 0; i < components.Length; i++)
+            {
+                if(components[i] == component)
+                {
+                    components[i] = null;
+                    composition ^= 1 << i;
+                    return;
+                }
+            }
         }
 
         public void EmitTrigger(TriggerBase trigger)
