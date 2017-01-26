@@ -1,3 +1,5 @@
+using System;
+
 public interface IPoolable
 {
 	void Reset();

@@ -1,18 +1,16 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using RocketWorks.Pooling;
 
 public class PrefabPool : ObjectPool<PrefabPoolWrapper> {
 
 	private GameObject prefab;
 
-	public PrefabPool(){}
-
-	public PrefabPool(GameObject prefab, int amount, bool flexible)
+	public PrefabPool(GameObject prefab, int amount, bool flexible) : base(amount, flexible)
 	{
 		this.flexible = flexible;
 		this.prefab = prefab;
-		objects = new List<PrefabPoolWrapper>();
 		GeneratePool(amount);
 	}
 
@@ -30,7 +28,7 @@ public class PrefabPool : ObjectPool<PrefabPoolWrapper> {
 	{
 		GameObject go = (GameObject)GameObject.Instantiate(prefab);
 		PrefabPoolWrapper instance = new PrefabPoolWrapper(go);
-		objects.Add(instance);
+		activeObjects.Add(instance);
 		return instance;
 	}
 	

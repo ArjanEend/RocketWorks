@@ -14,18 +14,17 @@ namespace RocketWorks.Pooling
         private Dictionary<int, Group> typeGroups = new Dictionary<int, Group>();
         private List<Group> groupList = new List<Group>();
         private Dictionary<Type, int> components = new Dictionary<Type, int>();
+        private Dictionary<int, PoolBase<IComponent>> pools = new Dictionary<int, PoolBase<IComponent>>();
 
-        private int componentIndices = 0;
-
-        public EntityPool()
+        public EntityPool(params Type[] types)
         {
-            foreach (Type mytype in System.Reflection.Assembly.GetExecutingAssembly().GetTypes().Where(mytype => mytype.GetInterfaces().Contains(typeof(IComponent))))
+            int componentIndices = 0;
+            for (int i = 0; i < types.Length; i++)
             {
-                UnityEngine.Debug.Log(mytype + " : " + (1 << componentIndices));
-                components.Add(mytype, componentIndices);
+                components.Add(types[i], componentIndices);
+                pools.Add(i, new PoolBase<IComponent>());
                 componentIndices++;
             }
-            UnityEngine.Debug.Log(componentIndices);
         }
 
         public Group GetGroup(params Type[] types)
@@ -55,7 +54,7 @@ namespace RocketWorks.Pooling
 
         protected override Entity CreateObject()
         {
-            Entity entity = new Entity(componentIndices);
+            Entity entity = new Entity(components.Count);
             entity.CompositionChangeEvent += OnCompositionChanged;
             entity.TriggerEvent += OnTriggerAdded;
             entity.DestroyEvent += OnEntityDestroyed;

@@ -1,77 +1,52 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using RocketWorks.Pooling;
 
-public class ObjectPool<T> where T : IPoolable, new()
+namespace RocketWorks.Pooling
 {
-	protected bool flexible = true;
-	protected List<T> objects;
-
-	private int currentIndex;
-
-	public bool IsDepleted
-	{
-		get {
-			if(this.flexible)
-				return false;
-			for(int i = 0; i < objects.Count; i++)
-			{
-				if(!objects[i].Alive)
-					return false; 
-			}
-			return true;
-		}
-	}
-
-	public ObjectPool()
+    public class ObjectPool<T> : PoolBase<T> where T : IPoolable, new()
     {
-        objects = new List<T>();
+        private int amount;
+
+        public ObjectPool() : base() { }
+        public ObjectPool(int amount, bool flexible) : base(amount, flexible) { }
+
+        public override bool IsDepleted
+        {
+            get
+            {
+                if(!flexible && idleObjects.Count > 0)
+                {
+                    for (int i = 0; i < activeObjects.Count; i++)
+                    {
+                        if (!activeObjects[i].Alive)
+                            return false;
+                    }
+                }
+                return base.IsDepleted;
+            }
+        }
+
+        protected void GeneratePool(int amount)
+        {
+            for (int i = 0; i < amount; i++)
+            {
+                CreateObject();
+            }
+        }
+
+        override public T GetObject()
+        {
+            if(idleObjects.Count > 0)
+            {
+                for (int i = 0; i < activeObjects.Count; i++)
+                {
+                    if (!activeObjects[i].Alive)
+                        return activeObjects[i];
+                }
+            }
+            return base.GetObject();
+        }
     }
-	public ObjectPool(int amount, bool flexible)
-	{
-		this.flexible = flexible;
-		objects = new List<T>();
-		GeneratePool(amount);
-	}
-
-	protected void GeneratePool(int amount)
-	{
-		for(int i = 0; i < amount; i++)
-		{
-			CreateObject();
-		}
-	}
-
-	public virtual T GetObject()
-	{
-		int index;
-		for(int i = 0; i < objects.Count; i++)
-		{
-			index = (i + currentIndex) % (objects.Count);
-			if(!objects[index].Alive)
-			{
-				currentIndex = index;
-				return objects[index];
-			}
-		}
-
-		if(flexible)
-		{
-			Debug.Log ("[ObjectPool] flexible, spawning new object: " + typeof(T).ToString());
-			return CreateObject();
-		} else {
-			Debug.Log ("[ObjectPool] non-flexible, recycling object: " + currentIndex);
-			currentIndex++;
-            currentIndex %= objects.Count;
-			return objects[currentIndex];
-		}
-	}
-
-	protected virtual T CreateObject()
-	{
-		T instance = new T();
-		objects.Add(instance);
-		return instance;
-	}
-
 }
