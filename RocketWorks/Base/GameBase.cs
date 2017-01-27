@@ -14,7 +14,7 @@ namespace RocketWorks.Base
 
         public GameBase()
         {
-            entityPool = new EntityPool(typeof(TestComponent), typeof(PlayerIdComponent), typeof(AxisComponent));
+            entityPool = new EntityPool(typeof(TestComponent), typeof(PlayerIdComponent), typeof(AxisComponent), typeof(MessageComponent));
             sceneHandler = UnitySystemBase.Initialize<SceneHandler>(entityPool);
 
             systemManager = new SystemManager(entityPool);

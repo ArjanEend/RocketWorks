@@ -43,12 +43,23 @@ namespace RocketWorks.Grouping
             set { entities = value; }
         }
 
+        private List<Entity> newEntities;
+        public List<Entity> NewEntities
+        {
+            get {
+                List<Entity> returnValue = newEntities;
+                newEntities = new List<Entity>();
+                return returnValue;
+            }
+        }
+
        // private Dictionary<Type, List<IComponent>> componentBindings = 
        //     new Dictionary<Type, List<IComponent>>();
 
         public Group(params Type[] types)
         {
             entities = new List<Entity>();
+            newEntities = new List<Entity>();
             for(int i = 0; i < types.Length; i++)
             {
         //        componentBindings.Add(types[i], new List<IComponent>());
@@ -58,7 +69,7 @@ namespace RocketWorks.Grouping
         public void AddEntity(Entity entity)
         {
             entities.Add(entity);
-            //entity.CompositionChangeEvent += OnEntityChanged;
+            newEntities.Add(entity);
         }
 
        // private int OnEntityChanged(IComponent comp, Entity entity)

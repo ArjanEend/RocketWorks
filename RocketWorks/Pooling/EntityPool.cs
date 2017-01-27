@@ -11,6 +11,7 @@ namespace RocketWorks.Pooling
     public class EntityPool : ObjectPool<Entity> {
 
         private Dictionary<Type, Action<TriggerBase>> triggers = new Dictionary<Type, Action<TriggerBase>>();
+
         private Dictionary<int, Group> typeGroups = new Dictionary<int, Group>();
         private List<Group> groupList = new List<Group>();
         private Dictionary<Type, int> components = new Dictionary<Type, int>();
@@ -59,6 +60,13 @@ namespace RocketWorks.Pooling
             entity.TriggerEvent += OnTriggerAdded;
             entity.DestroyEvent += OnEntityDestroyed;
             return entity;
+        }
+
+        public void AddEntity(Entity entity)
+        {
+            entity.CompositionChangeEvent += OnCompositionChanged;
+            entity.TriggerEvent += OnTriggerAdded;
+            entity.DestroyEvent += OnEntityDestroyed;
         }
 
         public override Entity GetObject()

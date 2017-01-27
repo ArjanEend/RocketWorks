@@ -1,11 +1,9 @@
-﻿using UnityEngine;
-using System.Collections;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using RocketWorks.Triggers;
 
 namespace RocketWorks.Entities
 {
+    [Serializable]
     public class Entity : IPoolable
     {
         public delegate int ComponentChanged(IComponent comp, Entity entity);
