@@ -10,8 +10,11 @@ namespace RocketWorks.Entities
         public delegate void TriggerStarted(TriggerBase trigger);
         public delegate void EntityEvent(Entity ent);
 
+        [field: NonSerialized]
         public event ComponentChanged CompositionChangeEvent;
+        [field: NonSerialized]
         public event TriggerStarted TriggerEvent;
+        [field: NonSerialized]
         public event EntityEvent DestroyEvent;
 
         private bool enabled;

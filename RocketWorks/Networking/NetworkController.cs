@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using RocketWorks.Pooling;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -21,6 +23,14 @@ namespace RocketWorks.Networking
 
         private List<int> connectedClients = new List<int>();
 
+        public Action<int> OnUserConnected = delegate { };
+
+        private EntityPool entityPool;
+        public EntityPool EntityPool
+        {
+            set { entityPool = value; }
+        }
+
         public void Init(bool host)
         {
             this.host = host;
@@ -36,6 +46,8 @@ namespace RocketWorks.Networking
             else
                 socketId = NetworkTransport.AddHost(topology);
             Debug.Log("Socket Open. SocketId is: " + socketId);
+
+            Connect();
         }
 
         public void Connect()
@@ -43,28 +55,28 @@ namespace RocketWorks.Networking
             byte error;
             connectionId = NetworkTransport.Connect(socketId, "127.0.0.1", socketPort, 0, out error);
             Debug.Log("Connected to server. ConnectionId: " + connectionId);
+
+            OnUserConnected(connectionId);
         }
 
-        public void SendSocketMessage(ICommand command)
+        public void SendSocketMessage(ICommand<EntityPool> command)
         {
             byte error;
-            byte[] buffer = new byte[1024];
+            byte[] buffer = new byte[512];
             Stream stream = new MemoryStream(buffer);
             BinaryFormatter formatter = new BinaryFormatter();
             formatter.Serialize(stream, command);
-
-            int bufferSize = 1024;
 
             if (host)
             {
                 for (int i = 0; i < connectedClients.Count; i++)
                 {
-                    NetworkTransport.Send(socketId, connectedClients[i], myReliableChannelId, buffer, bufferSize, out error);
+                    NetworkTransport.Send(socketId, connectedClients[i], myReliableChannelId, buffer, buffer.Length, out error);
                 }
             }
             else
             {
-                NetworkTransport.Send(socketId, connectionId, myReliableChannelId, buffer, bufferSize, out error);
+                NetworkTransport.Send(socketId, connectionId, myReliableChannelId, buffer, buffer.Length, out error);
             }
         }
     
@@ -78,6 +90,8 @@ namespace RocketWorks.Networking
             int dataSize;
             byte error;
             NetworkEventType recNetworkEvent = NetworkTransport.Receive(out recHostId, out recConnectionId, out recChannelId, recBuffer, bufferSize, out dataSize, out error);
+            if (recConnectionId == connectionId)
+                return;
             switch (recNetworkEvent)
             {
                 case NetworkEventType.Nothing:
@@ -92,10 +106,10 @@ namespace RocketWorks.Networking
                 case NetworkEventType.DataEvent:
                     Stream stream = new MemoryStream(recBuffer);
                     BinaryFormatter formatter = new BinaryFormatter();
-                    ICommand message = formatter.Deserialize(stream) as ICommand;
+                    ICommand<EntityPool> message = formatter.Deserialize(stream) as ICommand<EntityPool>;
                     if (message != null)
                     {
-                        //message.Execute(gameController);
+                        message.Execute(entityPool);
                     }
                     Debug.Log("incoming message event received: " + message);
                     break;
