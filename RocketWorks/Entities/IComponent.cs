@@ -1,7 +1,4 @@
-﻿using UnityEngine;
-using System.Collections;
-
-namespace RocketWorks.Entities
+﻿namespace RocketWorks.Entities
 {
     public interface IComponent
     {
