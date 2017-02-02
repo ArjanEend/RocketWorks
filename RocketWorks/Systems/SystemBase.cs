@@ -10,6 +10,12 @@ namespace RocketWorks.Systems
     {
         protected List<Group> groups = new List<Group>();
 
+        protected float tickRate = 0f;
+        public float TickRate
+        {
+            get { return tickRate; }
+        }
+
         public abstract void Initialize(EntityPool pool);
         public abstract void Execute();
         public abstract void Destroy();

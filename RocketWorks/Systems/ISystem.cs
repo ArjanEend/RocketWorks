@@ -7,5 +7,6 @@ namespace RocketWorks.Systems
         void Initialize(EntityPool pool);
         void Execute();
         void Destroy();
+        float TickRate { get; }
     }
 }

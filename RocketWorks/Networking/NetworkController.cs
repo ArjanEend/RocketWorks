@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using RocketWorks.Pooling;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -45,7 +46,7 @@ namespace RocketWorks.Networking
             Debug.Log("Connected to server. ConnectionId: " + connectionId);
         }
 
-        public void SendSocketMessage(ICommand command)
+        public void SendSocketMessage(ICommand<EntityPool> command)
         {
             byte error;
             byte[] buffer = new byte[1024];
