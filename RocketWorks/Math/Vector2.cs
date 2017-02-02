@@ -91,7 +91,7 @@ namespace RocketWorks
             Vector2 other = (Vector2)obj;
             return other != null && Math.Abs(other.x - y) < Eps && Math.Abs(other.y - y) < Eps;
         }
-        public float Dot(Vector2 other)
+        public float DotPerp(Vector2 other)
         {
             return x * other.x + y * other.y;
         }
@@ -103,7 +103,7 @@ namespace RocketWorks
 
             Vector2 difference = other - this;
 
-            float t = difference.Perp(otherMovement) / movement.Perp(otherMovement);
+            float t = difference.DotPerp(otherMovement) / movement.Perp(otherMovement);
 
             return new Vector2(x + movement.x * t, y + movement.y * t);
         }
