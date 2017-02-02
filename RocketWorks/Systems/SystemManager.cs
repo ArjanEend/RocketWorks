@@ -37,6 +37,7 @@ namespace RocketWorks.Systems
 
         public void UpdateSystems()
         {
+            Console.WriteLine("Updating systems");
             for(int i = 0; i < systems.Count; i++)
             {
                 if(storedDelays[systems[i]] <= 0f)

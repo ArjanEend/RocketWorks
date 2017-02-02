@@ -67,6 +67,13 @@ namespace RocketWorks.Pooling
             entity.CompositionChangeEvent += OnCompositionChanged;
             entity.TriggerEvent += OnTriggerAdded;
             entity.DestroyEvent += OnEntityDestroyed;
+            foreach (KeyValuePair<int, Group> group in typeGroups)
+            {
+                if (group.Value.HasComponents(entity.Composition))
+                {
+                    group.Value.AddEntity(entity);
+                }
+            }
         }
 
         public override Entity GetObject()

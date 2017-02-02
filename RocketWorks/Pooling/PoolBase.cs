@@ -1,6 +1,5 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace RocketWorks.Pooling
 {
@@ -43,7 +42,6 @@ namespace RocketWorks.Pooling
             }
             if (flexible)
             {
-                Debug.Log("[PoolBase] flexible, spawning new object: " + typeof(T).ToString());
                 T value = CreateObject();
                 activeObjects.Add(value);
                 return value;
@@ -71,7 +69,7 @@ namespace RocketWorks.Pooling
 
         protected virtual T CreateObject()
         {
-            Debug.LogWarning("PoolBase can't create objects");
+            throw new Exception("Poolbase can't create objects");
             return default(T);
         }
     }

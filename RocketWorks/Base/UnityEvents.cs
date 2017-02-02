@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿#if UNITY
+using UnityEngine;
 using System;
 
 namespace RocketWorks.Base
@@ -22,3 +23,4 @@ namespace RocketWorks.Base
 
     }
 }
+#endif

@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+﻿#if UNITY_5_3_5
+using UnityEngine;
 
-#if UNITY_5_3_5
+
 namespace RocketWorks.Loading
 {
     public class WaitForLoad : CustomYieldInstruction
