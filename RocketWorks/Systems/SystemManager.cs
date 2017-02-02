@@ -30,8 +30,7 @@ namespace RocketWorks.Systems
 
         public void UpdateSystems()
         {
-            Console.WriteLine("Updating systems");
-            for(int i = 0; i < systems.Count; i++)
+            for (int i = 0; i < systems.Count; i++)
             {
                 systems[i].Execute();
             }

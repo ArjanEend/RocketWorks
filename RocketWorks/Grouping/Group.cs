@@ -68,6 +68,8 @@ namespace RocketWorks.Grouping
 
         public void AddEntity(Entity entity)
         {
+            if (entities.Contains(entity))
+                return;
             entities.Add(entity);
             newEntities.Add(entity);
         }

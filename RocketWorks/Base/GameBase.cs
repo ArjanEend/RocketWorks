@@ -16,33 +16,11 @@ namespace RocketWorks.Base
         {
             entityPool = new EntityPool(typeof(PlayerIdComponent), typeof(MessageComponent));
             systemManager = new SystemManager(entityPool);
+        }
 
-            float limitFrameTime = 1000f / 60f;
-#if !UNITY
-            do
-            {
-                Stopwatch FPSTimer = Stopwatch.StartNew();
-                while (!Console.KeyAvailable)
-                {
-                    //Start of Tick
-                    Stopwatch SW = Stopwatch.StartNew();
-
-                    //The Actual Tick
-                    systemManager.UpdateSystems();
-
-                    //End of Tick
-                    SW.Stop();
-                    if (SW.Elapsed.TotalMilliseconds < limitFrameTime)
-                    {
-                        Thread.Sleep(Convert.ToInt32(limitFrameTime - SW.Elapsed.TotalMilliseconds));
-                    }
-                    else
-                    {
-                        Thread.Yield();
-                    }
-                }
-            } while (true);
-#endif
+        public virtual void UpdateGame()
+        {
+            systemManager.UpdateSystems();
         }
     }
 }
