@@ -9,8 +9,7 @@ using RocketWorks.Commands;
 
 namespace RocketWorks.Networking
 {
-
-    public class NetSockets
+    public class SocketController
     {
         bool socketReady = false;
         
@@ -32,7 +31,7 @@ namespace RocketWorks.Networking
             get { return userId; }
         }
 
-        public NetSockets(Commander commander)
+        public SocketController(Commander commander)
         {
             connectedClients = new List<Socket>();
             streams = new Dictionary<Socket, NetworkStream>();
@@ -47,7 +46,7 @@ namespace RocketWorks.Networking
                 IPAddress ipAddress = IPAddress.Parse(Host);
                 IPEndPoint localEndPoint = new IPEndPoint(ipAddress, Port);
 
-                socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
+                socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 if (server)
                 {
                     socket.Bind(localEndPoint);

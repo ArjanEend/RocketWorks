@@ -1,11 +1,17 @@
 ﻿using UnityEngine;
 using System.Collections;
 using RocketWorks.Pooling;
+using System;
 
 namespace RocketWorks.Systems
 {
     public abstract class UnitySystemBase : MonoBehaviour, ISystem
     {
+        public float TickRate
+        {
+            get{ return 0f; }
+        }
+
         public static T Initialize<T>(EntityPool pool) where T : UnitySystemBase
         {
             string className = typeof(T).Name;
