@@ -5,6 +5,7 @@ using System.Text;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Net;
 using System.Collections.Generic;
+using RocketWorks.Commands;
 
 namespace RocketWorks.Networking
 {
@@ -12,12 +13,12 @@ namespace RocketWorks.Networking
     public class NetSockets
     {
         bool socketReady = false;
-
-        // Server code
+        
         private Socket socket;
         private Socket connection;
         private List<Socket> connectedClients;
         private Dictionary<Socket, NetworkStream> streams;
+        private Commander commander;
 
         private NetworkStream stream;
         private BinaryFormatter formatter;
@@ -25,13 +26,21 @@ namespace RocketWorks.Networking
         private string Host = "127.0.0.1";
         private int Port = 8000;
 
-        public NetSockets()
+        private int userId = 0;
+        public int UserId
+        {
+            get { return userId; }
+        }
+
+        public NetSockets(Commander commander)
         {
             connectedClients = new List<Socket>();
             streams = new Dictionary<Socket, NetworkStream>();
+            this.commander = commander;
+            userId = new Random(DateTime.Now.Millisecond).Next(100);
         }
 
-        public void SetupSocket()
+        public void SetupSocket(bool server = true)
         {
             try
             {
@@ -39,10 +48,17 @@ namespace RocketWorks.Networking
                 IPEndPoint localEndPoint = new IPEndPoint(ipAddress, Port);
 
                 socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
-                socket.Bind(localEndPoint);
-                socket.Listen(10);
-
-                WaitForConnection(socket);
+                if (server)
+                {
+                    socket.Bind(localEndPoint);
+                    socket.Listen(10);
+                    WaitForConnection(socket);
+                } else
+                {
+                    socket.Connect(localEndPoint);
+                    connectedClients.Add(socket);
+                    streams.Add(socket, new NetworkStream(socket));
+                }
 
                 formatter = new BinaryFormatter();
 
@@ -61,8 +77,9 @@ namespace RocketWorks.Networking
 
         private void OnNewConnection(IAsyncResult ar)
         {
-            connectedClients.Add(socket.EndAccept(ar));
-            streams.Add(socket, new NetworkStream(socket));
+            Socket newSocket = socket.EndAccept(ar);
+            connectedClients.Add(newSocket);
+            streams.Add(newSocket, new NetworkStream(newSocket));
             WaitForConnection(socket);
             Console.WriteLine("New connection accepted");
         }
@@ -101,7 +118,9 @@ namespace RocketWorks.Networking
 
             if (stream.DataAvailable)
             {
-                Console.WriteLine(formatter.Deserialize(stream).ToString());
+                ICommand command = formatter.Deserialize(stream) as ICommand;
+                if(command != null)
+                    commander.Execute(command);
                 stream.Close();
                 streams[socket] = new NetworkStream(socket);
             }

@@ -35,7 +35,7 @@ namespace RocketWorks.Systems
             }
         }
 
-        public void UpdateSystems()
+        public void UpdateSystems(float deltaTime)
         {
             for (int i = 0; i < systems.Count; i++)
             {
@@ -44,7 +44,7 @@ namespace RocketWorks.Systems
                     storedDelays[systems[i]] = systems[i].TickRate;
                     systems[i].Execute();
                 }
-                storedDelays[systems[i]] -= UnityEngine.Time.deltaTime;
+                storedDelays[systems[i]] -= deltaTime;
             }
         }
     }

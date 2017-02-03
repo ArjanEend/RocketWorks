@@ -1,10 +1,11 @@
-﻿using RocketWorks.Entities;
+﻿using System;
+using RocketWorks.Entities;
 using RocketWorks.Pooling;
 
-namespace RocketWorks.Networking
+namespace RocketWorks.Commands
 {
-    [System.Serializable]
-    public class CreateEntityCommand : ICommand<EntityPool>
+    [Serializable]
+    public class CreateEntityCommand : CommandBase<EntityPool>
     {
         private Entity entity;
 
@@ -13,7 +14,7 @@ namespace RocketWorks.Networking
             this.entity = entity;
         }
 
-        public void Execute(EntityPool target)
+        public override void Execute(EntityPool target)
         {
             target.AddEntity(entity);
         }

@@ -6,6 +6,6 @@ namespace RocketWorks.Systems
     {
         void AddSystem(ISystem system);
         void RemoveSystem(ISystem system);
-        void UpdateSystems();
+        void UpdateSystems(float deltaTime);
     }
 }

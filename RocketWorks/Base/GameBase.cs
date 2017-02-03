@@ -18,9 +18,9 @@ namespace RocketWorks.Base
             systemManager = new SystemManager(entityPool);
         }
 
-        public virtual void UpdateGame()
+        public virtual void UpdateGame(float deltaTime)
         {
-            systemManager.UpdateSystems();
+            systemManager.UpdateSystems(deltaTime);
         }
     }
 }
