@@ -23,7 +23,7 @@ namespace RocketWorks.Networking
         private BinaryFormatter formatter;
 
         private string Host = "127.0.0.1";
-        private int Port = 8000;
+        private int Port = 9001;
 
         private int userId = 0;
         public int UserId
@@ -117,7 +117,7 @@ namespace RocketWorks.Networking
 
             if (stream.DataAvailable)
             {
-                ICommand command = formatter.Deserialize(stream) as ICommand;
+                ICommand command = formatter.UnsafeDeserialize(stream, null) as ICommand;
                 if(command != null)
                     commander.Execute(command);
                 stream.Close();
