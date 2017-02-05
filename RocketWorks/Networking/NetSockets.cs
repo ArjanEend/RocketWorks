@@ -6,6 +6,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Net;
 using System.Collections.Generic;
 using RocketWorks.Commands;
+using RocketWorks.Serialization;
 
 namespace RocketWorks.Networking
 {
@@ -60,6 +61,7 @@ namespace RocketWorks.Networking
                 }
 
                 formatter = new BinaryFormatter();
+                formatter.Binder = new UnityBinder();
 
                 socketReady = true;
             }
@@ -85,6 +87,7 @@ namespace RocketWorks.Networking
 
         public void WriteSocket<T>(ICommand<T> command)
         {
+            Console.WriteLine(command.GetType().AssemblyQualifiedName);
             if (!socketReady)
                 return;
 
