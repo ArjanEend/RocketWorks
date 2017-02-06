@@ -15,7 +15,6 @@ namespace RocketWorks.Networking
         bool socketReady = false;
         
         private Socket socket;
-        private Socket connection;
         private List<Socket> connectedClients;
         private Dictionary<Socket, NetworkStream> streams;
         private Commander commander;
@@ -23,14 +22,13 @@ namespace RocketWorks.Networking
         private NetworkStream stream;
         private BinaryFormatter formatter;
 
-        private string Host = "127.0.0.1";
-        private int Port = 9001;
-
         private int userId = 0;
         public int UserId
         {
             get { return userId; }
         }
+
+        public Action<uint> UserConnectedEvent = delegate { };
 
         public SocketController(Commander commander)
         {
@@ -40,24 +38,18 @@ namespace RocketWorks.Networking
             userId = new Random(DateTime.Now.Millisecond).Next(100);
         }
 
-        public void SetupSocket(bool server = true)
+        public void SetupSocket(bool server = true, int port = 9001)
         {
             try
             {
-                IPAddress ipAddress = IPAddress.Parse(Host);
-                IPEndPoint localEndPoint = new IPEndPoint(ipAddress, Port);
-
                 socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 if (server)
                 {
+                    IPAddress ipAddress = IPAddress.Parse("127.0.0.1");
+                    IPEndPoint localEndPoint = new IPEndPoint(ipAddress, port);
                     socket.Bind(localEndPoint);
                     socket.Listen(10);
                     WaitForConnection(socket);
-                } else
-                {
-                    socket.Connect(localEndPoint);
-                    connectedClients.Add(socket);
-                    streams.Add(socket, new NetworkStream(socket));
                 }
 
                 formatter = new BinaryFormatter();
@@ -69,6 +61,16 @@ namespace RocketWorks.Networking
             {
                 Console.WriteLine("Socket error:" + e);
             }
+        }
+
+        public void Connect(string ip, int port)
+        {
+            IPAddress ipAddress = IPAddress.Parse(ip);
+            IPEndPoint localEndPoint = new IPEndPoint(ipAddress, port);
+
+            socket.Connect(localEndPoint);
+            connectedClients.Add(socket);
+            streams.Add(socket, new NetworkStream(socket));
         }
 
         private void WaitForConnection(Socket socket)
@@ -83,6 +85,8 @@ namespace RocketWorks.Networking
             streams.Add(newSocket, new NetworkStream(newSocket));
             WaitForConnection(socket);
             Console.WriteLine("New connection accepted");
+
+            UserConnectedEvent((uint)connectedClients.Count - 1);
         }
 
         public void WriteSocket<T>(ICommand<T> command)

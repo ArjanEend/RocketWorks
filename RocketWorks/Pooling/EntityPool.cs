@@ -12,6 +12,8 @@ namespace RocketWorks.Pooling
 
         private Dictionary<Type, Action<TriggerBase>> triggers = new Dictionary<Type, Action<TriggerBase>>();
 
+        private int creationCount;
+
         private Dictionary<int, Group> typeGroups = new Dictionary<int, Group>();
         private List<Group> groupList = new List<Group>();
         private Dictionary<Type, int> components = new Dictionary<Type, int>();
@@ -55,7 +57,7 @@ namespace RocketWorks.Pooling
 
         protected override Entity CreateObject()
         {
-            Entity entity = new Entity(components.Count);
+            Entity entity = new Entity(creationCount++, components.Count);
             entity.CompositionChangeEvent += OnCompositionChanged;
             entity.TriggerEvent += OnTriggerAdded;
             entity.DestroyEvent += OnEntityDestroyed;
