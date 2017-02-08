@@ -4,6 +4,11 @@ using System.Diagnostics;
 using System;
 using System.Threading;
 
+#if UNITY_EDITOR || UNITY_STANDALONE
+using UnityEngine;
+using RocketWorks.Scene;
+#endif
+
 namespace RocketWorks.Base
 {
     public abstract class GameBase
@@ -23,16 +28,13 @@ namespace RocketWorks.Base
             systemManager.UpdateSystems(deltaTime);
         }
     }
-}
-#if UNITY
-    using UnityEngine;
-    using RocketWorks.Scene;
 
+#if UNITY_EDITOR || UNITY_STANDALONE
     public abstract class UnityGameBase : GameBase
     {
         protected SceneHandler sceneHandler;
 
-        public UnityGameBase : base()
+        public UnityGameBase(): base()
         {
             sceneHandler = UnitySystemBase.Initialize<SceneHandler>(entityPool);
             systemManager.AddSystem(sceneHandler);
@@ -41,4 +43,6 @@ namespace RocketWorks.Base
             events.OnUpdate += systemManager.UpdateSystems;
         }
     }
+
 #endif
+}

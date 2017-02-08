@@ -5,7 +5,7 @@ namespace RocketWorks.Commands
 {
     public class Commander
     {
-        private Dictionary<Type, object> typeBindings;
+        protected Dictionary<Type, object> typeBindings;
         
         public Commander()
         {
@@ -23,6 +23,15 @@ namespace RocketWorks.Commands
             if (typeBindings.ContainsKey(type))
                 command.Execute(typeBindings[type]);
         }
+    }
 
+    public class NetworkCommander : Commander
+    {
+        public void Execute(INetworkCommand command, uint uid)
+        {
+            Type type = command.targetType;
+            if (typeBindings.ContainsKey(type))
+                command.Execute(typeBindings[type], uid);
+        }
     }
 }

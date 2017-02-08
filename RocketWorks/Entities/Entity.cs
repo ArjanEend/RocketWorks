@@ -17,10 +17,17 @@ namespace RocketWorks.Entities
         [field: NonSerialized]
         public event EntityEvent DestroyEvent;
 
-        private int creationIndex;
-        public int CreationIndex
+        private uint creationIndex;
+        public uint CreationIndex
         {
             get { return creationIndex; }
+        }
+
+        private uint owner = 0;
+        public uint Owner
+        {
+            get { return owner; }
+            set { owner = value; }
         }
 
         private bool enabled;
@@ -44,11 +51,11 @@ namespace RocketWorks.Entities
         }
 
         public Entity() { }
-        public Entity(int creationIndex)
+        public Entity(uint creationIndex)
         {
             this.creationIndex = creationIndex;
         }
-        public Entity(int creationIndex, int totalComponents) : this(creationIndex)
+        public Entity(uint creationIndex, int totalComponents) : this(creationIndex)
         {
 			components = new IComponent[totalComponents];
             composition = 0;

@@ -5,6 +5,7 @@ namespace RocketWorks.Pooling
 {
     public class PoolBase<T> {
         protected bool flexible = true;
+        
         protected List<T> activeObjects;
         protected List<T> idleObjects;
 

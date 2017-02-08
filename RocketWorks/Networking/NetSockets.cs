@@ -17,9 +17,8 @@ namespace RocketWorks.Networking
         private Socket socket;
         private List<Socket> connectedClients;
         private Dictionary<Socket, NetworkStream> streams;
-        private Commander commander;
-
-        private NetworkStream stream;
+        private NetworkCommander commander;
+        
         private BinaryFormatter formatter;
 
         private int userId = 0;
@@ -30,7 +29,7 @@ namespace RocketWorks.Networking
 
         public Action<uint> UserConnectedEvent = delegate { };
 
-        public SocketController(Commander commander)
+        public SocketController(NetworkCommander commander)
         {
             connectedClients = new List<Socket>();
             streams = new Dictionary<Socket, NetworkStream>();
@@ -124,9 +123,10 @@ namespace RocketWorks.Networking
 
             if (stream.DataAvailable)
             {
-                ICommand command = formatter.UnsafeDeserialize(stream, null) as ICommand;
+                INetworkCommand command = formatter.UnsafeDeserialize(stream, null) as INetworkCommand;
                 if(command != null)
-                    commander.Execute(command);
+                    commander.Execute(command, 
+                        (uint)connectedClients.IndexOf(socket) + 1);
                 stream.Close();
                 streams[socket] = new NetworkStream(socket);
             }
@@ -138,14 +138,6 @@ namespace RocketWorks.Networking
                 return;
             socket.Close();
             socketReady = false;
-        }
-
-        public void MaintainConnection()
-        {
-            if (!stream.CanRead)
-            {
-                SetupSocket();
-            }
         }
     }
 }

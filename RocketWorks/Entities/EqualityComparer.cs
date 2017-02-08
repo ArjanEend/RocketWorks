@@ -5,7 +5,7 @@ namespace RocketWorks.Entities
 
     public class EntityEqualityComparer : IEqualityComparer<Entity>
     {
-        public static readonly IEqualityComparer<Entity> comparer = new EntityEqualityComparer<Entity>();
+        public static readonly IEqualityComparer<Entity> comparer = new EntityEqualityComparer();
 
         public bool Equals(Entity x, Entity y)
         {
@@ -14,7 +14,7 @@ namespace RocketWorks.Entities
 
         public int GetHashCode(Entity obj)
         {
-            return obj.CreationIndex;
+            return (int)obj.CreationIndex;
         }
     }
 }

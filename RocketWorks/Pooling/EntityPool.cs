@@ -12,7 +12,9 @@ namespace RocketWorks.Pooling
 
         private Dictionary<Type, Action<TriggerBase>> triggers = new Dictionary<Type, Action<TriggerBase>>();
 
-        private int creationCount;
+        private uint creationCount;
+
+        private Dictionary<uint, HashSet<Entity>> statedObjects = new Dictionary<uint, HashSet<Entity>>();
 
         private Dictionary<int, Group> typeGroups = new Dictionary<int, Group>();
         private List<Group> groupList = new List<Group>();
@@ -22,6 +24,7 @@ namespace RocketWorks.Pooling
         public EntityPool(params Type[] types)
         {
             int componentIndices = 0;
+            statedObjects.Add(0, new HashSet<Entity>());
             for (int i = 0; i < types.Length; i++)
             {
                 components.Add(types[i], componentIndices);
@@ -64,8 +67,20 @@ namespace RocketWorks.Pooling
             return entity;
         }
 
-        public void AddEntity(Entity entity)
+        protected Entity CreateObject(bool stated)
         {
+            Entity entity = CreateObject();
+            return entity;
+        }
+
+        public void AddEntity(Entity entity, uint uid = 0)
+        {
+            if (!statedObjects.ContainsKey(uid))
+                statedObjects.Add(uid, new HashSet<Entity>());
+            if (statedObjects[uid].Contains(entity))
+                return;
+
+            statedObjects[uid].Add(entity);
             entity.CompositionChangeEvent += OnCompositionChanged;
             entity.TriggerEvent += OnTriggerAdded;
             entity.DestroyEvent += OnEntityDestroyed;
@@ -78,9 +93,11 @@ namespace RocketWorks.Pooling
             }
         }
 
-        public override Entity GetObject()
+        public Entity GetObject(bool stated = false)
         {
             Entity ent = base.GetObject();
+            if (stated)
+                statedObjects[0].Add(ent);
             return ent;
         }
 
