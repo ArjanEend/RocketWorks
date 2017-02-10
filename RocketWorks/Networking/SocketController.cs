@@ -101,11 +101,17 @@ namespace RocketWorks.Networking
                     RemoveConnection(i);
                     continue;
                 }
-                NetworkStream writeStream = new NetworkStream(connectedClients[i]);
+                try
+                {
+                    NetworkStream writeStream = new NetworkStream(connectedClients[i]);
 
-                formatter.Serialize(writeStream, command);
-                writeStream.Close();
-                writeStream = null;
+                    formatter.Serialize(writeStream, command);
+                    writeStream.Close();
+                    writeStream = null;
+                } catch
+                {
+                    RemoveConnection(i);
+                }
             }
         }
 
