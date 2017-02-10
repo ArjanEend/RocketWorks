@@ -94,16 +94,25 @@ namespace RocketWorks.Networking
             if (!socketReady)
                 return;
 
-            for (int i = 0; i < connectedClients.Count; i++)
+            for (int i = connectedClients.Count - 1; i >= 0; i--)
             {
                 if (!connectedClients[i].Connected)
+                {
+                    RemoveConnection(i);
                     continue;
+                }
                 NetworkStream writeStream = new NetworkStream(connectedClients[i]);
 
                 formatter.Serialize(writeStream, command);
                 writeStream.Close();
                 writeStream = null;
             }
+        }
+
+        public void RemoveConnection(int index)
+        {
+            connectedClients[index].Close();
+            connectedClients.RemoveAt(index);
         }
 
         public void Update()
