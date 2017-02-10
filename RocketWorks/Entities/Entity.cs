@@ -21,6 +21,7 @@ namespace RocketWorks.Entities
         public uint CreationIndex
         {
             get { return creationIndex; }
+            set { creationIndex = value; }
         }
 
         private uint owner = 0;

@@ -16,7 +16,7 @@ namespace RocketWorks.Commands
 
         public override void Execute(EntityPool target, uint uid)
         {
-            target.AddEntity(entity, uid);
+            target.AddEntity(entity, uid, uid == 1);
         }
     }
 }

@@ -73,12 +73,18 @@ namespace RocketWorks.Pooling
             return entity;
         }
 
-        public void AddEntity(Entity entity, uint uid = 0)
+        public void AddEntity(Entity entity, uint uid = 0, bool rewriteIndex = false)
         {
             if (!statedObjects.ContainsKey(uid))
                 statedObjects.Add(uid, new HashSet<Entity>());
             if (statedObjects[uid].Contains(entity))
-                return;
+            {
+                if(rewriteIndex)
+                {
+                    entity.CreationIndex = creationCount++;
+                } else
+                    return;
+            }
 
             statedObjects[uid].Add(entity);
             entity.CompositionChangeEvent += OnCompositionChanged;
@@ -106,6 +112,11 @@ namespace RocketWorks.Pooling
             foreach (KeyValuePair<int, Group> group in typeGroups)
             {
                 group.Value.RemoveEntity(ent);
+            }
+            foreach (var kv in statedObjects)
+            {
+                if (kv.Value.Contains(ent))
+                    kv.Value.Remove(ent);
             }
         }
 
