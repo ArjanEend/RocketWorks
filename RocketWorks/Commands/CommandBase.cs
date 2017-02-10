@@ -23,6 +23,7 @@ namespace RocketWorks.Commands
         }
     }
 
+    [Serializable]
     public abstract class NetworkCommandBase<T> : CommandBase<T>, INetworkCommand<T>
     {
         public abstract void Execute(T target, uint uid);
