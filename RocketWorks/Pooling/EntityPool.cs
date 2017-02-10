@@ -76,7 +76,7 @@ namespace RocketWorks.Pooling
         public void AddEntity(Entity entity, uint uid = 0, bool rewriteIndex = false)
         {
             if (!statedObjects.ContainsKey(uid))
-                statedObjects.Add(uid, new HashSet<Entity>());
+                statedObjects.Add(uid, new HashSet<Entity>(EntityEqualityComparer.comparer));
             if (statedObjects[uid].Contains(entity))
             {
                 if(rewriteIndex)

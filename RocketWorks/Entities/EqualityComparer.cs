@@ -9,7 +9,7 @@ namespace RocketWorks.Entities
 
         public bool Equals(Entity x, Entity y)
         {
-            return x == y;
+            return GetHashCode(x) == GetHashCode(y);
         }
 
         public int GetHashCode(Entity obj)

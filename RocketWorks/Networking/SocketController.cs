@@ -96,6 +96,8 @@ namespace RocketWorks.Networking
 
             for (int i = 0; i < connectedClients.Count; i++)
             {
+                if (!connectedClients[i].Connected)
+                    continue;
                 NetworkStream writeStream = new NetworkStream(connectedClients[i]);
 
                 formatter.Serialize(writeStream, command);
