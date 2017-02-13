@@ -16,7 +16,7 @@ namespace RocketWorks.Scene
 
         public SceneBase()
         {
-            Debug.Log("New [Scene]");
+            RocketLog.Log("Constructor", this );
             onPause = delegate { };
 
             paused = false;

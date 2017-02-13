@@ -15,7 +15,7 @@ namespace RocketWorks.Systems
         public static T Initialize<T>(EntityPool pool) where T : UnitySystemBase
         {
             string className = typeof(T).Name;
-            Debug.LogFormat("New [{0}]", className);
+            RocketLog.LogFormat("New [{0}]", null, className);
             GameObject go = new GameObject(string.Format("[{0}]", className));
             T instance = go.AddComponent<T>();
             DontDestroyOnLoad(go);

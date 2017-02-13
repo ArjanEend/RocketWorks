@@ -58,7 +58,7 @@ namespace RocketWorks.Networking
             }
             catch (Exception e)
             {
-                Console.WriteLine("Socket error:" + e);
+                RocketLog.Log("Socket error:" + e, this);
             }
         }
 
@@ -83,14 +83,14 @@ namespace RocketWorks.Networking
             connectedClients.Add(newSocket);
             streams.Add(newSocket, new NetworkStream(newSocket));
             WaitForConnection(socket);
-            Console.WriteLine("New connection accepted");
+            RocketLog.Log("New connection accepted", this);
 
             UserConnectedEvent((uint)connectedClients.Count - 1);
         }
 
         public void WriteSocket<T>(ICommand<T> command)
         {
-            Console.WriteLine(command.GetType().AssemblyQualifiedName);
+            RocketLog.Log(command.GetType().AssemblyQualifiedName, this);
             if (!socketReady)
                 return;
 

@@ -3,6 +3,7 @@ using RocketWorks.Pooling;
 using System.Diagnostics;
 using System;
 using System.Threading;
+using Implementation.Components;
 
 #if UNITY_EDITOR || UNITY_STANDALONE
 using UnityEngine;
@@ -19,7 +20,7 @@ namespace RocketWorks.Base
 
         public GameBase()
         {
-            entityPool = new EntityPool(typeof(PlayerIdComponent), typeof(MessageComponent));
+            entityPool = new EntityPool(typeof(PlayerIdComponent), typeof(MessageComponent), typeof(VisualizationComponent), typeof(MovementComponent), typeof(TransformComponent));
             systemManager = new SystemManager(entityPool);
         }
 

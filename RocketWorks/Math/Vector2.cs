@@ -59,6 +59,11 @@ namespace RocketWorks
             return new Vector2(d * v.x, d * v.y);
         }
 
+        public static Vector2 operator *(Vector2 v, float d)
+        {
+            return new Vector2(v.x * d, v.y * d);
+        }
+
         public static bool operator ==(Vector2 a, Vector2 b)
         {
             if (ReferenceEquals(a, null))

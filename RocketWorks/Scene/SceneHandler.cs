@@ -23,7 +23,7 @@ namespace RocketWorks.Scene
         {
             stateMachine = new StateMachine<SceneHandler>(this);
 
-            Debug.Log("[SceneManager] Start");
+            RocketLog.Log("Start", this);
         }
 
         void Update()

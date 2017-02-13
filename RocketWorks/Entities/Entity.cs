@@ -77,6 +77,12 @@ namespace RocketWorks.Entities
             return this.composition == composition;
         }
 
+        public T AddComponent<T>() where T : IComponent, new()
+        {
+            T component = new T();
+            return AddComponent(component);
+        }
+
         public T AddComponent<T>(T component) where T : IComponent
         {
             if (CompositionChangeEvent == null)
