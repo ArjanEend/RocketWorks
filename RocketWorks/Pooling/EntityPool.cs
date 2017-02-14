@@ -14,7 +14,7 @@ namespace RocketWorks.Pooling
 
         private uint creationCount;
 
-        private Dictionary<uint, HashSet<Entity>> statedObjects = new Dictionary<uint, HashSet<Entity>>();
+        private Dictionary<uint, Dictionary<uint, Entity>> statedObjects = new Dictionary<uint, Dictionary<uint, Entity>>();
 
         private Dictionary<int, Group> typeGroups = new Dictionary<int, Group>();
         private List<Group> groupList = new List<Group>();
@@ -24,7 +24,7 @@ namespace RocketWorks.Pooling
         public EntityPool(params Type[] types)
         {
             int componentIndices = 0;
-            statedObjects.Add(0, new HashSet<Entity>());
+            statedObjects.Add(0, new Dictionary<uint, Entity>());
             for (int i = 0; i < types.Length; i++)
             {
                 components.Add(types[i], componentIndices);
@@ -76,8 +76,8 @@ namespace RocketWorks.Pooling
         public void AddEntity(Entity entity, uint uid = 0, bool rewriteIndex = false)
         {
             if (!statedObjects.ContainsKey(uid))
-                statedObjects.Add(uid, new HashSet<Entity>(EntityEqualityComparer.comparer));
-            if (statedObjects[uid].Contains(entity))
+                statedObjects.Add(uid, new Dictionary<uint, Entity>());
+            if (statedObjects[uid].ContainsKey(entity.CreationIndex))
             {
                 if(rewriteIndex)
                 {
@@ -86,7 +86,7 @@ namespace RocketWorks.Pooling
                     return;
             }
 
-            statedObjects[uid].Add(entity);
+            statedObjects[uid].Add(entity.CreationIndex, entity);
             entity.CompositionChangeEvent += OnCompositionChanged;
             entity.TriggerEvent += OnTriggerAdded;
             entity.DestroyEvent += OnEntityDestroyed;
@@ -99,11 +99,16 @@ namespace RocketWorks.Pooling
             }
         }
 
+        public void ReplaceComponent(IComponent component, uint hash, uint uid = 0)
+        {
+            statedObjects[uid][hash].ReplaceComponent(component, components[component.GetType()]);
+        }
+
         public Entity GetObject(bool stated = false)
         {
             Entity ent = base.GetObject();
             if (stated)
-                statedObjects[0].Add(ent);
+                statedObjects[0].Add(ent.CreationIndex, ent);
             return ent;
         }
 
@@ -115,8 +120,8 @@ namespace RocketWorks.Pooling
             }
             foreach (var kv in statedObjects)
             {
-                if (kv.Value.Contains(ent))
-                    kv.Value.Remove(ent);
+                if (kv.Value.ContainsKey(ent.CreationIndex))
+                    kv.Value.Remove(ent.CreationIndex);
             }
         }
 

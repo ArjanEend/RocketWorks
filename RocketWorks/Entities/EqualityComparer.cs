@@ -12,6 +12,11 @@ namespace RocketWorks.Entities
             return GetHashCode(x) == GetHashCode(y);
         }
 
+        public bool Equals(Entity x, int y)
+        {
+            return GetHashCode(x) == y;
+        }
+
         public int GetHashCode(Entity obj)
         {
             return (int)obj.CreationIndex;

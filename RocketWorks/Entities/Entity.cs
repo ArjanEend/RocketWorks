@@ -122,5 +122,10 @@ namespace RocketWorks.Entities
             TriggerEvent = null;
             DestroyEvent = null;
         }
+
+        public void ReplaceComponent(IComponent component, int index)
+        {
+            components[index] = component;
+        }
     }
 }
