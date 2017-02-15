@@ -101,7 +101,12 @@ namespace RocketWorks.Pooling
 
         public void ReplaceComponent(IComponent component, uint hash, uint uid = 0)
         {
-            statedObjects[uid][hash].ReplaceComponent(component, components[component.GetType()]);
+            Dictionary<uint, Entity> coll = statedObjects[uid];
+           if(coll.ContainsKey(hash))
+            {
+                Entity ent = coll[hash];
+                ent.ReplaceComponent(component, components[component.GetType()]);
+            }
         }
 
         public Entity GetObject(bool stated = false)

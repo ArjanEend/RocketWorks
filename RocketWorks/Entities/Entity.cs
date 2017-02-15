@@ -24,7 +24,7 @@ namespace RocketWorks.Entities
             set { creationIndex = value; }
         }
 
-        private uint owner = 0;
+        /*private uint owner = 0;
         public uint Owner
         {
             get { return owner; }
@@ -35,14 +35,14 @@ namespace RocketWorks.Entities
         public bool Enabled
         {
             get { return enabled; }
-        }
-
+        }*/
+        
         private bool alive;
         public bool Alive
         {
             get { return alive; }
         }
-
+        
         private IComponent[] components;
 
         private int composition;
