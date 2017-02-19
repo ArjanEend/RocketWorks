@@ -1,7 +1,4 @@
-﻿#if UNITY
-using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System;
 using System.Text;
 
@@ -19,17 +16,17 @@ public class ClassBuilder
     {
         stringBuilder = new StringBuilder();
 
-        BuildImports(null);
+        BuildImports();
         BuildHeader("Generated", "GeneratedClass", "Object");
         BuildEnding();
-
-        Debug.Log(stringBuilder.ToString());
     }
 
-    private void BuildImports(string[] extras)
+    private void BuildImports(params string[] extras)
     {
-        stringBuilder.AppendLine("using UnityEngine;");
-        stringBuilder.AppendLine("using System.Collections;");
+        for(int i = 0; i < extras.Length; i++)
+        {
+            stringBuilder.AppendLine("using " + extras[i]);
+        }
     }
 
 
@@ -81,8 +78,4 @@ public class ClassBuilder
         stringBuilder.AppendLine("}");
         stringBuilder.AppendLine("}");
     }
-
-    
-
 }
-#endif
