@@ -18,19 +18,22 @@ namespace RocketWorks.Pooling
 
         private Dictionary<int, Group> typeGroups = new Dictionary<int, Group>();
         private List<Group> groupList = new List<Group>();
-        private Dictionary<Type, int> components = new Dictionary<Type, int>();
+        //private Dictionary<Type, int> components = new Dictionary<Type, int>();
         private Dictionary<int, PoolBase<IComponent>> pools = new Dictionary<int, PoolBase<IComponent>>();
 
-        public EntityPool(params Type[] types)
+        private ContextType contextCallback;
+
+        public EntityPool(ContextType contextFunction)
         {
-            int componentIndices = 0;
+            this.contextCallback = contextFunction;
+            //int componentIndices = 0;
             statedObjects.Add(0, new Dictionary<uint, Entity>());
-            for (int i = 0; i < types.Length; i++)
-            {
-                components.Add(types[i], componentIndices);
-                pools.Add(i, new PoolBase<IComponent>());
-                componentIndices++;
-            }
+            //for (int i = 0; i < types.Length; i++)
+            //{
+                //components.Add(types[i], componentIndices);
+            //    pools.Add(i, new PoolBase<IComponent>());
+            //    componentIndices++;
+            //}
         }
 
         public Group GetGroup(params Type[] types)
@@ -38,7 +41,7 @@ namespace RocketWorks.Pooling
             int bitMask = 0;
             for(int i = 0; i < types.Length; i++)
             {
-                bitMask |= 1 << components[types[i]];
+                bitMask |= 1 << contextCallback(types[i]);
             }
 
             if(typeGroups.ContainsKey(bitMask))
@@ -53,14 +56,9 @@ namespace RocketWorks.Pooling
             }
         }
 
-        public int GetIndexOf(Type type)
-        {
-            return components[type];
-        }
-
         protected override Entity CreateObject()
         {
-            Entity entity = new Entity(creationCount++, components.Count);
+            Entity entity = new Entity(creationCount++, 8);
             entity.CompositionChangeEvent += OnCompositionChanged;
             entity.TriggerEvent += OnTriggerAdded;
             entity.DestroyEvent += OnEntityDestroyed;

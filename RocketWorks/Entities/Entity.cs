@@ -6,7 +6,7 @@ namespace RocketWorks.Entities
     [Serializable]
     public class Entity : IPoolable
     {
-        public delegate int ComponentChanged(IComponent comp, Entity entity);
+        public delegate void ComponentChanged(IComponent comp, Entity entity);
         public delegate void TriggerStarted(TriggerBase trigger);
         public delegate void EntityEvent(Entity ent);
 
@@ -17,6 +17,10 @@ namespace RocketWorks.Entities
         [field: NonSerialized]
         public event EntityEvent DestroyEvent;
 
+        [field: NonSerialized]
+        private ContextType context;
+        public ContextType Context { set { context = value; } }
+
         private uint creationIndex;
         public uint CreationIndex
         {
@@ -24,7 +28,7 @@ namespace RocketWorks.Entities
             set { creationIndex = value; }
         }
 
-        /*private uint owner = 0;
+        private uint owner = 0;
         public uint Owner
         {
             get { return owner; }
@@ -35,7 +39,7 @@ namespace RocketWorks.Entities
         public bool Enabled
         {
             get { return enabled; }
-        }*/
+        }
         
         private bool alive;
         public bool Alive
@@ -87,7 +91,8 @@ namespace RocketWorks.Entities
         {
             if (CompositionChangeEvent == null)
                 return default(T);
-            int index = CompositionChangeEvent(component, this);
+            CompositionChangeEvent(component, this);
+            int index = context(typeof(T));
 			components[index] = component;
             composition |= 1 << index;
             return component;
