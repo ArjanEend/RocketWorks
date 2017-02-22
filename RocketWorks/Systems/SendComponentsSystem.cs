@@ -7,7 +7,7 @@ using RocketWorks.Commands;
 
 namespace RocketWorks.Systems
 {
-    public class SendComponentsSystem<T> : SystemBase where T : IComponent
+    public class SendComponentsSystem<T, S> : SystemBase where T : IComponent where S : EntityContext
     {
         private SocketController socket;
         private Group componentGroup;
@@ -19,10 +19,10 @@ namespace RocketWorks.Systems
             this.tickRate = .2f;
         }
 
-        public override void Initialize(EntityPool pool)
+        public override void Initialize(Contexts contexts)
         {
-            compId = pool.GetIndexOf(typeof(T));
-            componentGroup = pool.GetGroup(typeof(T));
+            compId = contexts.GetContext<S>().GetIndexOf(typeof(T));
+            componentGroup = contexts.GetContext<S>().Pool.GetGroup(typeof(T));
         }
 
         public override void Destroy()

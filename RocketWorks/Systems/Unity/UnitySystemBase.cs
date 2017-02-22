@@ -12,7 +12,7 @@ namespace RocketWorks.Systems
             get{ return 0f; }
         }
 
-        public static T Initialize<T>(EntityPool pool) where T : UnitySystemBase
+        public static T Initialize<T>(Contexts contexts) where T : UnitySystemBase
         {
             string className = typeof(T).Name;
             RocketLog.LogFormat("New [{0}]", null, className);
@@ -20,10 +20,10 @@ namespace RocketWorks.Systems
             T instance = go.AddComponent<T>();
             DontDestroyOnLoad(go);
             DontDestroyOnLoad(instance);
-            instance.Initialize(pool);
+            instance.Initialize(contexts);
             return instance;
         }
-        public abstract void Initialize(EntityPool pool);
+        public abstract void Initialize(Contexts contexts);
         public abstract void Execute();
         public abstract void Destroy();
     }

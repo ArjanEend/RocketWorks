@@ -14,7 +14,7 @@ namespace RocketWorks.Systems
             get { return tickRate; }
         }
 
-        public abstract void Initialize(EntityPool pool);
+        public abstract void Initialize(Contexts contexts);
         public abstract void Execute();
         public abstract void Destroy();
         public virtual void Cleanup()
@@ -27,11 +27,5 @@ namespace RocketWorks.Systems
             groups.Add(group);
             return group;
         }
-
-        //protected List<T> newList()
-      //  {
-
-       // }
-
     }
 }

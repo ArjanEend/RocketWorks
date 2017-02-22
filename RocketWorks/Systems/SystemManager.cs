@@ -6,22 +6,22 @@ namespace RocketWorks.Systems
 {
     public class SystemManager : ISystemManager
     {
-        private EntityPool pool;
+        private Contexts contexts;
 
         private List<ISystem> systems;
 
         private Dictionary<ISystem, float> storedDelays;
 
-        public SystemManager(EntityPool pool)
+        public SystemManager(Contexts contexts)
         {
-            this.pool = pool;
+            this.contexts = contexts;
             systems = new List<ISystem>();
             storedDelays = new Dictionary<ISystem, float>();
         }
 
         public void AddSystem(ISystem system)
         {
-            system.Initialize(pool);
+            system.Initialize(contexts);
             systems.Add(system);
             storedDelays.Add(system, 0f);
         }

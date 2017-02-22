@@ -14,7 +14,7 @@ namespace RocketWorks.Scene
 
         private StateMachine<SceneHandler> stateMachine;
 
-        public override void Initialize(EntityPool pool)
+        public override void Initialize(Contexts contexts)
         {
             
         }

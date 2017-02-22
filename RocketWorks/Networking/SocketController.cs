@@ -206,8 +206,9 @@ namespace RocketWorks.Networking
                 if (packets > 0)
                 {
                     MemoryStream mem = new MemoryStream(buffers[socket]);
-                    ICommand command = (ICommand)formatter.Deserialize(mem);
-                    commander.Execute(command);
+                    INetworkCommand command = (INetworkCommand)formatter.Deserialize(mem);
+                    //Add 1 to UID because 0 stands for local player
+                    commander.Execute(command, (uint)connectedClients.IndexOf(socket) + 1);
                 }
                 buffers[socket] = new byte[0];
             }

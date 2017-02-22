@@ -66,6 +66,11 @@ namespace RocketWorks.Entities
             composition = 0;
         }
 
+        public T GetComponent<T>() where T : IComponent
+        {
+            return (T)components[context(typeof(T))];
+        }
+
         public T GetComponent<T>(int i) where T : IComponent
         {
             return (T)components[i];
@@ -89,12 +94,11 @@ namespace RocketWorks.Entities
 
         public T AddComponent<T>(T component) where T : IComponent
         {
-            if (CompositionChangeEvent == null)
-                return default(T);
-            CompositionChangeEvent(component, this);
             int index = context(typeof(T));
-			components[index] = component;
+            components[index] = component;
             composition |= 1 << index;
+
+            CompositionChangeEvent(component, this);
             return component;
         }
 

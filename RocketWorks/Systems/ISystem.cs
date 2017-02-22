@@ -4,7 +4,7 @@ namespace RocketWorks.Systems
 {
     public interface ISystem
     {
-        void Initialize(EntityPool pool);
+        void Initialize(Contexts contexts);
         void Execute();
         void Destroy();
         float TickRate { get; }

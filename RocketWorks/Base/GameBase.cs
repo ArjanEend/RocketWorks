@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System;
 using System.Threading;
 using Implementation.Components;
+using Source.Implementation;
 
 #if UNITY_EDITOR || UNITY_STANDALONE
 using UnityEngine;
@@ -16,12 +17,12 @@ namespace RocketWorks.Base
     {
         protected SystemManager systemManager;
 
-        protected EntityPool entityPool;
+        protected Contexts contexts;
 
         public GameBase()
         {
-            entityPool = new EntityPool(typeof(PlayerIdComponent), typeof(MessageComponent), typeof(VisualizationComponent), typeof(MovementComponent), typeof(TransformComponent));
-            systemManager = new SystemManager(entityPool);
+            contexts = new Contexts();
+            systemManager = new SystemManager(contexts);
         }
 
         public virtual void UpdateGame(float deltaTime)
@@ -37,7 +38,7 @@ namespace RocketWorks.Base
 
         public UnityGameBase(): base()
         {
-            sceneHandler = UnitySystemBase.Initialize<SceneHandler>(entityPool);
+            sceneHandler = UnitySystemBase.Initialize<SceneHandler>(contexts);
             systemManager.AddSystem(sceneHandler);
             GameObject eventObject = new GameObject("[UpdateEvents]");
             UnityEvents events = eventObject.AddComponent<UnityEvents>();

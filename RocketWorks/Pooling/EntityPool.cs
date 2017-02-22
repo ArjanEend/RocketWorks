@@ -60,6 +60,7 @@ namespace RocketWorks.Pooling
         {
             Entity entity = new Entity(creationCount++, 8);
             entity.CompositionChangeEvent += OnCompositionChanged;
+            entity.Context = contextCallback;
             entity.TriggerEvent += OnTriggerAdded;
             entity.DestroyEvent += OnEntityDestroyed;
             return entity;
@@ -103,8 +104,13 @@ namespace RocketWorks.Pooling
            if(coll.ContainsKey(hash))
             {
                 Entity ent = coll[hash];
-                ent.ReplaceComponent(component, components[component.GetType()]);
+                ent.ReplaceComponent(component, contextCallback(component.GetType()));
             }
+        }
+
+        public int GetIndexOf(Type t)
+        {
+            return contextCallback(t);
         }
 
         public Entity GetObject(bool stated = false)
@@ -154,16 +160,15 @@ namespace RocketWorks.Pooling
             }
         }
 
-        private int OnCompositionChanged(IComponent comp, Entity entity)
+        private void OnCompositionChanged(IComponent comp, Entity entity)
         {
             foreach(KeyValuePair<int, Group> group in typeGroups)
             {
-                if(group.Value.HasComponents(entity.Composition | (1 << components[comp.GetType()])))
+                if(group.Value.HasComponents(entity.Composition))
                 {
                     group.Value.AddEntity(entity);
                 }
             }
-            return components[comp.GetType()];
         }
     }
 }
