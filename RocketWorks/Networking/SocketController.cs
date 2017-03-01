@@ -25,6 +25,8 @@ namespace RocketWorks.Networking
         private BinaryReader bReader;
         private MemoryStream memStream;
 
+        private Rocketizer rocketizer;
+
         private int userId = 0;
         public int UserId
         {
@@ -33,7 +35,7 @@ namespace RocketWorks.Networking
         private bool receive = false;
         public Action<uint> UserConnectedEvent = delegate { };
 
-        public SocketController(NetworkCommander commander)
+        public SocketController(NetworkCommander commander, Rocketizer rocketizer)
         {
             connectedClients = new List<Socket>();
             streams = new Dictionary<Socket, NetworkStream>();
@@ -42,6 +44,7 @@ namespace RocketWorks.Networking
             bWriter = new BinaryWriter(memStream);
             bReader = new BinaryReader(memStream);
             this.commander = commander;
+            this.rocketizer = rocketizer;
             userId = new Random(DateTime.Now.Millisecond).Next(100);
         }
 
@@ -206,7 +209,7 @@ namespace RocketWorks.Networking
                 if (packets > 0)
                 {
                     MemoryStream mem = new MemoryStream(buffers[socket]);
-                    INetworkCommand command = (INetworkCommand)formatter.Deserialize(mem);
+                    INetworkCommand command = rocketizer.ReadObject<INetworkCommand>(mem);//formatter.Deserialize(mem);
                     //Add 1 to UID because 0 stands for local player
                     commander.Execute(command, (uint)connectedClients.IndexOf(socket) + 1);
                 }
@@ -220,8 +223,10 @@ namespace RocketWorks.Networking
 
         private byte[] CreateBuffer(object obj, out int size)
         {
-            memStream.Position = 4;
-            formatter.Serialize(memStream, obj);
+            rocketizer.SetStream(memStream);
+            rocketizer.WriteObject(obj);
+            //memStream.Position = 4;
+            //formatter.Serialize(memStream, obj);
             size = (int)memStream.Position;
             memStream.SetLength(size);
             byte[] returnValue = memStream.GetBuffer();

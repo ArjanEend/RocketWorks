@@ -2,12 +2,13 @@
 {
     public static void Log(string s, object context = null)
     {
-        Log("[" + context.GetType() + "] " + s);
+        string c = (context == null) ? "RocketLog" : context.GetType().Name;
+        Log("[" + c + "] " + s);
     }
 
     public static void LogFormat(string s, object context = null, params object[] items)
     {
-        string c = (context == null) ? "RocketLog" : context.GetType().ToString();
+        string c = (context == null) ? "RocketLog" : context.GetType().Name;
         Log("[" + c + "] " + string.Format(s, items));
     }
 

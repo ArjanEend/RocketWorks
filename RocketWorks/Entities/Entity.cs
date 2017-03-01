@@ -4,7 +4,7 @@ using RocketWorks.Triggers;
 namespace RocketWorks.Entities
 {
     [Serializable]
-    public class Entity : IPoolable
+    public partial class Entity : IPoolable
     {
         public delegate void ComponentChanged(IComponent comp, Entity entity);
         public delegate void TriggerStarted(TriggerBase trigger);
@@ -39,6 +39,7 @@ namespace RocketWorks.Entities
         public bool Enabled
         {
             get { return enabled; }
+            set { enabled = value; }
         }
         
         private bool alive;
