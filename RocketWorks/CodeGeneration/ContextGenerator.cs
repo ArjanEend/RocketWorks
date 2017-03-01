@@ -25,11 +25,7 @@ namespace RocketWorks.CodeGeneration
                 {
                     RocketLog.Log("  Component: " + componentsToUse[j].Name);
                     Type componentType = componentsToUse[j];
-                    FieldInfo[] properties = componentType.GetFields();
-                    for(int k = 0; k < properties.Length; k++)
-                    {
-                        RocketLog.Log("     CompProperty: " + properties[k].Name);
-                    }
+                    new ComponentBuilder(componentType);
                 }
 
             }

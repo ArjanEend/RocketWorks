@@ -33,19 +33,21 @@ public class ClassBuilder
         stringBuilder.AppendLine("////// AUTO GENERATED ////////");
         stringBuilder.AppendLine(string.Format("using namespace {0};", nameSpace));
         stringBuilder.AppendLine("{");
-        stringBuilder.AppendLine(string.Format("public + class {0} : {1}", className, baseClass));
+        stringBuilder.AppendLine(string.Format("public class {0} : {1}", className, baseClass));
         stringBuilder.AppendLine("{");
     }
 
-    protected string BuildMethod(string methodName, Type[] methodTypes, string[] paramNames)
+    protected void BuildMethod(string methodName, string returnName, string lines, params string[] methodTypes)
     {
-        string str = "";
-
-        str += "public void {0}({1} {2})";
-        str += "{";
-        str += "}";
-
-        return str;
+        stringBuilder.Append("public " + returnName + " " + methodName + "(");
+        for(int i = 0; i < methodTypes.Length; i++)
+        {
+            stringBuilder.Append(methodTypes[i] + " var_" + methodTypes[i].ToLower());
+        }
+        stringBuilder.Append(")\n");
+        stringBuilder.AppendLine("{");
+        stringBuilder.AppendLine(lines);
+        stringBuilder.AppendLine("}");
     }
 
     protected string BuildVariable(Type variableType, string variableName, bool getter, bool setter)
