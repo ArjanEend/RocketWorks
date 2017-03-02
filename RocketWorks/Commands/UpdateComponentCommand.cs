@@ -8,7 +8,7 @@ using System.Text;
 namespace RocketWorks.Commands
 {
     [Serializable]
-    class UpdateComponentCommand : NetworkCommandBase<EntityPool>
+    public partial class UpdateComponentCommand : NetworkCommandBase<EntityPool>
     {
         private IComponent component;
         private uint hash;

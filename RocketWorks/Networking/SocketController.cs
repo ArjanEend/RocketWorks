@@ -223,7 +223,7 @@ namespace RocketWorks.Networking
 
         private byte[] CreateBuffer(object obj, out int size)
         {
-            rocketizer.SetStream(memStream);
+            rocketizer.SetStream(new MemoryStream(1024));
             rocketizer.WriteObject(obj);
             //memStream.Position = 4;
             //formatter.Serialize(memStream, obj);

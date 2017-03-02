@@ -6,6 +6,8 @@ namespace RocketWorks.Entities
     {
         public void Rocketize(Rocketizer rocketizer)
         {
+
+            RocketLog.Log("Entity rocketize!", this);
             rocketizer.Writer.Write(creationIndex);
             rocketizer.Writer.Write(Enabled);
             rocketizer.Writer.Write(Alive);
@@ -27,6 +29,8 @@ namespace RocketWorks.Entities
 
         public void DeRocketize(Rocketizer rocketizer)
         {
+
+            RocketLog.Log("Entity rocketize!", this);
             creationIndex = rocketizer.Reader.ReadUInt32();
             enabled = rocketizer.Reader.ReadBoolean();
             alive = rocketizer.Reader.ReadBoolean();

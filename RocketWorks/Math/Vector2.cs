@@ -3,7 +3,7 @@
 namespace RocketWorks
 {
     [Serializable]
-    public struct Vector2
+    public partial struct Vector2
     {
         private const float Eps = 1e-7f;
 

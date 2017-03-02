@@ -5,7 +5,7 @@ using RocketWorks.Pooling;
 namespace RocketWorks.Commands
 {
     [Serializable]
-    public class CreateEntityCommand : NetworkCommandBase<EntityPool>
+    public partial class CreateEntityCommand : NetworkCommandBase<EntityPool>
     {
         private Entity entity;
 

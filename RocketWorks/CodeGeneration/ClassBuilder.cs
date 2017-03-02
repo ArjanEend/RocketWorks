@@ -10,30 +10,36 @@ public class ClassBuilder
         get { return stringBuilder; }
     }
 
+    private bool hasNamespace = false;
+
+    private string name = "";
+    public string Name { get { return name; } }
+
     public ClassBuilder()
     {
         stringBuilder = new StringBuilder();
-
-        BuildImports();
-        BuildHeader("Generated", "GeneratedClass", "Object");
-        BuildEnding();
     }
 
     protected void BuildImports(params string[] extras)
     {
         for(int i = 0; i < extras.Length; i++)
         {
-            stringBuilder.AppendLine("using " + extras[i]);
+            stringBuilder.AppendLine("using " + extras[i] + ";\n");
         }
     }
 
 
-    protected void BuildHeader(string nameSpace, string className, string baseClass)
+    protected void BuildHeader(string nameSpace, string className, string baseClass, bool partial = false, string classOrStruct = "class")
     {
         stringBuilder.AppendLine("////// AUTO GENERATED ////////");
-        stringBuilder.AppendLine(string.Format("using namespace {0};", nameSpace));
-        stringBuilder.AppendLine("{");
-        stringBuilder.AppendLine(string.Format("public class {0} : {1}", className, baseClass));
+        hasNamespace = !string.IsNullOrEmpty(nameSpace);
+        if (hasNamespace)
+            stringBuilder.AppendLine(string.Format("namespace {0}", nameSpace)).Append("{");
+        if(string.IsNullOrEmpty(baseClass))
+            stringBuilder.AppendLine(string.Format("public {2}{3} {0}{1}", className, baseClass, partial ? "partial " : "", classOrStruct));
+        else
+            stringBuilder.AppendLine(string.Format("public {2}{3} {0} : {1}", className, baseClass, partial ? "partial " : "", classOrStruct));
+        name = className;
         stringBuilder.AppendLine("{");
     }
 
@@ -41,6 +47,19 @@ public class ClassBuilder
     {
         stringBuilder.Append("public " + returnName + " " + methodName + "(");
         for(int i = 0; i < methodTypes.Length; i++)
+        {
+            stringBuilder.Append(methodTypes[i] + " var_" + methodTypes[i].ToLower());
+        }
+        stringBuilder.Append(")\n");
+        stringBuilder.AppendLine("{");
+        stringBuilder.AppendLine(lines);
+        stringBuilder.AppendLine("}");
+    }
+
+    protected void BuildConstructor(string lines, params string[] methodTypes)
+    {
+        stringBuilder.Append("public " + name + "(");
+        for (int i = 0; i < methodTypes.Length; i++)
         {
             stringBuilder.Append(methodTypes[i] + " var_" + methodTypes[i].ToLower());
         }
@@ -75,7 +94,8 @@ public class ClassBuilder
 
     protected void BuildEnding()
     {
-        stringBuilder.AppendLine("}");
+        if(hasNamespace)
+            stringBuilder.AppendLine("}");
         stringBuilder.AppendLine("}");
     }
 }

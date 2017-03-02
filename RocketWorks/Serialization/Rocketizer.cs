@@ -1,29 +1,26 @@
-﻿
-
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace RocketWorks.Serialization
 {
-    public class Rocketizer
+    public partial class Rocketizer
     {
         private BinaryWriter writer;
         public BinaryWriter Writer { get { return writer; } }
         private BinaryReader reader;
         public BinaryReader Reader { get { return reader; } }
 
-        private MemoryStream memStream;
-
-        public Rocketizer()
-        {
-            
-        }
+        //private MemoryStream memStream;
+        private Dictionary<uint, Type> idToType = new Dictionary<uint, Type>();
+        private Dictionary<Type, uint> typeToId = new Dictionary<Type, uint>();
 
         public void SetStream(MemoryStream memStream)
         {
             if (writer != null)
-                writer.Dispose();
+                writer.Close();
             if (reader != null)
-                reader.Dispose();
+                reader.Close();
             writer = new BinaryWriter(memStream);
             reader = new BinaryReader(memStream);
         }
@@ -32,9 +29,12 @@ namespace RocketWorks.Serialization
         {
             if (memStream != null)
                 SetStream(memStream);
-            IRocketable rocketable = (IRocketable)ob;
+
+            //RocketLog.Log(ob.ToString(), this);
+            IRocketable rocketable = ob as IRocketable;
             if(rocketable != null)
             {
+                writer.Write(typeToId[rocketable.GetType()]);
                 rocketable.Rocketize(this);
             } else
             {
@@ -42,12 +42,19 @@ namespace RocketWorks.Serialization
             }
         }
 
-        public T ReadObject<T>(MemoryStream memStream = null) where T : class
+        public T ReadObject<T>(MemoryStream memStream = null)
         {
             if (memStream != null)
                 SetStream(memStream);
-            //Stub
-            return reader.ReadUInt32() as T;
+
+            uint type = reader.ReadUInt32();
+            if (idToType.ContainsKey(type))
+            {
+                IRocketable instance = (IRocketable)Activator.CreateInstance(idToType[type]);
+                instance.DeRocketize(this);
+                return (T)instance;
+            }
+            return default(T);//reader.ReadUInt32() as T;
         }
 
     }
