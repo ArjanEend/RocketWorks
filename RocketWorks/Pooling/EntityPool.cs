@@ -81,8 +81,12 @@ namespace RocketWorks.Pooling
                 if(rewriteIndex)
                 {
                     entity.CreationIndex = creationCount++;
-                } else
+                }
+                else
+                {
+                    RocketLog.Log("SKipping past Entity: " + entity.CreationIndex, this);
                     return;
+                }
             }
 
             statedObjects[uid].Add(entity.CreationIndex, entity);
@@ -119,6 +123,11 @@ namespace RocketWorks.Pooling
             if (stated)
                 statedObjects[0].Add(ent.CreationIndex, ent);
             return ent;
+        }
+
+        public Entity GetCleanObject()
+        {
+            return new Entity(creationCount++, 8);
         }
 
         private void OnEntityDestroyed(Entity ent)

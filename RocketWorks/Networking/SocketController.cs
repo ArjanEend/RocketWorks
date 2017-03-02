@@ -161,6 +161,7 @@ namespace RocketWorks.Networking
         {
             Socket sock = (Socket)ar.AsyncState;
             int sent = sock.EndSend(ar);
+            sock.NoDelay = true;
             RocketLog.Log("Packet sent: " + sent + " bytes", this);
         }
 
@@ -180,16 +181,17 @@ namespace RocketWorks.Networking
             try
             {
 
-            if (packets > 0)
-            {
-                BinaryReader reader = new BinaryReader(new MemoryStream(buffers[socket]));
-                int size = reader.ReadInt32();
-                buffers[socket] = new byte[size];
-                socket.BeginReceive(buffers[socket], 0, size, SocketFlags.None, ReadCommandPacket, socket);
-            } else
-            {
-                buffers[socket] = new byte[0];
-            }
+                if (packets > 0)
+                {
+                    BinaryReader reader = new BinaryReader(new MemoryStream(buffers[socket]));
+                    int size = reader.ReadInt32();
+                    buffers[socket] = new byte[size];
+                    socket.BeginReceive(buffers[socket], 0, size, SocketFlags.None, ReadCommandPacket, socket);
+                } else
+                {
+                    buffers[socket] = new byte[0];
+                        ReadSocket(socket);
+                }
 
             }
             catch
@@ -214,6 +216,7 @@ namespace RocketWorks.Networking
                     commander.Execute(command, (uint)connectedClients.IndexOf(socket) + 1);
                 }
                 buffers[socket] = new byte[0];
+                ReadSocket(socket);
             }
             catch(Exception ex)
             {
@@ -223,9 +226,10 @@ namespace RocketWorks.Networking
 
         private byte[] CreateBuffer(object obj, out int size)
         {
-            rocketizer.SetStream(new MemoryStream(1024));
+            rocketizer.SetStream(memStream);
+
+            memStream.Position = 4;
             rocketizer.WriteObject(obj);
-            //memStream.Position = 4;
             //formatter.Serialize(memStream, obj);
             size = (int)memStream.Position;
             memStream.SetLength(size);

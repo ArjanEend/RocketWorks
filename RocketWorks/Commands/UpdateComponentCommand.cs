@@ -13,6 +13,8 @@ namespace RocketWorks.Commands
         private IComponent component;
         private uint hash;
         
+        public UpdateComponentCommand(){}
+
         public UpdateComponentCommand(IComponent component, uint hash)
         {
             this.component = component;

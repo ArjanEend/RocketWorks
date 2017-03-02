@@ -48,6 +48,8 @@ namespace RocketWorks.CodeGeneration
                 ParseType(t);
             }
 
+            types.Add(typeof(Entity));
+
             builders.Add(new RocketizerBuilder(types));
         }
 

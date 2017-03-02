@@ -1,4 +1,6 @@
-﻿using System;
+﻿using RocketWorks.Entities;
+using RocketWorks.Pooling;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -11,16 +13,16 @@ namespace RocketWorks.Serialization
         private BinaryReader reader;
         public BinaryReader Reader { get { return reader; } }
 
+        //TODO: Make reference/instance management
+        private EntityPool pool;
+        public EntityPool Pool { set { pool = value; } }
+
         //private MemoryStream memStream;
-        private Dictionary<uint, Type> idToType = new Dictionary<uint, Type>();
-        private Dictionary<Type, uint> typeToId = new Dictionary<Type, uint>();
+        private Dictionary<int, Type> idToType = new Dictionary<int, Type>();
+        private Dictionary<Type, int> typeToId = new Dictionary<Type, int>();
 
         public void SetStream(MemoryStream memStream)
         {
-            if (writer != null)
-                writer.Close();
-            if (reader != null)
-                reader.Close();
             writer = new BinaryWriter(memStream);
             reader = new BinaryReader(memStream);
         }
@@ -29,16 +31,23 @@ namespace RocketWorks.Serialization
         {
             if (memStream != null)
                 SetStream(memStream);
+            try { 
 
-            //RocketLog.Log(ob.ToString(), this);
             IRocketable rocketable = ob as IRocketable;
-            if(rocketable != null)
+            if(rocketable != null && typeToId.ContainsKey(rocketable.GetType()))
             {
                 writer.Write(typeToId[rocketable.GetType()]);
                 rocketable.Rocketize(this);
             } else
             {
+                    if(ob != null)
+                    RocketLog.Log("Could not find: " + ob.GetType());
                 writer.Write(-1);
+            }
+            }
+            catch(Exception ex)
+            {
+                RocketLog.Log(ex.ToString(), this);
             }
         }
 
@@ -47,10 +56,15 @@ namespace RocketWorks.Serialization
             if (memStream != null)
                 SetStream(memStream);
 
-            uint type = reader.ReadUInt32();
+            int type = reader.ReadInt32();
             if (idToType.ContainsKey(type))
             {
-                IRocketable instance = (IRocketable)Activator.CreateInstance(idToType[type]);
+                RocketLog.Log(idToType[type].Name, this);
+                IRocketable instance;
+                if (idToType[type] == typeof(Entity))
+                    instance = pool.GetCleanObject();
+                else
+                    instance = (IRocketable)Activator.CreateInstance(idToType[type]);
                 instance.DeRocketize(this);
                 return (T)instance;
             }

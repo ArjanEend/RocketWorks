@@ -18,13 +18,15 @@ namespace RocketWorks.CodeGeneration
             {
                 if(fields[i].FieldType.Name == "String")
                 {
-                    generationLines += string.Format("byte[] {0}Bytes = System.Text.Encoding.Unicode.GetBytes({0});\n", fields[i].Name);
+                    /*generationLines += string.Format("byte[] {0}Bytes = System.Text.Encoding.Unicode.GetBytes({0});\n", fields[i].Name);
                     generationLines += string.Format("var_rocketizer.Writer.Write({0}Bytes.Length);\n", fields[i].Name);
                     generationLines += string.Format("var_rocketizer.Writer.Write({0}Bytes);", fields[i].Name);
 
                     deserializeLines += string.Format("int {0}Length = var_rocketizer.Reader.ReadInt32();\n", fields[i].Name);
                     deserializeLines += string.Format("byte[] {0}Bytes = var_rocketizer.Reader.ReadBytes({0}Length);\n", fields[i].Name);
-                    deserializeLines += string.Format("{0} = System.Text.Encoding.Unicode.GetString({0}Bytes);", fields[i].Name);
+                    deserializeLines += string.Format("{0} = System.Text.Encoding.Unicode.GetString({0}Bytes);", fields[i].Name);*/
+                    generationLines += string.Format("var_rocketizer.Writer.Write({0});", fields[i].Name);
+                    deserializeLines += string.Format("{0} = var_rocketizer.Reader.ReadString();", fields[i].Name);
                 }
                 else if(fields[i].FieldType.IsPrimitive)
                 {
