@@ -6,17 +6,14 @@ namespace RocketWorks.Entities
     {
         public void Rocketize(Rocketizer rocketizer)
         {
-
-            RocketLog.Log("Entity rocketize!", this);
             rocketizer.Writer.Write(creationIndex);
+            rocketizer.Writer.Write(composition);
             rocketizer.Writer.Write(Enabled);
             rocketizer.Writer.Write(Alive);
             for(int i = 0; i < components.Length; i++)
             {
                 rocketizer.WriteObject(components[i]);
             }
-
-            RocketLog.Log("Entity finishRocketize!", this);
             /*private uint creationIndex;
 
         private bool enabled;
@@ -30,9 +27,8 @@ namespace RocketWorks.Entities
 
         public void DeRocketize(Rocketizer rocketizer)
         {
-
-            RocketLog.Log("Entity DErocketize!", this);
             creationIndex = rocketizer.Reader.ReadUInt32();
+            composition = rocketizer.Reader.ReadInt32();
             enabled = rocketizer.Reader.ReadBoolean();
             alive = rocketizer.Reader.ReadBoolean();
             for(int i = 0; i < components.Length; i++)

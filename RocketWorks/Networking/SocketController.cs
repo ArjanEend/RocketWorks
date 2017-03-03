@@ -18,6 +18,8 @@ namespace RocketWorks.Networking
         private List<Socket> connectedClients;
         private Dictionary<Socket, NetworkStream> streams;
         private Dictionary<Socket, byte[]> buffers;
+        private Dictionary<Socket, MemoryStream> sendBuffers;
+        private Dictionary<Socket, bool> sendStates;
         private NetworkCommander commander;
         
         private BinaryFormatter formatter;
@@ -40,6 +42,8 @@ namespace RocketWorks.Networking
             connectedClients = new List<Socket>();
             streams = new Dictionary<Socket, NetworkStream>();
             buffers = new Dictionary<Socket, byte[]>();
+            sendBuffers = new Dictionary<Socket, MemoryStream>();
+            sendStates = new Dictionary<Socket, bool>();
             memStream = new MemoryStream();
             bWriter = new BinaryWriter(memStream);
             bReader = new BinaryReader(memStream);
@@ -84,6 +88,8 @@ namespace RocketWorks.Networking
             connectedClients.Add(socket);
             streams.Add(socket, new NetworkStream(socket));
             buffers.Add(socket, new byte[0]);
+            sendBuffers.Add(socket, new MemoryStream());
+            sendStates.Add(socket, false);
         }
 
         private void WaitForConnection(Socket socket)
@@ -96,6 +102,9 @@ namespace RocketWorks.Networking
             Socket newSocket = socket.EndAccept(ar);
             connectedClients.Add(newSocket);
             streams.Add(newSocket, new NetworkStream(newSocket));
+            buffers.Add(newSocket, new byte[0]);
+            sendBuffers.Add(newSocket, new MemoryStream());
+            sendStates.Add(newSocket, false);
             WaitForConnection(socket);
             RocketLog.Log("New connection accepted", this);
 
@@ -113,7 +122,8 @@ namespace RocketWorks.Networking
             byte[] buffer = CreateBuffer(command, out size);
             try
             {
-                WriteAsync(buffer, size, connectedClients[toUser]);
+                sendBuffers[connectedClients[toUser]].Write(buffer, 0, size);
+                //WriteAsync(buffer, size, connectedClients[toUser]);
                 /*NetworkStream writeStream = new NetworkStream(connectedClients[toUser]);
                 
                 formatter.Serialize(writeStream, command);
@@ -138,6 +148,15 @@ namespace RocketWorks.Networking
             }
         }
 
+        public void WriteSocket(Socket socket)
+        {
+            if (sendStates[socket] || sendBuffers[socket].Length == 0)
+                return;
+
+            WriteAsync(sendBuffers[socket].GetBuffer(), (int)sendBuffers[socket].Position, socket);
+            sendBuffers[socket] = new MemoryStream();
+        }
+
         public void RemoveConnection(int index)
         {
             connectedClients[index].Close();
@@ -149,19 +168,22 @@ namespace RocketWorks.Networking
             for(int i = 0; i < connectedClients.Count; i++)
             {
                 ReadSocket(connectedClients[i]);
+                WriteSocket(connectedClients[i]);
             }
         }
 
         private void WriteAsync(byte[] bytes, int size, Socket socket)
         {
+            RocketLog.Log("Packet send: " + size + " bytes", this);
             socket.BeginSend(bytes, 0, size, SocketFlags.None, WriteCompleted, socket);
+            sendStates[socket] = true;
         }
 
         private void WriteCompleted(IAsyncResult ar)
         {
             Socket sock = (Socket)ar.AsyncState;
             int sent = sock.EndSend(ar);
-            sock.NoDelay = true;
+            sendStates[sock] = false;
             RocketLog.Log("Packet sent: " + sent + " bytes", this);
         }
 
@@ -169,7 +191,7 @@ namespace RocketWorks.Networking
         {
             byte[] buffer = new byte[4];
             buffers[socket] = buffer;
-            RocketLog.Log("BeginReceive", this);
+            //RocketLog.Log("BeginReceive", this);
             socket.BeginReceive(buffer, 0, 4, SocketFlags.None, ReadPacketSize, socket);
         }
 
@@ -190,7 +212,7 @@ namespace RocketWorks.Networking
                 } else
                 {
                     buffers[socket] = new byte[0];
-                        ReadSocket(socket);
+                    ReadSocket(socket);
                 }
 
             }
@@ -203,7 +225,6 @@ namespace RocketWorks.Networking
 
         private void ReadCommandPacket(IAsyncResult ar)
         {
-
             try
             {
                 Socket socket = (Socket)ar.AsyncState;
