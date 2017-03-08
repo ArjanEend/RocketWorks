@@ -21,7 +21,7 @@ namespace RocketWorks.Commands
 
         public override void Execute(EntityPool target, uint uid)
         {
-            RocketLog.Log("Excute command", this);
+            RocketLog.Log("Create entity : " + entity.CreationIndex + " : " + uid, this);
             target.AddEntity(entity, uid);
         }
     }

@@ -127,7 +127,9 @@ namespace RocketWorks.Pooling
 
         public Entity GetCleanObject()
         {
-            return new Entity(creationCount++, 8);
+            Entity ent = new Entity(creationCount++, 8);
+            ent.Context = contextCallback;
+            return ent;
         }
 
         private void OnEntityDestroyed(Entity ent)

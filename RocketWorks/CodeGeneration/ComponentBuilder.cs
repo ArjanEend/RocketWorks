@@ -8,7 +8,7 @@ namespace RocketWorks.CodeGeneration
     {
         public ComponentBuilder(Type type)
         {
-            BuildImports("RocketWorks.Serialization");
+            BuildImports("RocketWorks.Serialization", "System");
             string str = type.IsValueType ? "struct" : "class";
             BuildHeader(type.Namespace, type.Name, "IRocketable", true, str);
             string generationLines = "";
@@ -27,6 +27,12 @@ namespace RocketWorks.CodeGeneration
                     deserializeLines += string.Format("{0} = System.Text.Encoding.Unicode.GetString({0}Bytes);", fields[i].Name);*/
                     generationLines += string.Format("var_rocketizer.Writer.Write({0});", fields[i].Name);
                     deserializeLines += string.Format("{0} = var_rocketizer.Reader.ReadString();", fields[i].Name);
+                } else if(fields[i].FieldType.Name == "DateTime")
+                {
+                    generationLines += string.Format("ulong {0}Ticks = (ulong)({0} - new DateTime(1970, 1, 1)).TotalMilliseconds;", fields[i].Name);
+                    generationLines += string.Format("var_rocketizer.Writer.Write({0}Ticks);", fields[i].Name);
+
+                    deserializeLines += string.Format("{0} = new DateTime(1970, 1, 1).AddMilliseconds(var_rocketizer.Reader.ReadUInt64());", fields[i].Name);
                 }
                 else if(fields[i].FieldType.IsPrimitive)
                 {

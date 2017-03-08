@@ -14,15 +14,6 @@ namespace RocketWorks.Entities
             {
                 rocketizer.WriteObject(components[i]);
             }
-            /*private uint creationIndex;
-
-        private bool enabled;
-
-        private bool alive;
-
-        private IComponent[] components;
-
-        private int composition;*/
         }
 
         public void DeRocketize(Rocketizer rocketizer)

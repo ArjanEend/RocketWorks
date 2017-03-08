@@ -19,6 +19,7 @@ namespace RocketWorks.Networking
         private Dictionary<Socket, NetworkStream> streams;
         private Dictionary<Socket, byte[]> buffers;
         private Dictionary<Socket, MemoryStream> sendBuffers;
+
         private Dictionary<Socket, bool> sendStates;
         private NetworkCommander commander;
         
@@ -29,13 +30,13 @@ namespace RocketWorks.Networking
 
         private Rocketizer rocketizer;
 
-        private int userId = 0;
+        private int userId = -1;
         public int UserId
         {
             get { return userId; }
         }
         private bool receive = false;
-        public Action<uint> UserConnectedEvent = delegate { };
+        public Action<int> UserConnectedEvent = delegate { };
 
         public SocketController(NetworkCommander commander, Rocketizer rocketizer)
         {
@@ -48,8 +49,14 @@ namespace RocketWorks.Networking
             bWriter = new BinaryWriter(memStream);
             bReader = new BinaryReader(memStream);
             this.commander = commander;
+            commander.AddObject(this);
             this.rocketizer = rocketizer;
-            userId = new Random(DateTime.Now.Millisecond).Next(100);
+        }
+
+        public void SetUserID(int uid)
+        {
+            RocketLog.Log("My user ID is: " + uid);
+            this.userId = uid;
         }
 
         public void SetupSocket(bool server = true, int port = 9001)
@@ -108,11 +115,17 @@ namespace RocketWorks.Networking
             WaitForConnection(socket);
             RocketLog.Log("New connection accepted", this);
 
-            UserConnectedEvent((uint)connectedClients.Count - 1);
+            int uid = connectedClients.IndexOf(newSocket);
+
+            WriteSocket(new SetUserIDCommand(uid), uid);
+
+            UserConnectedEvent(uid);
         }
 
         public void WriteSocket<T>(ICommand<T> command, int toUser)
         {
+            if (toUser == -1)
+                return;
             /*if (!connectedClients[toUser].Connected)
             {
                 RemoveConnection(toUser);
@@ -236,13 +249,14 @@ namespace RocketWorks.Networking
                     //Add 1 to UID because 0 stands for local player
                     commander.Execute(command, (uint)connectedClients.IndexOf(socket) + 1);
                 }
-                buffers[socket] = new byte[0];
-                ReadSocket(socket);
             }
             catch(Exception ex)
             {
                 RocketLog.Log("ReadError: " + ex.Message + ex.StackTrace, this);
             }
+
+            buffers[socket] = new byte[0];
+            ReadSocket(socket);
         }
 
         private byte[] CreateBuffer(object obj, out int size)
