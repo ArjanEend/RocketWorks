@@ -20,9 +20,8 @@ namespace RocketWorks.Commands
             this.uid = uid;
         }
 
-        public override void Execute(SocketController target, uint uid)
+        public override void Execute(SocketController target, int uid)
         {
-            RocketLog.Log("Excute command", this);
             target.SetUserID(this.uid);
         }
     }

@@ -26,13 +26,13 @@ namespace RocketWorks.Commands
     [Serializable]
     public abstract class NetworkCommandBase<T> : CommandBase<T>, INetworkCommand<T>
     {
-        public abstract void Execute(T target, uint uid);
+        public abstract void Execute(T target, int uid);
         public override void Execute(T target)
         {
             Execute(target, 0);
         }
 
-        public void Execute(object target, uint uid)
+        public void Execute(object target, int uid)
         {
             T targetObj = (T)target;
             if (targetObj != null)

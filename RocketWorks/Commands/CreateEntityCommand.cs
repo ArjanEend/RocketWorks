@@ -19,9 +19,8 @@ namespace RocketWorks.Commands
             this.entity = entity;
         }
 
-        public override void Execute(EntityPool target, uint uid)
+        public override void Execute(EntityPool target, int uid)
         {
-            RocketLog.Log("Create entity : " + entity.CreationIndex + " : " + uid, this);
             target.AddEntity(entity, uid);
         }
     }

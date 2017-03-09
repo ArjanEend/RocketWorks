@@ -14,7 +14,7 @@ namespace RocketWorks.Pooling
 
         private uint creationCount;
 
-        private Dictionary<uint, Dictionary<uint, Entity>> statedObjects = new Dictionary<uint, Dictionary<uint, Entity>>();
+        private Dictionary<int, Dictionary<uint, Entity>> statedObjects = new Dictionary<int, Dictionary<uint, Entity>>();
 
         private Dictionary<int, Group> typeGroups = new Dictionary<int, Group>();
         private List<Group> groupList = new List<Group>();
@@ -27,7 +27,7 @@ namespace RocketWorks.Pooling
         {
             this.contextCallback = contextFunction;
             //int componentIndices = 0;
-            statedObjects.Add(0, new Dictionary<uint, Entity>());
+            statedObjects.Add(-1, new Dictionary<uint, Entity>());
             //for (int i = 0; i < types.Length; i++)
             //{
                 //components.Add(types[i], componentIndices);
@@ -72,7 +72,7 @@ namespace RocketWorks.Pooling
             return entity;
         }
 
-        public void AddEntity(Entity entity, uint uid = 0, bool rewriteIndex = false)
+        public void AddEntity(Entity entity, int uid = 0, bool rewriteIndex = false)
         {
             if (!statedObjects.ContainsKey(uid))
                 statedObjects.Add(uid, new Dictionary<uint, Entity>());
@@ -84,7 +84,7 @@ namespace RocketWorks.Pooling
                 }
                 else
                 {
-                    RocketLog.Log("SKipping past Entity: " + entity.CreationIndex, this);
+                    RocketLog.Log("Skipping past Entity: " + entity.CreationIndex + " uid: " + uid + " rewriteIndex: " + rewriteIndex, this);
                     return;
                 }
             }
@@ -93,6 +93,8 @@ namespace RocketWorks.Pooling
             entity.CompositionChangeEvent += OnCompositionChanged;
             entity.TriggerEvent += OnTriggerAdded;
             entity.DestroyEvent += OnEntityDestroyed;
+
+            RocketLog.Log("Added Entity: " + entity.CreationIndex + " uid: " + uid + " rewriteIndex: " + rewriteIndex, this);
             foreach (KeyValuePair<int, Group> group in typeGroups)
             {
                 if (group.Value.HasComponents(entity.Composition))
@@ -102,8 +104,10 @@ namespace RocketWorks.Pooling
             }
         }
 
-        public void ReplaceComponent(IComponent component, uint hash, uint uid = 0)
+        public void ReplaceComponent(IComponent component, uint hash, int uid = -1)
         {
+            if (!statedObjects.ContainsKey(uid))
+                statedObjects.Add(uid, new Dictionary<uint, Entity>());
             Dictionary<uint, Entity> coll = statedObjects[uid];
            if(coll.ContainsKey(hash))
             {
@@ -117,11 +121,11 @@ namespace RocketWorks.Pooling
             return contextCallback(t);
         }
 
-        public Entity GetObject(bool stated = false)
+        public Entity GetObject(bool stated = false, int stateHolder = -1)
         {
             Entity ent = base.GetObject();
             if (stated)
-                statedObjects[0].Add(ent.CreationIndex, ent);
+                statedObjects[stateHolder].Add(ent.CreationIndex, ent);
             return ent;
         }
 

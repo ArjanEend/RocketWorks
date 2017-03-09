@@ -24,5 +24,10 @@ namespace RocketWorks
         {
             return (float)Math.Cos(x);
         }
+
+        public static int RoundToInt(float v)
+        {
+            return (int)Math.Round(v);
+        }
     }
 }

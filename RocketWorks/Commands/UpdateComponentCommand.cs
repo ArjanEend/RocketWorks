@@ -21,7 +21,7 @@ namespace RocketWorks.Commands
             this.hash = hash;
         }
 
-        public override void Execute(EntityPool target, uint uid)
+        public override void Execute(EntityPool target, int uid)
         {
             target.ReplaceComponent(component, hash, uid);
         }

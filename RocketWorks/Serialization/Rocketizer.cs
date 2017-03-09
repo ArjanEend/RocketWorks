@@ -59,7 +59,7 @@ namespace RocketWorks.Serialization
             int type = reader.ReadInt32();
             if (idToType.ContainsKey(type))
             {
-                RocketLog.Log("Deserialize : " + idToType[type].Name, this);
+                //RocketLog.Log("Deserialize : " + idToType[type].Name, this);
                 IRocketable instance;
                 if (idToType[type] == typeof(Entity))
                     instance = pool.GetCleanObject();

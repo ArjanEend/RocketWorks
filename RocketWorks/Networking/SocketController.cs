@@ -247,7 +247,7 @@ namespace RocketWorks.Networking
                     MemoryStream mem = new MemoryStream(buffers[socket]);
                     INetworkCommand command = rocketizer.ReadObject<INetworkCommand>(mem);//formatter.Deserialize(mem);
                     //Add 1 to UID because 0 stands for local player
-                    commander.Execute(command, (uint)connectedClients.IndexOf(socket) + 1);
+                    commander.Execute(command, connectedClients.IndexOf(socket));
                 }
             }
             catch(Exception ex)

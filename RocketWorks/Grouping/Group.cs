@@ -22,14 +22,14 @@ namespace RocketWorks.Grouping
             internal set { composition = value; }
         }
 
-        private Action<Entity> onEntityAdded;
+        private Action<Entity> onEntityAdded = delegate { };
         public Action<Entity> OnEntityAdded
         {
             get { return onEntityAdded; }
             set { onEntityAdded = value; }
         }
 
-        private Action<Entity> onEntityRemoved;
+        private Action<Entity> onEntityRemoved = delegate { };
         public Action<Entity> OnEntityRemoved
         {
             get { return onEntityRemoved; }
@@ -68,6 +68,7 @@ namespace RocketWorks.Grouping
 
         public void AddEntity(Entity entity)
         {
+            onEntityAdded(entity);
             if (entities.Contains(entity))
                 return;
             entities.Add(entity);
@@ -89,6 +90,7 @@ namespace RocketWorks.Grouping
 
         public void RemoveEntity(Entity entity)
         {
+            onEntityRemoved(entity);
             entities.Remove(entity);
         }
     }

@@ -136,6 +136,7 @@ namespace RocketWorks.Entities
         public void ReplaceComponent(IComponent component, int index)
         {
             components[index] = component;
+            CompositionChangeEvent(component, this);
         }
     }
 }

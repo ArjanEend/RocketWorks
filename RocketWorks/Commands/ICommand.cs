@@ -10,7 +10,7 @@ namespace RocketWorks.Commands
 
     public interface INetworkCommand : ICommand
     {
-        void Execute(object target, uint uid);
+        void Execute(object target, int uid);
     }
 
     public interface ICommand<T> : ICommand
@@ -20,7 +20,7 @@ namespace RocketWorks.Commands
 
     public interface INetworkCommand<T> : INetworkCommand
     {
-        void Execute(T target, uint uid);
+        void Execute(T target, int uid);
     }
 
 }

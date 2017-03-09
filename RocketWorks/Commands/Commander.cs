@@ -27,7 +27,7 @@ namespace RocketWorks.Commands
 
     public class NetworkCommander : Commander
     {
-        public void Execute(INetworkCommand command, uint uid)
+        public void Execute(INetworkCommand command, int uid)
         {
             Type type = command.targetType;
             if (typeBindings.ContainsKey(type))
