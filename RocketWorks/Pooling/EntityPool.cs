@@ -113,6 +113,9 @@ namespace RocketWorks.Pooling
             {
                 Entity ent = coll[hash];
                 ent.ReplaceComponent(component, contextCallback(component.GetType()));
+            } else
+            {
+                RocketLog.Log("Component update on non-existing entity: " + hash + ", " + uid, this);
             }
         }
 

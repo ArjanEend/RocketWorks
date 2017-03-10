@@ -23,7 +23,7 @@ namespace RocketWorks.Systems
         {
             system.Initialize(contexts);
             systems.Add(system);
-            storedDelays.Add(system, 0f);
+            storedDelays.Add(system, system.TickRate);
         }
 
         public void RemoveSystem(ISystem system)

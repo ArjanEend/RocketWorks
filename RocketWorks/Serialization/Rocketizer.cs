@@ -40,8 +40,7 @@ namespace RocketWorks.Serialization
                 rocketable.Rocketize(this);
             } else
             {
-                    if(ob != null)
-                    RocketLog.Log("Could not find: " + ob.GetType());
+                //RocketLog.Log("Could not write: " + ob + ", rocketable: " + (ob != null));
                 writer.Write(-1);
             }
             }
@@ -66,9 +65,10 @@ namespace RocketWorks.Serialization
                 else
                     instance = (IRocketable)Activator.CreateInstance(idToType[type]);
                 instance.DeRocketize(this);
+                //RocketLog.Log("Cast to: " + idToType[type].Name + " : "  + typeof(T).Name);
                 return (T)instance;
             }
-            RocketLog.Log("Could not find: " + type, this);
+            //RocketLog.Log("Could not find: " + type, this);
             return default(T);//reader.ReadUInt32() as T;
         }
 

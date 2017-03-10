@@ -30,6 +30,9 @@ namespace RocketWorks.Networking
 
         private Rocketizer rocketizer;
 
+        private Queue<INetworkCommand> commandQueue;
+        private Queue<int> clientQueue;
+
         private int userId = -1;
         public int UserId
         {
@@ -37,6 +40,7 @@ namespace RocketWorks.Networking
         }
         private bool receive = false;
         public Action<int> UserConnectedEvent = delegate { };
+        public Action<int> UserIDSetEvent = delegate { };
 
         public SocketController(NetworkCommander commander, Rocketizer rocketizer)
         {
@@ -50,6 +54,10 @@ namespace RocketWorks.Networking
             bReader = new BinaryReader(memStream);
             this.commander = commander;
             commander.AddObject(this);
+
+            commandQueue = new Queue<INetworkCommand>();
+            clientQueue = new Queue<int>();
+
             this.rocketizer = rocketizer;
         }
 
@@ -57,6 +65,7 @@ namespace RocketWorks.Networking
         {
             RocketLog.Log("My user ID is: " + uid);
             this.userId = uid;
+            UserIDSetEvent(uid);
         }
 
         public void SetupSocket(bool server = true, int port = 9001)
@@ -66,6 +75,7 @@ namespace RocketWorks.Networking
                 socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 if (server)
                 {
+                    socket.LingerState = new LingerOption(false, 0);
                     IPAddress ipAddress = IPAddress.Parse("127.0.0.1");
                     IPEndPoint localEndPoint = new IPEndPoint(ipAddress, port);
                     socket.Bind(localEndPoint);
@@ -153,10 +163,14 @@ namespace RocketWorks.Networking
         public void WriteSocket<T>(ICommand<T> command)
         {
             if (!socketReady)
+            {
+                RocketLog.Log("Socket not initialized");
                 return;
+            }
 
             for (int i = connectedClients.Count - 1; i >= 0; i--)
             {
+                //RocketLog.Log("Send to : " + i);
                 WriteSocket(command, i);
             }
         }
@@ -178,6 +192,7 @@ namespace RocketWorks.Networking
 
         public void Update()
         {
+            HandleCommands();
             for(int i = 0; i < connectedClients.Count; i++)
             {
                 ReadSocket(connectedClients[i]);
@@ -185,9 +200,15 @@ namespace RocketWorks.Networking
             }
         }
 
+        private void HandleCommands()
+        {
+            while (commandQueue.Count != 0)
+                commander.Execute(commandQueue.Dequeue(), clientQueue.Dequeue());
+        }
+
         private void WriteAsync(byte[] bytes, int size, Socket socket)
         {
-            RocketLog.Log("Packet send: " + size + " bytes", this);
+            //RocketLog.Log("Packet send: " + size + " bytes", this);
             socket.BeginSend(bytes, 0, size, SocketFlags.None, WriteCompleted, socket);
             sendStates[socket] = true;
         }
@@ -197,14 +218,15 @@ namespace RocketWorks.Networking
             Socket sock = (Socket)ar.AsyncState;
             int sent = sock.EndSend(ar);
             sendStates[sock] = false;
-            RocketLog.Log("Packet sent: " + sent + " bytes", this);
+            //RocketLog.Log("Packet sent: " + sent + " bytes", this);
         }
 
         private void ReadAsync(Socket socket)
         {
+            if (!socket.Connected)
+                return;
             byte[] buffer = new byte[4];
             buffers[socket] = buffer;
-            //RocketLog.Log("BeginReceive", this);
             socket.BeginReceive(buffer, 0, 4, SocketFlags.None, ReadPacketSize, socket);
         }
 
@@ -215,7 +237,6 @@ namespace RocketWorks.Networking
 
             try
             {
-
                 if (packets > 0)
                 {
                     BinaryReader reader = new BinaryReader(new MemoryStream(buffers[socket]));
@@ -227,7 +248,6 @@ namespace RocketWorks.Networking
                     buffers[socket] = new byte[0];
                     ReadSocket(socket);
                 }
-
             }
             catch
             {
@@ -238,16 +258,17 @@ namespace RocketWorks.Networking
 
         private void ReadCommandPacket(IAsyncResult ar)
         {
+            Socket socket = (Socket)ar.AsyncState;
+            int packets = socket.EndReceive(ar);
+
             try
             {
-                Socket socket = (Socket)ar.AsyncState;
-                int packets = socket.EndReceive(ar);
                 if (packets > 0)
                 {
                     MemoryStream mem = new MemoryStream(buffers[socket]);
                     INetworkCommand command = rocketizer.ReadObject<INetworkCommand>(mem);//formatter.Deserialize(mem);
-                    //Add 1 to UID because 0 stands for local player
-                    commander.Execute(command, connectedClients.IndexOf(socket));
+                    commandQueue.Enqueue(command);
+                    clientQueue.Enqueue(connectedClients.IndexOf(socket));
                 }
             }
             catch(Exception ex)
@@ -291,8 +312,19 @@ namespace RocketWorks.Networking
             if (!socketReady)
                 return;
 
+            for(int i = 0; i < connectedClients.Count; i++)
+            {
+                connectedClients[i].Close();
+                //connectedClients[i].Disconnect(false);
+            }
+
+
             socket.Close();
-            socket.Disconnect(true);
+            //socket.Disconnect(false);
+
+            
+            socket = null;
+
             socketReady = false;
         }
     }
