@@ -208,9 +208,14 @@ namespace RocketWorks.Networking
 
         private void WriteAsync(byte[] bytes, int size, Socket socket)
         {
-            //RocketLog.Log("Packet send: " + size + " bytes", this);
-            socket.BeginSend(bytes, 0, size, SocketFlags.None, WriteCompleted, socket);
-            sendStates[socket] = true;
+            try
+            {
+                socket.BeginSend(bytes, 0, size, SocketFlags.None, WriteCompleted, socket);
+                sendStates[socket] = true;
+            } catch
+            {
+                socket.Disconnect(false);
+            }
         }
 
         private void WriteCompleted(IAsyncResult ar)
@@ -225,6 +230,7 @@ namespace RocketWorks.Networking
         {
             if (!socket.Connected)
                 return;
+            //RocketLog.Log("Receiving new packet");
             byte[] buffer = new byte[4];
             buffers[socket] = buffer;
             socket.BeginReceive(buffer, 0, 4, SocketFlags.None, ReadPacketSize, socket);
@@ -266,7 +272,10 @@ namespace RocketWorks.Networking
                 if (packets > 0)
                 {
                     MemoryStream mem = new MemoryStream(buffers[socket]);
-                    INetworkCommand command = rocketizer.ReadObject<INetworkCommand>(mem);//formatter.Deserialize(mem);
+                    INetworkCommand command = rocketizer.ReadObject<INetworkCommand>(mem);
+                    if (command == null)
+                        throw new Exception("Command could not be read...");
+
                     commandQueue.Enqueue(command);
                     clientQueue.Enqueue(connectedClients.IndexOf(socket));
                 }

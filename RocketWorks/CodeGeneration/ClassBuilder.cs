@@ -12,7 +12,7 @@ public class ClassBuilder
 
     private bool hasNamespace = false;
 
-    private string name = "";
+    protected string name = "";
     public string Name { get { return name; } }
 
     public ClassBuilder()

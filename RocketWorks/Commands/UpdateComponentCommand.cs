@@ -8,7 +8,7 @@ using System.Text;
 namespace RocketWorks.Commands
 {
     [Serializable]
-    public partial class UpdateComponentCommand : NetworkCommandBase<EntityPool>
+    public partial class UpdateComponentCommand<T> : NetworkCommandBase<T> where T : EntityContext
     {
         private IComponent component;
         private uint hash;
@@ -21,9 +21,9 @@ namespace RocketWorks.Commands
             this.hash = hash;
         }
 
-        public override void Execute(EntityPool target, int uid)
+        public override void Execute(T target, int uid)
         {
-            target.ReplaceComponent(component, hash, uid);
+            target.Pool.ReplaceComponent(component, hash, uid);
         }
     }
 }

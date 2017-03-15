@@ -5,9 +5,9 @@ using RocketWorks.Pooling;
 namespace RocketWorks.Commands
 {
     [Serializable]
-    public partial class CreateEntityCommand : NetworkCommandBase<EntityPool>
+    public partial class CreateEntityCommand<T> : NetworkCommandBase<T> where T : EntityContext
     {
-        private Entity entity;
+        protected Entity entity;
 
         public CreateEntityCommand()
         {
@@ -19,9 +19,9 @@ namespace RocketWorks.Commands
             this.entity = entity;
         }
 
-        public override void Execute(EntityPool target, int uid)
+        public override void Execute(T target, int uid)
         {
-            target.AddEntity(entity, uid);
+            target.Pool.AddEntity(entity, uid);
         }
     }
 }

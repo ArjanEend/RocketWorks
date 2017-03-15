@@ -1,7 +1,6 @@
 ﻿using RocketWorks.Serialization;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace RocketWorks.CodeGeneration
 {
@@ -14,7 +13,8 @@ namespace RocketWorks.CodeGeneration
             string constructorLines = "";
             for(int i = 0; i < serializeableTypes.Count; i++)
             {
-                constructorLines += string.Format("idToType.Add({0}, typeof({1})); typeToId.Add(typeof({1}), {0});", i, serializeableTypes[i].FullName);
+                string typeName = serializeableTypes[i].ToGenericTypeString(true);
+                constructorLines += string.Format("idToType.Add({0}, typeof({1})); typeToId.Add(typeof({1}), {0});", i, typeName);
             }
             BuildConstructor(constructorLines);
             BuildEnding();
