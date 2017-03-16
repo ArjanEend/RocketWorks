@@ -34,7 +34,7 @@ namespace RocketWorks.Systems
         {
             for(int i = 0; i < componentGroup.Count; i++)
             {
-                socket.WriteSocket(new UpdateComponentCommand(componentGroup[i].GetComponent<T>(compId), componentGroup[i].CreationIndex));
+                socket.WriteSocket(new MainContextUpdateComponentCommand(componentGroup[i].GetComponent<T>(compId), componentGroup[i].CreationIndex));
             }
         }
     }

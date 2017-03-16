@@ -14,6 +14,8 @@ public class ClassBuilder
 
     protected string name = "";
     public string Name { get { return name; } }
+    protected string nameSpace = "";
+    public string FullName { get { return nameSpace + "." + name; } }
 
     public ClassBuilder()
     {
@@ -40,12 +42,13 @@ public class ClassBuilder
         else
             stringBuilder.AppendLine(string.Format("public {2}{3} {0} : {1}", className, baseClass, partial ? "partial " : "", classOrStruct));
         name = className;
+        this.nameSpace = nameSpace;
         stringBuilder.AppendLine("{");
     }
 
-    protected void BuildMethod(string methodName, string returnName, string lines, params string[] methodTypes)
+    protected void BuildMethod(string methodName, string modifier = "public", string returnName = "void", string lines = "", params string[] methodTypes)
     {
-        stringBuilder.Append("public " + returnName + " " + methodName + "(");
+        stringBuilder.Append(modifier + " "  + returnName + " " + methodName + "(");
         for(int i = 0; i < methodTypes.Length; i++)
         {
             stringBuilder.Append(methodTypes[i] + " var_" + methodTypes[i].ToLower());
@@ -62,6 +65,8 @@ public class ClassBuilder
         for (int i = 0; i < methodTypes.Length; i++)
         {
             stringBuilder.Append(methodTypes[i] + " var_" + methodTypes[i].ToLower());
+            if (i + 1 < methodTypes.Length)
+                stringBuilder.Append(", ");
         }
         stringBuilder.Append(")\n");
         stringBuilder.AppendLine("{");

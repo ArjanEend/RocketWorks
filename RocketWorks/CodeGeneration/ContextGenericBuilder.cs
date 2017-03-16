@@ -23,6 +23,7 @@ namespace RocketWorks.CodeGeneration
             }
 
             BuildConstructor(constructorLines, types.ToArray());
+            BuildConstructor("");
 
             BuildEnding();
 

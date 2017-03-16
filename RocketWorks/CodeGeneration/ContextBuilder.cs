@@ -10,7 +10,7 @@ namespace RocketWorks.CodeGeneration
         public ContextBuilder(Type type, string fieldName)
         {
             BuildImports("System", "Implementation.Components");
-            BuildHeader(type.Namespace, fieldName + "CTX", type.ToGenericTypeString());
+            BuildHeader(type.Namespace, fieldName + "Context", type.ToGenericTypeString());
             BuildEnding();
 
             RocketLog.Log(StringBuilder.ToString());

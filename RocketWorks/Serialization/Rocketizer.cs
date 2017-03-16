@@ -36,6 +36,8 @@ namespace RocketWorks.Serialization
             IRocketable rocketable = ob as IRocketable;
             if(rocketable != null && typeToId.ContainsKey(rocketable.GetType()))
             {
+
+               //     RocketLog.Log("Serialize : " + rocketable.GetType().Name, this);
                 writer.Write(typeToId[rocketable.GetType()]);
                 rocketable.Rocketize(this);
             } else
@@ -66,7 +68,14 @@ namespace RocketWorks.Serialization
                     instance = (IRocketable)Activator.CreateInstance(idToType[type]);
                 instance.DeRocketize(this);
                 //RocketLog.Log("Cast to: " + idToType[type].Name + " : "  + typeof(T).Name);
-                return (T)instance;
+                try
+                {
+                    return (T)instance;
+                } catch
+                {
+                    RocketLog.Log("Cast error!");
+                    return default(T);
+                }
             }
             //RocketLog.Log("Could not find: " + type, this);
             return default(T);//reader.ReadUInt32() as T;

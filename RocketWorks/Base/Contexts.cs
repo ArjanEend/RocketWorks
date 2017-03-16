@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 public partial class Contexts
 {
-    private List<EntityContext> contexts;
+    protected List<EntityContext> contexts;
 
     public Contexts()
     {

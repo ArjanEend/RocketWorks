@@ -16,6 +16,7 @@ namespace RocketWorks.CodeGeneration
 
         private List<Type> types;
         private List<string> generatedContexts;
+        private List<string> generatedCommands;
 
         public ContextGenerator()
         {
@@ -23,6 +24,7 @@ namespace RocketWorks.CodeGeneration
             builders = new List<ClassBuilder>();
             types = new List<Type>();
             generatedContexts = new List<string>();
+            generatedCommands = new List<string>();
 
             PropertyInfo[] info = contexts.GetType().GetProperties();
 
@@ -36,9 +38,11 @@ namespace RocketWorks.CodeGeneration
                 RocketLog.Log("FieldInfo: " + info[i].Name);
                 Type contextType = info[i].PropertyType;
                 types.Add(contextType);
-                Type[] componentsToUse = contextType.GetGenericArguments();
 
-                builders.Add(new ContextBuilder(contextType, info[i].Name));
+                var value = info[i].GetValue(contexts, null);
+                builders.Add(new ContextBuilder(value.GetType(), info[i].Name));
+
+                Type[] componentsToUse = value.GetType().GetGenericArguments();
 
                 generatedContexts.Add(builders[builders.Count - 1].Name);
                 
@@ -57,7 +61,7 @@ namespace RocketWorks.CodeGeneration
 
             types.Add(typeof(Entity));
 
-            builders.Add(new RocketizerBuilder(types));
+            builders.Add(new RocketizerBuilder(types, generatedContexts, generatedCommands));
             builders.Add(new ContextsBuilder(generatedContexts));
         }
 
@@ -74,8 +78,8 @@ namespace RocketWorks.CodeGeneration
             {
                 for(int i = 0; i < generatedContexts.Count; i++)
                 {
-
                     builders.Add(new ContextGenericBuilder(type, generatedContexts[i]));
+                    generatedCommands.Add(builders[builders.Count - 1].FullName);
                 }
             } else
             {

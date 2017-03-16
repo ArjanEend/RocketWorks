@@ -10,8 +10,8 @@ namespace RocketWorks.Commands
     [Serializable]
     public partial class UpdateComponentCommand<T> : NetworkCommandBase<T> where T : EntityContext
     {
-        private IComponent component;
-        private uint hash;
+        protected IComponent component;
+        protected uint hash;
         
         public UpdateComponentCommand(){}
 

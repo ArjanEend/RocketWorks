@@ -47,9 +47,9 @@ namespace RocketWorks.CodeGeneration
                     deserializeLines += string.Format("{1} = var_rocketizer.ReadObject<{0}>();", fields[i].FieldType.FullName, fields[i].Name);
                 }
             }
-            BuildMethod("Rocketize", "void", generationLines, "Rocketizer");
-            BuildMethod("DeRocketize", "void", deserializeLines, "Rocketizer");
-            BuildMethod("RocketizeReference", "void", "", "Rocketizer");
+            BuildMethod("Rocketize", "public", "void", generationLines, "Rocketizer");
+            BuildMethod("DeRocketize", "public", "void", deserializeLines, "Rocketizer");
+            BuildMethod("RocketizeReference", "public", "void", "", "Rocketizer");
 
             BuildEnding();
 
