@@ -134,7 +134,7 @@ namespace RocketWorks
             y = dot * other.y;
         }
 
-#if UNITY_EDITOR || UNITY_STANDALONE
+#if UNITY_EDITOR || UNITY_5
         public static implicit operator UnityEngine.Vector2(Vector2 v)
         {
             return new UnityEngine.Vector2(v.x, v.y);

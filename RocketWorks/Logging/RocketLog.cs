@@ -14,7 +14,7 @@
 
     private static void Log(string s)
     {
-#if UNITY_STANDALONE || UNITY_EDITOR
+#if UNITY_5 || UNITY_EDITOR
         UnityEngine.Debug.Log(s);
 #endif
         System.Console.WriteLine(s);
