@@ -8,11 +8,14 @@ using RocketWorks.Triggers;
 
 namespace RocketWorks.Pooling
 {
-    public class EntityPool : ObjectPool<Entity> {
-
+    public class EntityPool : ObjectPool<Entity>, IInstanceProvider<Entity>
+    {
         private Dictionary<Type, Action<TriggerBase>> triggers = new Dictionary<Type, Action<TriggerBase>>();
+        
+        public virtual Type ObjectType { get { return typeof(Entity); } }
 
-        private uint creationCount;
+        protected uint creationCount;
+        protected int componentAmount;
 
         private Dictionary<int, Dictionary<uint, Entity>> statedObjects = new Dictionary<int, Dictionary<uint, Entity>>();
 
@@ -21,19 +24,13 @@ namespace RocketWorks.Pooling
         //private Dictionary<Type, int> components = new Dictionary<Type, int>();
         private Dictionary<int, PoolBase<IComponent>> pools = new Dictionary<int, PoolBase<IComponent>>();
 
-        private ContextType contextCallback;
+        protected ContextType contextCallback;
 
-        public EntityPool(ContextType contextFunction)
+        public EntityPool(ContextType contextFunction, int amountOfComponents)
         {
             this.contextCallback = contextFunction;
-            //int componentIndices = 0;
+            this.componentAmount = amountOfComponents;
             statedObjects.Add(-1, new Dictionary<uint, Entity>());
-            //for (int i = 0; i < types.Length; i++)
-            //{
-                //components.Add(types[i], componentIndices);
-            //    pools.Add(i, new PoolBase<IComponent>());
-            //    componentIndices++;
-            //}
         }
 
         public Group GetGroup(params Type[] types)
@@ -58,7 +55,9 @@ namespace RocketWorks.Pooling
 
         protected override Entity CreateObject()
         {
-            Entity entity = new Entity(creationCount++, 8);
+            Entity entity = new Entity();
+            entity.CreationIndex = creationCount++;
+            entity.SetComponentCount(componentAmount);
             entity.CompositionChangeEvent += OnCompositionChanged;
             entity.Context = contextCallback;
             entity.TriggerEvent += OnTriggerAdded;
@@ -76,6 +75,7 @@ namespace RocketWorks.Pooling
         {
             if (!statedObjects.ContainsKey(uid))
                 statedObjects.Add(uid, new Dictionary<uint, Entity>());
+
             if (statedObjects[uid].ContainsKey(entity.CreationIndex))
             {
                 if(rewriteIndex)
@@ -132,14 +132,16 @@ namespace RocketWorks.Pooling
             return ent;
         }
 
-        public Entity GetCleanObject()
+        public virtual Entity GetCleanObject()
         {
-            Entity ent = new Entity(creationCount++, 8);
+            Entity ent = new Entity();
+            ent.CreationIndex = creationCount++;
+            ent.SetComponentCount(componentAmount);
             ent.Context = contextCallback;
             return ent;
         }
 
-        private void OnEntityDestroyed(Entity ent)
+        protected void OnEntityDestroyed(Entity ent)
         {
             foreach (KeyValuePair<int, Group> group in typeGroups)
             {
@@ -161,7 +163,7 @@ namespace RocketWorks.Pooling
             triggers[typeof(T)] += action as Action<TriggerBase>;
         }
 
-        private void OnTriggerAdded(TriggerBase trigger)
+        protected void OnTriggerAdded(TriggerBase trigger)
         {
             if (triggers.ContainsKey(trigger.GetType()))
                 return;
@@ -178,7 +180,7 @@ namespace RocketWorks.Pooling
             }
         }
 
-        private void OnCompositionChanged(IComponent comp, Entity entity)
+        protected void OnCompositionChanged(IComponent comp, Entity entity)
         {
             foreach(KeyValuePair<int, Group> group in typeGroups)
             {
@@ -187,6 +189,46 @@ namespace RocketWorks.Pooling
                     group.Value.AddEntity(entity);
                 }
             }
+        }
+
+        public Entity GetTypedInstance()
+        {
+            return GetCleanObject();
+        }
+
+        public object GetInstance()
+        {
+            return GetCleanObject();
+        }
+    }
+
+    public class EntityPool<T> : EntityPool where T : Entity, new()
+    {
+        public override Type ObjectType { get { return typeof(T); } }
+
+        public EntityPool(ContextType contextFunction, int amountOfComponents) : base (contextFunction, amountOfComponents)
+        {
+        }
+        
+        protected override Entity CreateObject()
+        {
+            Entity entity = new T();
+            entity.CreationIndex = creationCount++;
+            entity.SetComponentCount(componentAmount);
+            entity.CompositionChangeEvent += OnCompositionChanged;
+            entity.Context = contextCallback;
+            entity.TriggerEvent += OnTriggerAdded;
+            entity.DestroyEvent += OnEntityDestroyed;
+            return entity;
+        }
+
+        public override Entity GetCleanObject()
+        {
+            Entity ent = new T();
+            ent.CreationIndex = creationCount++;
+            ent.SetComponentCount(componentAmount);
+            ent.Context = contextCallback;
+            return ent;
         }
     }
 }

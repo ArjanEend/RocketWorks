@@ -9,13 +9,13 @@ namespace RocketWorks.Entities
     public class EntityContext
     {
         protected Dictionary<Type, int> components = new Dictionary<Type, int>();
-        private EntityPool pool;
+        protected EntityPool pool;
         public EntityPool Pool { get { return pool; } }
 
         public EntityContext()
         {
             components = new Dictionary<Type, int>();
-            pool = new EntityPool(GetIndexOf);
+            //pool = new EntityPool(GetIndexOf);
         }
 
         public int GetIndexOf(Type type)

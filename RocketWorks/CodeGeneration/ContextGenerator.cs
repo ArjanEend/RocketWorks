@@ -45,6 +45,9 @@ namespace RocketWorks.CodeGeneration
                 Type[] componentsToUse = value.GetType().GetGenericArguments();
 
                 generatedContexts.Add(builders[builders.Count - 1].Name);
+
+                builders.Add(new EntityBuilder(builders[builders.Count - 1].Name, componentsToUse));
+                generatedCommands.Add(builders[builders.Count - 1].Name);
                 
                 for (int j = 0; j < componentsToUse.Length; j++)
                 {

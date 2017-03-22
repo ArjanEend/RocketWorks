@@ -48,9 +48,9 @@ namespace RocketWorks.Entities
             get { return alive; }
         }
         
-        private IComponent[] components;
+        protected IComponent[] components;
 
-        private int composition;
+        protected int composition = 0;
         public int Composition
         {
             get { return composition; }
@@ -65,6 +65,11 @@ namespace RocketWorks.Entities
         {
 			components = new IComponent[totalComponents];
             composition = 0;
+        }
+
+        public void SetComponentCount(int componentAmount)
+        {
+            components = new IComponent[componentAmount];
         }
 
         public T GetComponent<T>() where T : IComponent

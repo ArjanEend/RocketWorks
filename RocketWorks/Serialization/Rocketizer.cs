@@ -13,9 +13,7 @@ namespace RocketWorks.Serialization
         private BinaryReader reader;
         public BinaryReader Reader { get { return reader; } }
 
-        //TODO: Make reference/instance management
-        private EntityPool pool;
-        public EntityPool Pool { set { pool = value; } }
+        private Dictionary<Type, IInstanceProvider> instanceProviders = new Dictionary<Type, IInstanceProvider>();
 
         //private MemoryStream memStream;
         private Dictionary<int, Type> idToType = new Dictionary<int, Type>();
@@ -25,6 +23,11 @@ namespace RocketWorks.Serialization
         {
             writer = new BinaryWriter(memStream);
             reader = new BinaryReader(memStream);
+        }
+
+        public void AddProvider(IInstanceProvider provider)
+        {
+            instanceProviders.Add(provider.ObjectType, provider);
         }
 
         public void WriteObject(object ob, MemoryStream memStream = null)
@@ -62,8 +65,8 @@ namespace RocketWorks.Serialization
             {
                 //RocketLog.Log("Deserialize : " + idToType[type].Name, this);
                 IRocketable instance;
-                if (idToType[type] == typeof(Entity))
-                    instance = pool.GetCleanObject();
+                if (instanceProviders.ContainsKey(idToType[type]))
+                    instance = (IRocketable)instanceProviders[idToType[type]].GetInstance();
                 else
                     instance = (IRocketable)Activator.CreateInstance(idToType[type]);
                 instance.DeRocketize(this);
@@ -80,6 +83,5 @@ namespace RocketWorks.Serialization
             //RocketLog.Log("Could not find: " + type, this);
             return default(T);//reader.ReadUInt32() as T;
         }
-
     }
 }

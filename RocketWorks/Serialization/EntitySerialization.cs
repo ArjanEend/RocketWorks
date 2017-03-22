@@ -1,4 +1,5 @@
-﻿using RocketWorks.Serialization;
+﻿using System;
+using RocketWorks.Serialization;
 
 namespace RocketWorks.Entities
 {
