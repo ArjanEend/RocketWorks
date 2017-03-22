@@ -76,7 +76,7 @@ namespace RocketWorks.Serialization
                     return (T)instance;
                 } catch
                 {
-                    RocketLog.Log("Cast error!");
+                    RocketLog.LogFormat("Cast error! from: {0} to {1}", this, instance.GetType(), typeof(T));
                     return default(T);
                 }
             }

@@ -37,6 +37,8 @@ namespace RocketWorks.Systems
             for (int i = 0; i < entities.Count; i++)
             {
                 socket.WriteSocket(new MainContextCreateEntityCommand(entities[i]));
+                RocketLog.Log("Send entity over network", this);
+                entities[i].Reset();
             }
         }
     }

@@ -134,6 +134,11 @@ namespace RocketWorks
             y = dot * other.y;
         }
 
+        public override string ToString()
+        {
+            return string.Format("x: {0}, y: {1}", x, y);
+        }
+
 #if UNITY_EDITOR || UNITY_5
         public static implicit operator UnityEngine.Vector2(Vector2 v)
         {
