@@ -19,10 +19,14 @@ namespace RocketWorks.Serialization
         private Dictionary<int, Type> idToType = new Dictionary<int, Type>();
         private Dictionary<Type, int> typeToId = new Dictionary<Type, int>();
 
-        public void SetStream(MemoryStream memStream)
+        public void SetWriteStream(MemoryStream memStream)
         {
             writer = new BinaryWriter(memStream);
-            reader = new BinaryReader(memStream);
+        }
+
+        public void SetReadStream(MemoryStream stream)
+        {
+            reader = new BinaryReader(stream);
         }
 
         public void AddProvider(IInstanceProvider provider)
@@ -33,7 +37,7 @@ namespace RocketWorks.Serialization
         public void WriteObject(object ob, MemoryStream memStream = null)
         {
             if (memStream != null)
-                SetStream(memStream);
+                SetWriteStream(memStream);
             try { 
 
             IRocketable rocketable = ob as IRocketable;
@@ -53,12 +57,13 @@ namespace RocketWorks.Serialization
             {
                 RocketLog.Log(ex.ToString(), this);
             }
+            writer.Flush();
         }
 
         public T ReadObject<T>(MemoryStream memStream = null)
         {
             if (memStream != null)
-                SetStream(memStream);
+                SetReadStream(memStream);
 
             int type = reader.ReadInt32();
             if (idToType.ContainsKey(type))

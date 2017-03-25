@@ -53,6 +53,8 @@ namespace RocketWorks.Grouping
             }
         }
 
+        private bool mustMatch = false;
+
        // private Dictionary<Type, List<IComponent>> componentBindings = 
        //     new Dictionary<Type, List<IComponent>>();
 
@@ -64,6 +66,12 @@ namespace RocketWorks.Grouping
             {
         //        componentBindings.Add(types[i], new List<IComponent>());
             }
+        }
+
+        public Group SetMatching(bool matching)
+        {
+            mustMatch = matching;
+            return this;
         }
 
         public void AddEntity(Entity entity)
@@ -85,6 +93,7 @@ namespace RocketWorks.Grouping
 
         public bool HasComponents(int components)
         {
+            if (mustMatch) return composition == components;
             return (composition & components) == composition;
         }
 

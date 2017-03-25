@@ -7,6 +7,7 @@ using System.Net;
 using System.Collections.Generic;
 using RocketWorks.Commands;
 using RocketWorks.Serialization;
+using RocketWorks.Promises;
 
 namespace RocketWorks.Networking
 {
@@ -15,12 +16,8 @@ namespace RocketWorks.Networking
         bool socketReady = false;
         
         private Socket socket;
-        private List<Socket> connectedClients;
-        private Dictionary<Socket, NetworkStream> streams;
-        private Dictionary<Socket, byte[]> buffers;
-        private Dictionary<Socket, MemoryStream> sendBuffers;
+        private List<SocketConnection> connectedClients;
 
-        private Dictionary<Socket, bool> sendStates;
         private NetworkCommander commander;
         
         private BinaryFormatter formatter;
@@ -42,14 +39,13 @@ namespace RocketWorks.Networking
         public Action<int> UserConnectedEvent = delegate { };
         public Action<int> UserIDSetEvent = delegate { };
 
+        private bool addingCommand;
+
         public SocketController(NetworkCommander commander, Rocketizer rocketizer)
         {
-            connectedClients = new List<Socket>();
-            streams = new Dictionary<Socket, NetworkStream>();
-            buffers = new Dictionary<Socket, byte[]>();
-            sendBuffers = new Dictionary<Socket, MemoryStream>();
-            sendStates = new Dictionary<Socket, bool>();
-            memStream = new MemoryStream();
+            connectedClients = new List<SocketConnection>();
+            
+            memStream = new MemoryStream(2048);
             bWriter = new BinaryWriter(memStream);
             bReader = new BinaryReader(memStream);
             this.commander = commander;
@@ -73,6 +69,7 @@ namespace RocketWorks.Networking
             try
             {
                 socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.KeepAlive, true);
                 if (server)
                 {
                     socket.LingerState = new LingerOption(false, 0);
@@ -102,11 +99,8 @@ namespace RocketWorks.Networking
             IPEndPoint localEndPoint = new IPEndPoint(ipAddress, port);
 
             socket.Connect(localEndPoint);
-            connectedClients.Add(socket);
-            streams.Add(socket, new NetworkStream(socket));
-            buffers.Add(socket, new byte[0]);
-            sendBuffers.Add(socket, new MemoryStream());
-            sendStates.Add(socket, false);
+            socket.NoDelay = true;
+            connectedClients.Add(new SocketConnection(socket, connectedClients.Count));
         }
 
         private void WaitForConnection(Socket socket)
@@ -117,15 +111,13 @@ namespace RocketWorks.Networking
         private void OnNewConnection(IAsyncResult ar)
         {
             Socket newSocket = socket.EndAccept(ar);
-            connectedClients.Add(newSocket);
-            streams.Add(newSocket, new NetworkStream(newSocket));
-            buffers.Add(newSocket, new byte[0]);
-            sendBuffers.Add(newSocket, new MemoryStream());
-            sendStates.Add(newSocket, false);
+            newSocket.NoDelay = true;
+            SocketConnection connection = new SocketConnection(newSocket, connectedClients.Count);
+            connectedClients.Add(connection);
             WaitForConnection(socket);
             RocketLog.Log("New connection accepted", this);
 
-            int uid = connectedClients.IndexOf(newSocket);
+            int uid = connectedClients.IndexOf(connection);
 
             WriteSocket(new SetUserIDCommand(uid), uid);
 
@@ -136,22 +128,12 @@ namespace RocketWorks.Networking
         {
             if (toUser == -1)
                 return;
-            /*if (!connectedClients[toUser].Connected)
-            {
-                RemoveConnection(toUser);
-                return;
-            }*/
+            
             int size = 0;
             byte[] buffer = CreateBuffer(command, out size);
             try
             {
-                sendBuffers[connectedClients[toUser]].Write(buffer, 0, size);
-                //WriteAsync(buffer, size, connectedClients[toUser]);
-                /*NetworkStream writeStream = new NetworkStream(connectedClients[toUser]);
-                
-                formatter.Serialize(writeStream, command);
-                writeStream.Close();
-                writeStream = null;*/
+                connectedClients[toUser].Write(buffer, 0, size);
             }
             catch(Exception ex)
             {
@@ -175,13 +157,10 @@ namespace RocketWorks.Networking
             }
         }
 
-        public void WriteSocket(Socket socket)
+        public void WriteSocket(SocketConnection socket)
         {
-            if (sendStates[socket] || sendBuffers[socket].Length == 0)
-                return;
-
-            WriteAsync(sendBuffers[socket].GetBuffer(), (int)sendBuffers[socket].Position, socket);
-            sendBuffers[socket] = new MemoryStream();
+            if (socket.State == SocketState.PENDING)
+                socket.SendAsync();
         }
 
         public void RemoveConnection(int index)
@@ -202,118 +181,57 @@ namespace RocketWorks.Networking
 
         private void HandleCommands()
         {
-            while (commandQueue.Count != 0)
+            while (!addingCommand && commandQueue.Count != 0)
                 commander.Execute(commandQueue.Dequeue(), clientQueue.Dequeue());
-        }
-
-        private void WriteAsync(byte[] bytes, int size, Socket socket)
-        {
-            try
-            {
-                socket.BeginSend(bytes, 0, size, SocketFlags.None, WriteCompleted, socket);
-                sendStates[socket] = true;
-            } catch
-            {
-                socket.Disconnect(false);
-            }
-        }
-
-        private void WriteCompleted(IAsyncResult ar)
-        {
-            Socket sock = (Socket)ar.AsyncState;
-            int sent = sock.EndSend(ar);
-            sendStates[sock] = false;
-            //RocketLog.Log("Packet sent: " + sent + " bytes", this);
-        }
-
-        private void ReadAsync(Socket socket)
-        {
-            if (!socket.Connected)
-                return;
-            //RocketLog.Log("Receiving new packet");
-            byte[] buffer = new byte[4];
-            buffers[socket] = buffer;
-            socket.BeginReceive(buffer, 0, 4, SocketFlags.None, ReadPacketSize, socket);
-        }
-
-        private void ReadPacketSize(IAsyncResult ar)
-        {
-            Socket socket = (Socket)ar.AsyncState;
-            int packets = socket.EndReceive(ar);
-
-            try
-            {
-                if (packets > 0)
-                {
-                    BinaryReader reader = new BinaryReader(new MemoryStream(buffers[socket]));
-                    int size = reader.ReadInt32();
-                    buffers[socket] = new byte[size];
-                    socket.BeginReceive(buffers[socket], 0, size, SocketFlags.None, ReadCommandPacket, socket);
-                } else
-                {
-                    buffers[socket] = new byte[0];
-                    ReadSocket(socket);
-                }
-            }
-            catch
-            {
-                RocketLog.Log("ReadError", this);
-            }
-
-        }
-
-        private void ReadCommandPacket(IAsyncResult ar)
-        {
-            Socket socket = (Socket)ar.AsyncState;
-            int packets = socket.EndReceive(ar);
-
-            try
-            {
-                if (packets > 0)
-                {
-                    MemoryStream mem = new MemoryStream(buffers[socket]);
-                    INetworkCommand command = rocketizer.ReadObject<INetworkCommand>(mem);
-                    if (command == null)
-                        throw new Exception("Command could not be read...");
-
-                    commandQueue.Enqueue(command);
-                    clientQueue.Enqueue(connectedClients.IndexOf(socket));
-                }
-            }
-            catch(Exception ex)
-            {
-                RocketLog.Log("ReadError: " + ex.Message + ex.StackTrace, this);
-            }
-
-            buffers[socket] = new byte[0];
-            ReadSocket(socket);
         }
 
         private byte[] CreateBuffer(object obj, out int size)
         {
-            rocketizer.SetStream(memStream);
+            rocketizer.SetWriteStream(memStream);
 
             memStream.Position = 4;
             rocketizer.WriteObject(obj);
-            //formatter.Serialize(memStream, obj);
             size = (int)memStream.Position;
             memStream.SetLength(size);
             byte[] returnValue = memStream.GetBuffer();
 
             memStream.Position = 0;
             bWriter.Write(size - 4);
+            bWriter.Flush();
 
             return returnValue;
         }
 
 
-        private void ReadSocket(Socket socket)
+        private void ReadSocket(SocketConnection socket)
         {
-            if (!buffers.ContainsKey(socket))
-                return;
+            if(!socket.IsReading)
+            socket.StartRead(
+                new Promise<StreamResult>().OnSucces(ReadCommand).OnFail(ReadFail).OnComplete(ReadComplete)
+                );
+        }
 
-            if(buffers[socket].Length == 0)
-                ReadAsync(socket);
+        private void ReadCommand(StreamResult stream)
+        {
+            addingCommand = true;
+            INetworkCommand command = rocketizer.ReadObject<INetworkCommand>(stream.stream);
+            if (command == null)
+                throw new Exception("Command could not be read...");
+
+            commandQueue.Enqueue(command);
+            clientQueue.Enqueue(connectedClients.IndexOf(stream.id));
+            addingCommand = false;
+        }
+
+        private void ReadFail(StreamResult result)
+        {
+            //Log some error here?
+            RocketLog.Log("Read failed", this);
+        }
+
+        private void ReadComplete(StreamResult result)
+        {
+            ReadSocket(result.id);
         }
 
         public void CloseSocket()
