@@ -13,9 +13,12 @@ public class ClassBuilder
     private bool hasNamespace = false;
 
     protected string name = "";
+    protected string baseName = "";
     public string Name { get { return name; } }
     protected string nameSpace = "";
+    protected string baseNamespace = "";
     public string FullName { get { return nameSpace + "." + name; } }
+    public string BaseName { get { return baseNamespace + "." + baseName; } }
 
     public ClassBuilder()
     {
@@ -42,6 +45,7 @@ public class ClassBuilder
         else
             stringBuilder.AppendLine(string.Format("public {2}{3} {0} : {1}", className, baseClass, partial ? "partial " : "", classOrStruct));
         name = className;
+        baseName = baseClass;
         this.nameSpace = nameSpace;
         stringBuilder.AppendLine("{");
     }

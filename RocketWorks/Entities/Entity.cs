@@ -82,6 +82,11 @@ namespace RocketWorks.Entities
             return (T)components[i];
         }
 
+        public IComponent GetComponent(int i)
+        {
+            return components[i];
+        }
+
         public bool HasComponents(int components)
         {
             return (composition & components) == components;

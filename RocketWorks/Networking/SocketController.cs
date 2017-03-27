@@ -167,7 +167,7 @@ namespace RocketWorks.Networking
         {
             if(!socket.Connected)
             {
-                connectedClients.Remove(socket);
+                //connectedClients.Remove(socket);
                 return;
             }
             if (socket.CanWrite)

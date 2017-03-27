@@ -7,13 +7,13 @@ using RocketWorks.Commands;
 
 namespace RocketWorks.Systems
 {
-    public class SendComponentsSystem<T, S> : SystemBase where T : IComponent where S : EntityContext
+    public class EstimateComponentsSystem<T, S> : SystemBase where T : IComponent where S : EntityContext
     {
         private SocketController socket;
         private Group componentGroup;
         private int compId;
 
-        public SendComponentsSystem(SocketController socket) : base()
+        public EstimateComponentsSystem(SocketController socket) : base()
         {
             this.socket = socket;
             this.tickRate = .2f;
@@ -32,9 +32,9 @@ namespace RocketWorks.Systems
 
         public override void Execute(float deltaTime)
         {
-            for(int i = 0; i < componentGroup.Count; i++)
+            for (int i = 0; i < componentGroup.Count; i++)
             {
-                socket.WriteSocket(new UpdateComponentCommand<S>(componentGroup[i].GetComponent<T>(compId), componentGroup[i].CreationIndex));
+                socket.WriteSocket(new EstimateComponentCommmand<S>(componentGroup[i].GetComponent<T>(compId), componentGroup[i].CreationIndex));
             }
         }
     }

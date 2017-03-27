@@ -32,13 +32,17 @@ namespace RocketWorks
         public void Normalize()
         {
             float length = Magnitude();
+            if (length == 0f)
+                return;
             x /= length;
             y /= length;
         }
         public Vector2 Normalized()
         {
             float length = Magnitude();
-            return new Vector2(x = length, y = length);
+            if (length == 0f)
+                return Vector2.zero;
+            return new Vector2(x / length, y / length);
         }
         public float Angle()
         {

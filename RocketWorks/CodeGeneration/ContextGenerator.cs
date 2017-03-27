@@ -83,6 +83,7 @@ namespace RocketWorks.CodeGeneration
                 {
                     builders.Add(new ContextGenericBuilder(type, generatedContexts[i]));
                     generatedCommands.Add(builders[builders.Count - 1].FullName);
+                    generatedCommands.Add(builders[builders.Count - 1].BaseName);
                 }
             } else
             {

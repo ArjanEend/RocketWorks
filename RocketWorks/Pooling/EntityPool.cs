@@ -119,6 +119,22 @@ namespace RocketWorks.Pooling
             }
         }
 
+        public Entity GetEntity(uint hash, int uid = -1)
+        {
+            if (!statedObjects.ContainsKey(uid))
+                statedObjects.Add(uid, new Dictionary<uint, Entity>());
+            Dictionary<uint, Entity> coll = statedObjects[uid];
+            if (coll.ContainsKey(hash))
+            {
+                return coll[hash];
+            }
+            else
+            {
+                RocketLog.Log("Component update on non-existing entity: " + hash + ", " + uid, this);
+            }
+            return null;
+        }
+
         public int GetIndexOf(Type t)
         {
             return contextCallback(t);

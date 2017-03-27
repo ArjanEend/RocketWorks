@@ -11,7 +11,9 @@ namespace RocketWorks.CodeGeneration
         {
             BuildImports("System", "RocketWorks.Entities");
             BuildHeader(type.Namespace, contextName + type.Name.Substring(0, type.Name.Length - 2), 
-                type.ToGenericTypeString().Replace("<T>", "<" + contextName + ">"));
+                type.ToGenericTypeString().Replace("<T>", "<RocketWorks.Entities." + contextName + ">"));
+
+            baseNamespace = type.Namespace;
 
             string constructorLines = "";
             List<string> types = new List<string>();
