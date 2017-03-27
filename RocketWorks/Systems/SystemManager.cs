@@ -42,7 +42,7 @@ namespace RocketWorks.Systems
                 if(storedDelays[systems[i]] <= 0f)
                 {
                     storedDelays[systems[i]] = systems[i].TickRate;
-                    systems[i].Execute();
+                    systems[i].Execute(deltaTime);
                 }
                 storedDelays[systems[i]] -= deltaTime;
             }

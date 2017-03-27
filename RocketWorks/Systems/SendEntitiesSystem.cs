@@ -31,13 +31,13 @@ namespace RocketWorks.Systems
             throw new NotImplementedException();
         }
 
-        public override void Execute()
+        public override void Execute(float deltaTime)
         {
             List<Entity> entities = componentGroup.NewEntities;
             for (int i = 0; i < entities.Count; i++)
             {
                 socket.WriteSocket(new MainContextCreateEntityCommand(entities[i]));
-                RocketLog.Log("Send entity over network", this);
+                //RocketLog.Log("Send entity over network", this);
                 entities[i].Reset();
             }
         }

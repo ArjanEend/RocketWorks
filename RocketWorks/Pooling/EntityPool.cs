@@ -94,7 +94,7 @@ namespace RocketWorks.Pooling
             entity.TriggerEvent += OnTriggerAdded;
             entity.DestroyEvent += OnEntityDestroyed;
 
-            RocketLog.Log("Added Entity: " + entity.CreationIndex + " uid: " + uid + " rewriteIndex: " + rewriteIndex, this);
+            //RocketLog.Log("Added Entity: " + entity.CreationIndex + " uid: " + uid + " rewriteIndex: " + rewriteIndex, this);
             foreach (KeyValuePair<int, Group> group in typeGroups)
             {
                 if (group.Value.HasComponents(entity.Composition))

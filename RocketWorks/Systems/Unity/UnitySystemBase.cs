@@ -24,7 +24,7 @@ namespace RocketWorks.Systems
             return instance;
         }
         public abstract void Initialize(Contexts contexts);
-        public abstract void Execute();
+        public abstract void Execute(float deltaTime);
         public abstract void Destroy();
     }
 }

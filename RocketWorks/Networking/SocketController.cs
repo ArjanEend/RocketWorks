@@ -69,14 +69,16 @@ namespace RocketWorks.Networking
             try
             {
                 socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.KeepAlive, true);
                 if (server)
                 {
                     socket.LingerState = new LingerOption(false, 0);
                     IPAddress ipAddress = IPAddress.Parse("127.0.0.1");
                     IPEndPoint localEndPoint = new IPEndPoint(ipAddress, port);
                     socket.Bind(localEndPoint);
+
+                    socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
                     socket.Listen(10);
+
                     WaitForConnection(socket);
                 }
 
@@ -97,9 +99,11 @@ namespace RocketWorks.Networking
         {
             IPAddress ipAddress = IPAddress.Parse(ip);
             IPEndPoint localEndPoint = new IPEndPoint(ipAddress, port);
-
+            
             socket.Connect(localEndPoint);
+            socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
             socket.NoDelay = true;
+
             connectedClients.Add(new SocketConnection(socket, connectedClients.Count));
         }
 
@@ -112,6 +116,8 @@ namespace RocketWorks.Networking
         {
             Socket newSocket = socket.EndAccept(ar);
             newSocket.NoDelay = true;
+            newSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+
             SocketConnection connection = new SocketConnection(newSocket, connectedClients.Count);
             connectedClients.Add(connection);
             WaitForConnection(socket);
@@ -159,7 +165,12 @@ namespace RocketWorks.Networking
 
         public void WriteSocket(SocketConnection socket)
         {
-            if (socket.State == SocketState.PENDING)
+            if(!socket.Connected)
+            {
+                connectedClients.Remove(socket);
+                return;
+            }
+            if (socket.CanWrite)
                 socket.SendAsync();
         }
 

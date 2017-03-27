@@ -31,12 +31,18 @@ namespace RocketWorks.Networking
         private MemoryStream sendBuffer;
         private SocketState state;
         public SocketState State { get { return state; } }
+
+        private IAsyncResult asyncResult;
+        public bool CanWrite { get { return sendBuffer.Position != 0 && state != SocketState.SENDING; } }
+
         private bool isReading = false;
         public bool IsReading { get { return isReading; } }
         private Socket socket;
         private int id;
 
         private int readCounter;
+
+        public bool Connected { get { return socket.Connected; } }
 
         public SocketConnection(Socket socket, int id)
         {
@@ -51,7 +57,7 @@ namespace RocketWorks.Networking
         public void Write(byte[] buffer, int v, int size)
         {
             sendBuffer.Write(buffer, v, size);
-            if(state == SocketState.IDLE)
+            if(sendBuffer.Position != 0 && state == SocketState.IDLE)
                 state = SocketState.PENDING;
         }
 
@@ -65,11 +71,21 @@ namespace RocketWorks.Networking
         {
             try
             {
-                socket.BeginSend(bytes, 0, size, SocketFlags.None, WriteCompleted, socket);
+                SocketError err;
+                //RocketLog.Log("Start sending " + size);
+                asyncResult = null;
+                socket.BeginSend(bytes, 0, size, SocketFlags.None, out err, WriteCompleted, socket);
                 state = SocketState.SENDING;
+                if (err != SocketError.Success)
+                { 
+                    RocketLog.Log(err.ToString());
+                    //Disconnect for now
+                    socket.Disconnect(false);
+                }
             }
-            catch
+            catch (Exception ex)
             {
+                RocketLog.Log(ex.Message, this);
                 socket.Disconnect(false);
             }
         }
@@ -77,10 +93,14 @@ namespace RocketWorks.Networking
 
         private void WriteCompleted(IAsyncResult ar)
         {
+            asyncResult = ar;
             Socket sock = (Socket)ar.AsyncState;
             int sent = sock.EndSend(ar);
-            state = SocketState.IDLE;
-            //RocketLog.Log("Packet sent: " + sent + " bytes", this);
+            if (sendBuffer.Position != 0)
+                SendAsync();
+            else
+                state = SocketState.IDLE;
+            //RocketLog.Log("Packet sent: " + sent + " bytes " + sock.Connected, this);
         }
 
         public void StartRead(IPromise<StreamResult> promise)
@@ -103,7 +123,10 @@ namespace RocketWorks.Networking
             isReading = true;
             byte[] buffer = new byte[4];
             this.buffer = buffer;
-            socket.BeginReceive(buffer, 0, 4, SocketFlags.Partial, ReadPacketSize, promise);
+            SocketError err;
+            socket.BeginReceive(buffer, 0, 4, SocketFlags.Partial, out err, ReadPacketSize, promise);
+            if (err != null && err != SocketError.Success)
+                RocketLog.Log(err.ToString());
         }
 
         private void ReadPacketSize(IAsyncResult ar)
@@ -118,7 +141,7 @@ namespace RocketWorks.Networking
                     BinaryReader reader = new BinaryReader(new MemoryStream(buffer));
                     int size = reader.ReadInt32();
                     buffer = new byte[size];
-                    socket.BeginReceive(buffer, 0, size, SocketFlags.None, ReadCommandPacket, promise);
+                    socket.BeginReceive(buffer, 0, size, SocketFlags.Partial, ReadCommandPacket, promise);
                 }
                 else
                 {

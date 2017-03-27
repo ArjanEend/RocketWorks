@@ -30,7 +30,7 @@ namespace RocketWorks.Systems
             throw new NotImplementedException();
         }
 
-        public override void Execute()
+        public override void Execute(float deltaTime)
         {
             for(int i = 0; i < componentGroup.Count; i++)
             {
