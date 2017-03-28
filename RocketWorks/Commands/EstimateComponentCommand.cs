@@ -29,6 +29,7 @@ namespace RocketWorks.Commands
         public override void Execute(T target, int uid)
         {
             IEstimatable comp = (IEstimatable)target.Pool.GetEntity(hash, uid).GetComponent(target.Pool.GetIndexOf(component.GetType()));
+            RocketLog.Log("Estimate on: " + hash + " : " + uid, this);
             long ticksNow = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds;
             comp.Estimate(component, (ticksNow - ticks) * .01f);
         }
