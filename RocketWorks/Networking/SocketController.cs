@@ -198,10 +198,10 @@ namespace RocketWorks.Networking
 
         private byte[] CreateBuffer(object obj, out int size)
         {
-            rocketizer.SetWriteStream(memStream);
+            //BinaryWriter writer = new BinaryWriter(memStream);
 
             memStream.Position = 4;
-            rocketizer.WriteObject(obj);
+            rocketizer.WriteObject(obj, bWriter);
             size = (int)memStream.Position;
             memStream.SetLength(size);
             byte[] returnValue = memStream.GetBuffer();
@@ -225,10 +225,11 @@ namespace RocketWorks.Networking
         private void ReadCommand(StreamResult stream)
         {
             addingCommand = true;
-            INetworkCommand command = rocketizer.ReadObject<INetworkCommand>(stream.stream);
+            BinaryReader reader = new BinaryReader(stream.stream);
+            INetworkCommand command = rocketizer.ReadObject<INetworkCommand>(reader);
             if (command == null)
                 throw new Exception("Command could not be read...");
-
+            
             commandQueue.Enqueue(command);
             clientQueue.Enqueue(connectedClients.IndexOf(stream.id));
             addingCommand = false;

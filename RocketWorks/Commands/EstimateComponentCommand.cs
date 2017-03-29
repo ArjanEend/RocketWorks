@@ -12,7 +12,7 @@ namespace RocketWorks.Commands
     {
         protected IComponent component;
         protected uint hash;
-        protected long ticks;
+        protected ulong ticks;
 
         public EstimateComponentCommmand() { }
 
@@ -23,15 +23,15 @@ namespace RocketWorks.Commands
                 throw new Exception("Estimatable is not implemented in this component");
             this.component = component;
             this.hash = hash;
-            this.ticks = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds;
+            this.ticks = (ulong)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds;
         }
 
         public override void Execute(T target, int uid)
         {
-            IEstimatable comp = (IEstimatable)target.Pool.GetEntity(hash, uid).GetComponent(target.Pool.GetIndexOf(component.GetType()));
-            RocketLog.Log("Estimate on: " + hash + " : " + uid, this);
-            long ticksNow = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds;
-            comp.Estimate(component, (ticksNow - ticks) * .01f);
+            Entity ent = target.Pool.GetEntity(hash, uid);
+            IEstimatable comp = (IEstimatable)ent.GetComponent(target.Pool.GetIndexOf(component.GetType()));
+            ulong ticksNow = (ulong)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds;
+            comp.Estimate(component, (ticksNow - ticks) * .001f, ent.IsLocal);
         }
     }
 }

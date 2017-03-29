@@ -8,10 +8,10 @@ namespace RocketWorks.Serialization
 {
     public partial class Rocketizer
     {
-        private BinaryWriter writer;
+        /*private BinaryWriter writer;
         public BinaryWriter Writer { get { return writer; } }
         private BinaryReader reader;
-        public BinaryReader Reader { get { return reader; } }
+        public BinaryReader Reader { get { return reader; } }*/
 
         private Dictionary<Type, IInstanceProvider> instanceProviders = new Dictionary<Type, IInstanceProvider>();
 
@@ -19,25 +19,13 @@ namespace RocketWorks.Serialization
         private Dictionary<int, Type> idToType = new Dictionary<int, Type>();
         private Dictionary<Type, int> typeToId = new Dictionary<Type, int>();
 
-        public void SetWriteStream(MemoryStream memStream)
-        {
-            writer = new BinaryWriter(memStream);
-        }
-
-        public void SetReadStream(MemoryStream stream)
-        {
-            reader = new BinaryReader(stream);
-        }
-
         public void AddProvider(IInstanceProvider provider)
         {
             instanceProviders.Add(provider.ObjectType, provider);
         }
 
-        public void WriteObject(object ob, MemoryStream memStream = null)
+        public void WriteObject(object ob, BinaryWriter writer)
         {
-            if (memStream != null)
-                SetWriteStream(memStream);
             try { 
 
             IRocketable rocketable = ob as IRocketable;
@@ -46,7 +34,7 @@ namespace RocketWorks.Serialization
 
                //     RocketLog.Log("Serialize : " + rocketable.GetType().Name, this);
                 writer.Write(typeToId[rocketable.GetType()]);
-                rocketable.Rocketize(this);
+                rocketable.Rocketize(this, writer);
             } else
             {
                 //RocketLog.Log("Could not write: " + ob + ", rocketable: " + (ob != null));
@@ -60,11 +48,8 @@ namespace RocketWorks.Serialization
             writer.Flush();
         }
 
-        public T ReadObject<T>(MemoryStream memStream = null)
+        public T ReadObject<T>(BinaryReader reader)
         {
-            if (memStream != null)
-                SetReadStream(memStream);
-
             int type = reader.ReadInt32();
             if (idToType.ContainsKey(type))
             {
@@ -74,7 +59,7 @@ namespace RocketWorks.Serialization
                     instance = (IRocketable)instanceProviders[idToType[type]].GetInstance();
                 else
                     instance = (IRocketable)Activator.CreateInstance(idToType[type]);
-                instance.DeRocketize(this);
+                instance.DeRocketize(this, reader);
                 //RocketLog.Log("Cast to: " + idToType[type].Name + " : "  + typeof(T).Name);
                 try
                 {

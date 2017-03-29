@@ -25,6 +25,12 @@ namespace RocketWorks
             return this;
         }
 
+        public static Vector2 Lerp(Vector2 position1, Vector2 position2, float deltaTime)
+        {
+            deltaTime = Mathf.Clamp(deltaTime, 0f, 1f);
+            return new Vector2(position1.x + deltaTime * (position2.x - position1.x), position1.y + deltaTime * (position2.y - position1.y));
+        }
+
         public float Magnitude()
         {
             return Mathf.Sqrt(x * x + y * y);

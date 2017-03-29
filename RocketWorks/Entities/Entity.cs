@@ -35,6 +35,13 @@ namespace RocketWorks.Entities
             set { owner = value; }
         }
 
+        private bool isLocal = false;
+        public bool IsLocal
+        {
+            get { return isLocal; }
+            set { isLocal = value; }
+        }
+
         private bool enabled;
         public bool Enabled
         {

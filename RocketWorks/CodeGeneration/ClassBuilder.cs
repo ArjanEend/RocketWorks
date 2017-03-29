@@ -56,6 +56,8 @@ public class ClassBuilder
         for(int i = 0; i < methodTypes.Length; i++)
         {
             stringBuilder.Append(methodTypes[i] + " var_" + methodTypes[i].ToLower());
+            if (i != methodTypes.Length - 1)
+                stringBuilder.Append(", ");
         }
         stringBuilder.Append(")\n");
         stringBuilder.AppendLine("{");

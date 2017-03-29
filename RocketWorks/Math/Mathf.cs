@@ -29,5 +29,10 @@ namespace RocketWorks
         {
             return (int)Math.Round(v);
         }
+
+        public static float Clamp(float value, float v1, float v2)
+        {
+            return Math.Min(Math.Max(value, v1), v2);
+        }
     }
 }
