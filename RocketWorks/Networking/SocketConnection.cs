@@ -69,37 +69,44 @@ namespace RocketWorks.Networking
 
         private void WriteAsync(byte[] bytes, int size, Socket socket)
         {
-            try
+            lock (this)
             {
-                SocketError err;
-                //RocketLog.Log("Start sending " + size);
-                asyncResult = null;
-                socket.BeginSend(bytes, 0, size, SocketFlags.None, out err, WriteCompleted, socket);
-                state = SocketState.SENDING;
-                if (err != SocketError.Success)
-                { 
-                    RocketLog.Log(err.ToString());
-                    //Disconnect for now
+                try
+                {
+                    SocketError err;
+                    //RocketLog.Log("Start sending " + size);
+                    asyncResult = null;
+                    socket.BeginSend(bytes, 0, size, SocketFlags.None, out err, WriteCompleted, socket);
+                    state = SocketState.SENDING;
+                    if (err != SocketError.Success)
+                    {
+                        RocketLog.Log(err.ToString());
+                        //Disconnect for now
+                        socket.Disconnect(false);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    RocketLog.Log(ex.Message, this);
                     socket.Disconnect(false);
                 }
-            }
-            catch (Exception ex)
-            {
-                RocketLog.Log(ex.Message, this);
-                socket.Disconnect(false);
             }
         }
 
 
         private void WriteCompleted(IAsyncResult ar)
         {
-            asyncResult = ar;
-            Socket sock = (Socket)ar.AsyncState;
-            int sent = sock.EndSend(ar);
-            if (sendBuffer.Position != 0)
-                SendAsync();
-            else
-                state = SocketState.IDLE;
+            lock(this)
+            {
+                asyncResult = ar;
+                Socket sock = (Socket)ar.AsyncState;
+                int sent = sock.EndSend(ar);
+                if (sendBuffer.Position != 0)
+                    SendAsync();
+                else
+                    state = SocketState.IDLE;
+
+            }
             //RocketLog.Log("Packet sent: " + sent + " bytes " + sock.Connected, this);
         }
 
@@ -166,30 +173,33 @@ namespace RocketWorks.Networking
             IPromise<StreamResult> promise = (IPromise<StreamResult>)ar.AsyncState;
             int packets = socket.EndReceive(ar);
 
-            try
+            lock (this)
             {
-                if (packets > 0)
+                try
                 {
-                    MemoryStream mem = new MemoryStream(buffer);
-                    promise.Succeed(new StreamResult(mem, this));
+                    if (packets > 0)
+                    {
+                        MemoryStream mem = new MemoryStream(buffer);
+                        promise.Succeed(new StreamResult(mem, this));
+                    }
+                    else
+                    {
+                        RocketLog.Log("!!!!!!!!!!!!Fail command read", this);
+                        buffer = new byte[0];
+                        promise.Fail(new StreamResult(null, this));
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    RocketLog.Log("!!!!!!!!!!!!Fail command read", this);
-                    buffer = new byte[0];
+                    RocketLog.Log("ReadError: " + ex.Message + ex.StackTrace, this);
+
                     promise.Fail(new StreamResult(null, this));
                 }
-            }
-            catch (Exception ex)
-            {
-                RocketLog.Log("ReadError: " + ex.Message + ex.StackTrace, this);
 
-                promise.Fail(new StreamResult(null, this));
+                promise.Complete(new StreamResult(null, this));
+                buffer = new byte[0];
+                isReading = false;
             }
-
-            promise.Complete(new StreamResult(null, this));
-            buffer = new byte[0];
-            isReading = false;
         }
 
         public void Close()

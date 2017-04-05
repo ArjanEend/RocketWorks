@@ -101,6 +101,7 @@ namespace RocketWorks.Grouping
         {
             onEntityRemoved(entity);
             entities.Remove(entity);
+            newEntities.Remove(entity);
         }
     }
 }

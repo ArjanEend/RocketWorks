@@ -28,8 +28,8 @@ namespace RocketWorks.Entities
             set { creationIndex = value; }
         }
 
-        private uint owner = 0;
-        public uint Owner
+        private int owner = 0;
+        public int Owner
         {
             get { return owner; }
             set { owner = value; }

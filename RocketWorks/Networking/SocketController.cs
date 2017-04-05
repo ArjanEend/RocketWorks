@@ -64,15 +64,27 @@ namespace RocketWorks.Networking
             UserIDSetEvent(uid);
         }
 
-        public void SetupSocket(bool server = true, int port = 9001)
+        public void SetupSocket(bool server = true, string serverIP = "127.0.0.1", int port = 9001, bool waitforIP = false)
         {
+            if (waitforIP)
+            {
+                Console.WriteLine("Please enter your desired IP (to which users will be connecting) or leave empty for localhost");
+                string newIP = Console.ReadLine();
+                if (!string.IsNullOrEmpty(newIP))
+                    serverIP = newIP;
+
+                serverIP.Replace("\n", "");
+
+                Console.WriteLine("Setting up server at " + serverIP);
+            }
             try
             {
                 socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 if (server)
                 {
+                    
                     socket.LingerState = new LingerOption(false, 0);
-                    IPAddress ipAddress = IPAddress.Parse("127.0.0.1");
+                    IPAddress ipAddress = IPAddress.Parse(serverIP);
                     IPEndPoint localEndPoint = new IPEndPoint(ipAddress, port);
                     socket.Bind(localEndPoint);
 
@@ -91,7 +103,7 @@ namespace RocketWorks.Networking
             }
             catch (Exception e)
             {
-                RocketLog.Log("Socket error:" + e, this);
+                RocketLog.Log("Error setting up server please restart. \nSocket error:" + e, this);
             }
         }
 

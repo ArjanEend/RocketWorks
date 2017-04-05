@@ -16,8 +16,8 @@ namespace RocketWorks.Serialization
         private Dictionary<Type, IInstanceProvider> instanceProviders = new Dictionary<Type, IInstanceProvider>();
 
         //private MemoryStream memStream;
-        private Dictionary<int, Type> idToType = new Dictionary<int, Type>();
-        private Dictionary<Type, int> typeToId = new Dictionary<Type, int>();
+        private Dictionary<short, Type> idToType = new Dictionary<short, Type>();
+        private Dictionary<Type, short> typeToId = new Dictionary<Type, short>();
 
         public void AddProvider(IInstanceProvider provider)
         {
@@ -37,8 +37,9 @@ namespace RocketWorks.Serialization
                 rocketable.Rocketize(this, writer);
             } else
             {
-                //RocketLog.Log("Could not write: " + ob + ", rocketable: " + (ob != null));
-                writer.Write(-1);
+                if(ob != null)
+                    RocketLog.Log("Could not write: " + ob + ", rocketable: " + (ob != null));
+                writer.Write((short)-1);
             }
             }
             catch(Exception ex)
@@ -50,7 +51,7 @@ namespace RocketWorks.Serialization
 
         public T ReadObject<T>(BinaryReader reader)
         {
-            int type = reader.ReadInt32();
+            short type = reader.ReadInt16();
             if (idToType.ContainsKey(type))
             {
                 //RocketLog.Log("Deserialize : " + idToType[type].Name, this);

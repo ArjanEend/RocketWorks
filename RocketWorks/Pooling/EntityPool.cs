@@ -86,17 +86,18 @@ namespace RocketWorks.Pooling
                 }
                 else
                 {
-                    RocketLog.Log("Skipping past Entity: " + entity.CreationIndex + " uid: " + uid + " rewriteIndex: " + rewriteIndex, this);
+                    RocketLog.Log("Skipping past Entity: " + entity.CreationIndex + " uid: " + uid + " rewriteIndex: " + rewriteIndex, entity);
                     return;
                 }
             }
 
             statedObjects[uid].Add(entity.CreationIndex, entity);
+            entity.Owner = uid;
             entity.CompositionChangeEvent += OnCompositionChanged;
             entity.TriggerEvent += OnTriggerAdded;
             entity.DestroyEvent += OnEntityDestroyed;
 
-            //RocketLog.Log("Added Entity: " + entity.CreationIndex + " uid: " + uid + " rewriteIndex: " + rewriteIndex, this);
+            RocketLog.Log("Added Entity: " + entity.CreationIndex + " uid: " + uid + " rewriteIndex: " + rewriteIndex, entity);
             foreach (KeyValuePair<int, Group> group in typeGroups)
             {
                 if (group.Value.HasComponents(entity.Composition))
@@ -117,7 +118,7 @@ namespace RocketWorks.Pooling
                 ent.ReplaceComponent(component, contextCallback(component.GetType()));
             } else
             {
-                RocketLog.Log("Component update on non-existing entity: " + hash + ", " + uid, this);
+                RocketLog.Log("Component update on non-existing entity: " + hash + ", " + uid + ", " + component.GetType(), component);
             }
         }
 
@@ -132,7 +133,7 @@ namespace RocketWorks.Pooling
             }
             else
             {
-                RocketLog.Log("Component update on non-existing entity: " + hash + ", " + uid, this);
+                RocketLog.Log("Can't find entity: " + hash + ", " + uid + ", " + componentAmount, this);
             }
             return null;
         }
@@ -145,6 +146,7 @@ namespace RocketWorks.Pooling
         public Entity GetObject(bool stated = false, int stateHolder = -1)
         {
             Entity ent = base.GetObject();
+            ent.Owner = stateHolder;
             if (stated)
                 statedObjects[stateHolder].Add(ent.CreationIndex, ent);
             return ent;
@@ -165,10 +167,12 @@ namespace RocketWorks.Pooling
             {
                 group.Value.RemoveEntity(ent);
             }
-            foreach (var kv in statedObjects)
+
+            if(statedObjects.ContainsKey(ent.Owner))
             {
-                if (kv.Value.ContainsKey(ent.CreationIndex))
-                    kv.Value.Remove(ent.CreationIndex);
+                var stateHolder = statedObjects[ent.Owner];
+                if (stateHolder.ContainsKey(ent.CreationIndex))
+                    stateHolder.Remove(ent.CreationIndex);
             }
         }
 
@@ -232,6 +236,7 @@ namespace RocketWorks.Pooling
         {
             Entity entity = new T();
             entity.CreationIndex = creationCount++;
+            entity.Owner = -1;
             entity.SetComponentCount(componentAmount);
             entity.CompositionChangeEvent += OnCompositionChanged;
             entity.Context = contextCallback;

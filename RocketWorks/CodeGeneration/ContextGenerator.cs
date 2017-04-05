@@ -37,7 +37,6 @@ namespace RocketWorks.CodeGeneration
             {
                 RocketLog.Log("FieldInfo: " + info[i].Name);
                 Type contextType = info[i].PropertyType;
-                types.Add(contextType);
 
                 var value = info[i].GetValue(contexts, null);
                 builders.Add(new ContextBuilder(value.GetType(), info[i].Name));
