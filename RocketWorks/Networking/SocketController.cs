@@ -237,13 +237,15 @@ namespace RocketWorks.Networking
         private void ReadCommand(StreamResult stream)
         {
             addingCommand = true;
-            BinaryReader reader = new BinaryReader(stream.stream);
-            INetworkCommand command = rocketizer.ReadObject<INetworkCommand>(reader);
-            if (command == null)
-                throw new Exception("Command could not be read...");
-            
-            commandQueue.Enqueue(command);
-            clientQueue.Enqueue(connectedClients.IndexOf(stream.id));
+            lock (stream)
+            {
+                BinaryReader reader = new BinaryReader(stream.stream);
+                INetworkCommand command = rocketizer.ReadObject<INetworkCommand>(reader);
+                if (command == null)
+                    throw new Exception("Command could not be read...");
+
+                commander.Execute(command, connectedClients.IndexOf(stream.id));
+            }
             addingCommand = false;
         }
 

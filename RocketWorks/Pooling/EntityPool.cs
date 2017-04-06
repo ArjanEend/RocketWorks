@@ -112,7 +112,7 @@ namespace RocketWorks.Pooling
             if (!statedObjects.ContainsKey(uid))
                 statedObjects.Add(uid, new Dictionary<uint, Entity>());
             Dictionary<uint, Entity> coll = statedObjects[uid];
-           if(coll.ContainsKey(hash))
+            if(coll.ContainsKey(hash))
             {
                 Entity ent = coll[hash];
                 ent.ReplaceComponent(component, contextCallback(component.GetType()));
