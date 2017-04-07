@@ -17,13 +17,19 @@ namespace RocketWorks.Systems
         public SendEntitiesSystem(SocketController socket) : base()
         {
             this.socket = socket;
-            this.tickRate = .2f;
+            //this.tickRate = .2f;
         }
 
         public override void Initialize(Contexts contexts)
         {
             compId = contexts.GetContext<S>().GetIndexOf(typeof(T));
             componentGroup = contexts.GetContext<S>().Pool.GetGroup(typeof(T));
+            componentGroup.OnEntityAdded += WriteEntity;
+        }
+
+        private void WriteEntity(Entity obj)
+        {
+            socket.WriteSocket(new CreateEntityCommand<S>(obj));
         }
 
         public override void Destroy()
@@ -33,13 +39,13 @@ namespace RocketWorks.Systems
 
         public override void Execute(float deltaTime)
         {
-            List<Entity> entities = componentGroup.NewEntities;
+            /*List<Entity> entities = componentGroup.NewEntities;
             for (int i = 0; i < entities.Count; i++)
             {
                 socket.WriteSocket(new CreateEntityCommand<S>(entities[i]));
                 //RocketLog.Log("Send entity over network", this);
                 entities[i].Reset();
-            }
+            }*/
         }
     }
 }
