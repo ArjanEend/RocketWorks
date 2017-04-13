@@ -151,7 +151,10 @@ namespace RocketWorks.Networking
             byte[] buffer = CreateBuffer(command, out size);
             try
             {
-                connectedClients[toUser].Write(buffer, 0, size);
+                SocketConnection connection = connectedClients[toUser];
+                connection.Write(buffer, 0, size);
+                if (connection.CanWrite)
+                    connection.SendAsync();
             }
             catch(Exception ex)
             {
