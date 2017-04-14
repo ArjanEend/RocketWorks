@@ -43,6 +43,8 @@ namespace RocketWorks.Networking
 
         public SocketController(NetworkCommander commander, Rocketizer rocketizer)
         {
+            SetTimeStamp(DateTime.UtcNow);
+
             connectedClients = new List<SocketConnection>();
             
             memStream = new MemoryStream(2048);
@@ -64,6 +66,11 @@ namespace RocketWorks.Networking
             UserIDSetEvent(uid);
         }
 
+        public void SetTimeStamp(DateTime timeStamp)
+        {
+            ServerTimeStamp.SetServerTime(timeStamp);
+        }
+
         public void SetupSocket(bool server = true, string serverIP = "127.0.0.1", int port = 9001, bool waitforIP = false)
         {
             if (waitforIP)
@@ -82,9 +89,9 @@ namespace RocketWorks.Networking
                 socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 if (server)
                 {
-                    
+
                     socket.LingerState = new LingerOption(false, 0);
-                    IPAddress ipAddress = IPAddress.Parse(serverIP);
+                    IPAddress ipAddress = serverIP == "127.0.0.1" ? IPAddress.Any : IPAddress.Parse(serverIP);
                     IPEndPoint localEndPoint = new IPEndPoint(ipAddress, port);
                     socket.Bind(localEndPoint);
 
@@ -109,7 +116,14 @@ namespace RocketWorks.Networking
 
         public void Connect(string ip, int port)
         {
-            IPAddress ipAddress = IPAddress.Parse(ip);
+            IPAddress ipAddress = null;
+            IPAddress.TryParse(ip, out ipAddress);
+            if(ipAddress == null)
+            {
+                IPHostEntry entry = Dns.GetHostEntry(ip);
+                ipAddress = entry.AddressList[0];
+
+            }
             IPEndPoint localEndPoint = new IPEndPoint(ipAddress, port);
             
             socket.Connect(localEndPoint);
@@ -137,7 +151,7 @@ namespace RocketWorks.Networking
 
             int uid = connectedClients.IndexOf(connection);
 
-            WriteSocket(new SetUserIDCommand(uid), uid);
+            WriteSocket(new SetUserIDCommand(uid, DateTime.UtcNow), uid);
 
             UserConnectedEvent(uid);
         }
