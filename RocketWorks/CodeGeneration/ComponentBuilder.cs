@@ -41,7 +41,11 @@ namespace RocketWorks.CodeGeneration
                     string readerFunction = "Read" + fields[i].FieldType.Name;
 
                     deserializeLines += string.Format("{1} = var_binaryreader.{0}();", readerFunction, fields[i].Name);
-                } else
+                } else if (fields[i].FieldType.IsArray)
+                {
+                    generationLines += string.Format("var_binarywriter.Write({0}.Lenght);", fields[i].Name);
+                }
+                else
                 {
                     generationLines += "var_rocketizer.WriteObject(" + fields[i].Name + ", var_binarywriter);";
                     deserializeLines += string.Format("{1} = var_rocketizer.ReadObject<{0}>(var_binaryreader);", fields[i].FieldType.FullName, fields[i].Name);

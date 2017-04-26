@@ -8,13 +8,18 @@ namespace RocketWorks.Systems
     {
         protected List<Group> groups = new List<Group>();
 
+        protected Contexts contexts;
+
         protected float tickRate = 0f;
         public float TickRate
         {
             get { return tickRate; }
         }
 
-        public abstract void Initialize(Contexts contexts);
+        public virtual void Initialize(Contexts contexts)
+        {
+            this.contexts = contexts;
+        }
         public abstract void Execute(float deltaTime);
         public abstract void Destroy();
         public virtual void Cleanup()
