@@ -15,7 +15,6 @@ namespace RocketWorks.Entities
         public EntityContext()
         {
             components = new Dictionary<Type, int>();
-            //pool = new EntityPool(GetIndexOf);
         }
 
         public int GetIndexOf(Type type)
