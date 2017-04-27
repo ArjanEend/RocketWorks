@@ -65,9 +65,29 @@ namespace RocketWorks
             return new Vector2(a.x + b.x, a.y + b.y);
         }
 
+        public static Vector2 operator +(Vector2 a, float b)
+        {
+            return new Vector2(a.x + b, a.y + b);
+        }
+
         public static Vector2 operator -(Vector2 a, Vector2 b)
         {
             return new Vector2(a.x - b.x, a.y - b.y);
+        }
+
+        public static Vector2 operator -(Vector2 a, float b)
+        {
+            return new Vector2(a.x - b, a.y - b);
+        }
+
+        public static Vector2 operator -(float a, Vector2 b)
+        {
+            return new Vector2(a - b.x, a - b.y);
+        }
+
+        public static Vector2 operator -(Vector2 b)
+        {
+            return new Vector2(-b.x, -b.y);
         }
 
         public static Vector2 operator *(float d, Vector2 v)
@@ -78,6 +98,11 @@ namespace RocketWorks
         public static Vector2 operator *(Vector2 v, float d)
         {
             return new Vector2(v.x * d, v.y * d);
+        }
+
+        public static Vector2 operator /(Vector2 v, float d)
+        {
+            return new Vector2(v.x / d, v.y / d);
         }
 
         public static bool operator ==(Vector2 a, Vector2 b)

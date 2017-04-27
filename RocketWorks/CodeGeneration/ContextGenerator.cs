@@ -75,7 +75,7 @@ namespace RocketWorks.CodeGeneration
         {
             if (type.IsInterface || type.IsAbstract)
                 return;
-            if (types.Contains(type) || type.GetInterface("IRocketable") != null || (!string.IsNullOrEmpty(type.Namespace) && !type.Namespace.Contains("RocketWorks") && !type.Namespace.Contains("Implementation")))
+            if (types.Contains(type) || type.GetInterface("IRocketable") != null || (!string.IsNullOrEmpty(type.Namespace) && !type.Namespace.Contains("RocketWorks") && !type.Namespace.Contains("Components")))
                 return;
 
             //I assume only context-sensitive cases are handled here...

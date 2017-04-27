@@ -9,12 +9,16 @@ namespace RocketWorks.CodeGeneration
     { 
         public ContextBuilder(Type type, string fieldName)
         {
-            BuildImports("System", "Implementation.Components", "RocketWorks.Pooling");
+            Type[] components = type.GetGenericArguments();
+            for (int i = 0; i < components.Length; i++)
+            {
+                BuildImports(components[i].Namespace);
+            }
+            BuildImports("System", "RocketWorks.Pooling");
             BuildHeader(type.Namespace, fieldName + "Context", type.ToGenericTypeString());
 
             BuildConstructor(string.Format("this.pool = new EntityPool<{0}>(GetIndexOf, components.Count);", fieldName + "Entity"));
             
-
             BuildEnding();
 
             RocketLog.Log(StringBuilder.ToString());

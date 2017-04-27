@@ -10,7 +10,11 @@ namespace RocketWorks.CodeGeneration
         public EntityBuilder(string contextName, Type[] components)
         {
             contextName = contextName.Replace("Context", "");
-            BuildImports("Implementation.Components", "RocketWorks.Entities", "System.Collections.Generic");
+            for(int i = 0; i < components.Length; i++)
+            {
+                BuildImports(components[i].Namespace);
+            }
+            BuildImports("RocketWorks.Entities", "System.Collections.Generic");
             BuildHeader("", contextName + "Entity", "Entity", true);
 
             for(int i = 0; i < components.Length; i++)

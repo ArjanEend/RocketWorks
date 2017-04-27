@@ -23,13 +23,15 @@ public class ClassBuilder
     public ClassBuilder()
     {
         stringBuilder = new StringBuilder();
+        stringBuilder.AppendLine("#pragma warning disable");
     }
 
     protected void BuildImports(params string[] extras)
     {
         for(int i = 0; i < extras.Length; i++)
         {
-            stringBuilder.AppendLine("using " + extras[i] + ";\n");
+            if(!string.IsNullOrEmpty(extras[i]))
+                stringBuilder.AppendLine("using " + extras[i] + ";");
         }
     }
 
@@ -108,5 +110,6 @@ public class ClassBuilder
         if(hasNamespace)
             stringBuilder.AppendLine("}");
         stringBuilder.AppendLine("}");
+        stringBuilder.AppendLine("#pragma warning restore");
     }
 }
