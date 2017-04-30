@@ -33,7 +33,7 @@ namespace RocketWorks.Entities
 
         public void RocketizeReference(Rocketizer rocketizer)
         {
-            //rocketizer.Writer.Write(creationIndex);
+            //writer.Writer.Write(creationIndex);
         }
     }
 }

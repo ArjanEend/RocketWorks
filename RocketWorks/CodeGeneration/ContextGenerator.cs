@@ -64,7 +64,7 @@ namespace RocketWorks.CodeGeneration
             types.Add(typeof(Entity));
             for (int i = 0; i < generatedContexts.Count; i++)
             {
-                generatedCommands.Add(typeof(EntityReference<>).Namespace + ".EntityReference<" + typeof(EntityReference<>).Namespace + "." + generatedContexts[i] + ">");
+                //generatedCommands.Add(typeof(EntityReference).Namespace + ".EntityReference<" + typeof(EntityReference).Namespace + "." + generatedContexts[i] + ">");
             }
 
             builders.Add(new RocketizerBuilder(types, generatedContexts, generatedCommands));

@@ -4,14 +4,14 @@ using System.IO;
 
 namespace RocketWorks.Entities
 {
-    public partial struct EntityReference<T> : IRocketable where T : EntityContext
+    public partial struct EntityReference : IRocketable
     {
         public uint creationIndex;
         public int owner;
 
         public EntityContext context;
 
-        public Type ContextType { get { return typeof(T); } }
+        public Type ContextType { get { return context.GetType(); } }
 
         public EntityReference(uint creationIndex, int owner)
         {
@@ -27,14 +27,14 @@ namespace RocketWorks.Entities
             this.context = context;
         }
 
-        public static implicit operator Entity(EntityReference<T> ent)
+        public static implicit operator Entity(EntityReference ent)
         {
             return ent.context.Pool.GetEntity(ent.creationIndex, ent.owner);
         }
 
-        public static implicit operator EntityReference<T>(Entity ent)
-        {
-            return new EntityReference<T>(ent.CreationIndex, ent.Owner);
+        public static implicit operator EntityReference(Entity ent)
+        { 
+            return new EntityReference(ent.CreationIndex, ent.Owner);
         }
 
         public void Rocketize(Rocketizer rocketizer, BinaryWriter writer)
