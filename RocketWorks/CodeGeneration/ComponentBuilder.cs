@@ -53,23 +53,23 @@ namespace RocketWorks.CodeGeneration
                     generationLines += string.Format("var_binarywriter.Write({0}.Count);", fields[i].Name);
                     generationLines += string.Format("for (int i = 0; i < {0}.Count; i++)", fields[i].Name);
                     generationLines += "{";
-                    generationLines += "var_rocketizer.WriteObject(" + fields[i].Name + ", var_binarywriter);";
+                    generationLines += "var_rocketizer.WriteObject(" + fields[i].Name + "[" + i + "], var_binarywriter);";
                     generationLines += "}";
 
                     deserializeLines += string.Format("int var_{0}_length = var_binaryreader.ReadInt32();", fields[i].Name);
                     deserializeLines += string.Format("for (int i = 0; i < var_{0}_length; i++)", fields[i].Name);
                     deserializeLines += "{";
-                    deserializeLines += string.Format("{0}.Add(var_rocketizer.ReadObject<{1}>(var_binaryreader));", fields[i].Name, fields[i].FieldType.GetGenericArguments()[0].FullName);
+                    deserializeLines += string.Format("{0}.Add(var_rocketizer.ReadObject<{1}>(var_int, var_binaryreader));", fields[i].Name, fields[i].FieldType.GetGenericArguments()[0].FullName);
                     deserializeLines += "}";
                 }
                 else
                 {
                     generationLines += "var_rocketizer.WriteObject(" + fields[i].Name + ", var_binarywriter);";
-                    deserializeLines += string.Format("{1} = var_rocketizer.ReadObject<{0}>(var_binaryreader);", fields[i].FieldType.FullName, fields[i].Name);
+                    deserializeLines += string.Format("{1} = var_rocketizer.ReadObject<{0}>(var_int, var_binaryreader);", fields[i].FieldType.FullName, fields[i].Name);
                 }
             }
             BuildMethod("Rocketize", "public", "void", generationLines, "Rocketizer", "BinaryWriter");
-            BuildMethod("DeRocketize", "public", "void", deserializeLines, "Rocketizer", "BinaryReader");
+            BuildMethod("DeRocketize", "public", "void", deserializeLines, "Rocketizer", "int", "BinaryReader");
             BuildMethod("RocketizeReference", "public", "void", "", "Rocketizer");
 
             BuildEnding();

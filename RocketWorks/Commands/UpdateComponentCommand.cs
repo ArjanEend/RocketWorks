@@ -23,7 +23,10 @@ namespace RocketWorks.Commands
 
         public override void Execute(T target, int uid)
         {
-            target.Pool.ReplaceComponent(component, hash, uid);
+            lock(component)
+            {
+                target.Pool.ReplaceComponent(component, hash, uid);
+            }
         }
     }
 }

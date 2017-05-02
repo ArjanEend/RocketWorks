@@ -1,4 +1,4 @@
-﻿class RocketLog
+﻿public class RocketLog
 {
     public static void Log(string s, object context = null)
     {

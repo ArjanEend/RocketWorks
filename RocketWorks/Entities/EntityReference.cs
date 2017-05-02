@@ -1,4 +1,5 @@
-﻿using RocketWorks.Serialization;
+﻿using RocketWorks.Pooling;
+using RocketWorks.Serialization;
 using System;
 using System.IO;
 
@@ -9,44 +10,68 @@ namespace RocketWorks.Entities
         public uint creationIndex;
         public int owner;
 
-        public EntityContext context;
+        public EntityPool pool;
 
-        public Type ContextType { get { return context.GetType(); } }
+        public Type contextType;
+
+        private Entity entity;
+        public Entity Entity
+        {
+            get {
+                if (entity != null)
+                    return entity;
+                return entity =  pool.GetEntity(creationIndex, owner);
+            }
+        }
 
         public EntityReference(uint creationIndex, int owner)
         {
             this.creationIndex = creationIndex;
             this.owner = owner;
-            context = null;
+            pool = null;
+            entity = null;
+            contextType = null;
         }
 
-        public EntityReference(uint creationIndex, int owner, EntityContext context)
+        public EntityReference(Entity ent)
+        {
+            this.creationIndex = ent.CreationIndex;
+            this.owner = ent.Owner;
+            pool = null;
+            entity = ent;
+            contextType = ent.GetType();
+        }
+
+        public EntityReference(uint creationIndex, int owner, EntityPool pool)
         {
             this.creationIndex = creationIndex;
             this.owner = owner;
-            this.context = context;
+            this.pool = pool;
+            entity = null;
+            contextType = pool.ObjectType;
         }
 
         public static implicit operator Entity(EntityReference ent)
         {
-            return ent.context.Pool.GetEntity(ent.creationIndex, ent.owner);
+            return ent.pool.GetEntity(ent.creationIndex, ent.owner);
         }
 
         public static implicit operator EntityReference(Entity ent)
         { 
-            return new EntityReference(ent.CreationIndex, ent.Owner);
+            return new EntityReference(ent);
         }
 
         public void Rocketize(Rocketizer rocketizer, BinaryWriter writer)
         {
             writer.Write(creationIndex);
-            writer.Write(owner);
+            writer.Write(rocketizer.GetIDFor(contextType));
         }
 
-        public void DeRocketize(Rocketizer rocketizer, BinaryReader reader)
+        public void DeRocketize(Rocketizer rocketizer, int ownerState, BinaryReader reader)
         {
             creationIndex = reader.ReadUInt32();
-            owner = reader.ReadInt32();
+            owner = ownerState;
+            contextType = rocketizer.GetTypeFor(reader.ReadInt16());
         }
 
         public void RocketizeReference(Rocketizer rocketizer)

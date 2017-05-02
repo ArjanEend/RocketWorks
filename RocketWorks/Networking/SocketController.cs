@@ -257,11 +257,12 @@ namespace RocketWorks.Networking
             lock (stream)
             {
                 BinaryReader reader = new BinaryReader(stream.stream);
-                INetworkCommand command = rocketizer.ReadObject<INetworkCommand>(reader);
+                int index = connectedClients.IndexOf(stream.id);
+                INetworkCommand command = rocketizer.ReadObject<INetworkCommand>(index, reader);
                 if (command == null)
                     throw new Exception("Command could not be read...");
 
-                commander.Execute(command, connectedClients.IndexOf(stream.id));
+                commander.Execute(command, index);
             }
             addingCommand = false;
         }

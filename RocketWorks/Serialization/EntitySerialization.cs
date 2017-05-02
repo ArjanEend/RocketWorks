@@ -17,14 +17,14 @@ namespace RocketWorks.Entities
             }
         }
 
-        public void DeRocketize(Rocketizer rocketizer, BinaryReader reader)
+        public void DeRocketize(Rocketizer rocketizer, int ownerState, BinaryReader reader)
         {
             creationIndex = reader.ReadUInt32();
             enabled = reader.ReadBoolean();
             alive = reader.ReadBoolean();
             for(int i = 0; i < components.Length; i++)
             {
-                IComponent comp = rocketizer.ReadObject<IComponent>(reader);
+                IComponent comp = rocketizer.ReadObject<IComponent>(ownerState, reader);
                 if(comp != null)
                     composition |= 1 << context(comp.GetType());
                 components[i] = comp;

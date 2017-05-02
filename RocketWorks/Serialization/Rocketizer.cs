@@ -24,44 +24,69 @@ namespace RocketWorks.Serialization
             instanceProviders.Add(provider.ObjectType, provider);
         }
 
+        public short GetIDFor(Type type)
+        {
+            return typeToId[type];
+        }
+
+        public Type GetTypeFor(short id)
+        {
+            return idToType[id];
+        }
+
         public void WriteObject(object ob, BinaryWriter writer)
         {
-            try { 
-
-            IRocketable rocketable = ob as IRocketable;
-            if(rocketable != null && typeToId.ContainsKey(rocketable.GetType()))
-            {
-
-               //     RocketLog.Log("Serialize : " + rocketable.GetType().Name, this);
-                writer.Write(typeToId[rocketable.GetType()]);
-                rocketable.Rocketize(this, writer);
-            } else
-            {
-                if(ob != null)
-                    RocketLog.Log("Could not write: " + ob + ", rocketable: " + (ob != null));
-                writer.Write((short)-1);
-            }
+            try {
+                lock (writer)
+                {
+                    IRocketable rocketable = ob as IRocketable;
+                    if (rocketable != null && typeToId.ContainsKey(rocketable.GetType()))
+                    {
+                        //     RocketLog.Log("Serialize : " + rocketable.GetType().Name, this);
+                        writer.Write(typeToId[rocketable.GetType()]);
+                        rocketable.Rocketize(this, writer);
+                    }
+                    else
+                    {
+                        if (ob != null)
+                            RocketLog.Log("Could not write: " + ob + ", rocketable: " + (ob != null));
+                        writer.Write((short)-1);
+                    }
+                }
             }
             catch(Exception ex)
             {
                 RocketLog.Log(ex.ToString(), this);
             }
             writer.Flush();
+
         }
 
-        public T ReadObject<T>(BinaryReader reader)
+        public T ReadObject<T>(int ownerState, BinaryReader reader)
         {
             short type = reader.ReadInt16();
             if (idToType.ContainsKey(type))
             {
                 //RocketLog.Log("Deserialize : " + idToType[type].Name, this);
                 IRocketable instance;
-                if (instanceProviders.ContainsKey(idToType[type]))
-                    instance = (IRocketable)instanceProviders[idToType[type]].GetInstance();
-                else
-                    instance = (IRocketable)Activator.CreateInstance(idToType[type]);
-                instance.DeRocketize(this, reader);
-                //RocketLog.Log("Cast to: " + idToType[type].Name + " : "  + typeof(T).Name);
+                
+                    if (instanceProviders.ContainsKey(idToType[type]))
+                        instance = (IRocketable)instanceProviders[idToType[type]].GetInstance();
+                    else
+                        instance = (IRocketable)Activator.CreateInstance(idToType[type]);
+                lock (instance)
+                {
+                    instance.DeRocketize(this, ownerState, reader);
+                    //RocketLog.Log("Cast to: " + idToType[type].Name + " : "  + typeof(T).Name);
+
+                    //Hack! needs some nice interfaces to make generic
+                    if (instance is EntityReference)
+                    {
+                        var entRef = (EntityReference)instance;
+                        entRef.pool = (EntityPool)instanceProviders[entRef.contextType];
+                        instance = entRef;
+                    }
+                }
                 try
                 {
                     return (T)instance;

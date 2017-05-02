@@ -42,7 +42,7 @@ namespace RocketWorks.Entities
             set { isLocal = value; }
         }
 
-        private bool enabled;
+        private bool enabled = true;
         public bool Enabled
         {
             get { return enabled; }
