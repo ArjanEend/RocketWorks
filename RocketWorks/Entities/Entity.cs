@@ -42,6 +42,13 @@ namespace RocketWorks.Entities
             set { isLocal = value; }
         }
 
+        private bool isDirty = true;
+        public bool IsDirty
+        {
+            get { return isDirty; }
+            set { isDirty = value; }
+        }
+
         private bool enabled = true;
         public bool Enabled
         {
