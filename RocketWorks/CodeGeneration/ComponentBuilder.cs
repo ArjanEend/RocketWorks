@@ -53,7 +53,7 @@ namespace RocketWorks.CodeGeneration
                     generationLines += string.Format("var_binarywriter.Write({0}.Count);", fields[i].Name);
                     generationLines += string.Format("for (int i = 0; i < {0}.Count; i++)", fields[i].Name);
                     generationLines += "{";
-                    generationLines += "var_rocketizer.WriteObject(" + fields[i].Name + "[" + i + "], var_binarywriter);";
+                    generationLines += "var_rocketizer.WriteObject(" + fields[i].Name + "[i], var_binarywriter);";
                     generationLines += "}";
 
                     deserializeLines += string.Format("int var_{0}_length = var_binaryreader.ReadInt32();", fields[i].Name);
