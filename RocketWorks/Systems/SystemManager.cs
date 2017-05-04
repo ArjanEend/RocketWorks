@@ -19,11 +19,12 @@ namespace RocketWorks.Systems
             storedDelays = new Dictionary<ISystem, float>();
         }
 
-        public void AddSystem(ISystem system)
+        public T AddSystem<T>(T system) where T : ISystem
         {
             system.Initialize(contexts);
             systems.Add(system);
             storedDelays.Add(system, system.TickRate);
+            return (T)system;
         }
 
         public void RemoveSystem(ISystem system)
