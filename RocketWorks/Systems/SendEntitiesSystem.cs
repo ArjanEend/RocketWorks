@@ -14,10 +14,14 @@ namespace RocketWorks.Systems
         private Group componentGroup;
         private int compId;
 
-        public SendEntitiesSystem(SocketController socket) : base()
+        private bool autoDestroy;
+        private bool sendDestroy;
+
+        public SendEntitiesSystem(SocketController socket, bool autoDestroy = false, bool sendDestroy = false) : base()
         {
             this.socket = socket;
-            //this.tickRate = .2f;
+            this.autoDestroy = autoDestroy;
+            this.sendDestroy = sendDestroy;
         }
 
         public override void Initialize(Contexts contexts)
@@ -25,11 +29,21 @@ namespace RocketWorks.Systems
             compId = contexts.GetContext<S>().GetIndexOf(typeof(T));
             componentGroup = contexts.GetContext<S>().Pool.GetGroup(typeof(T));
             componentGroup.OnEntityAdded += WriteEntity;
+            if(sendDestroy)
+                componentGroup.OnEntityRemoved += DestroyEntity;
+        }
+
+        private void DestroyEntity(Entity obj)
+        {
+            if(!obj.Alive)
+                socket.WriteSocket(new DestroyEntityCommand<S>(obj));
         }
 
         private void WriteEntity(Entity obj)
         {
             socket.WriteSocket(new CreateEntityCommand<S>(obj));
+            if (autoDestroy)
+                obj.Reset();
         }
 
         public override void Destroy()
@@ -39,13 +53,6 @@ namespace RocketWorks.Systems
 
         public override void Execute(float deltaTime)
         {
-            /*List<Entity> entities = componentGroup.NewEntities;
-            for (int i = 0; i < entities.Count; i++)
-            {
-                socket.WriteSocket(new CreateEntityCommand<S>(entities[i]));
-                //RocketLog.Log("Send entity over network", this);
-                entities[i].Reset();
-            }*/
         }
     }
 }

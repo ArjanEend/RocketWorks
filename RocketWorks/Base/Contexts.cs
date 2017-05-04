@@ -17,7 +17,7 @@ public partial class Contexts
     {
         for(int i = 0; i < contexts.Count; i++)
         {
-            if ((T)contexts[i] != null)
+            if (contexts[i] is T)
                 return contexts[i] as T;
         }
         return null;

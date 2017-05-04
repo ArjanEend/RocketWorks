@@ -73,6 +73,14 @@ namespace RocketWorks.Grouping
             mustMatch = matching;
             return this;
         }
+        
+        public void DestroyAll()
+        {
+            for(int i = entities.Count - 1; i > 0; i--)
+            {
+                entities[i].Reset();
+            }
+        }
 
         public void AddEntity(Entity entity)
         {
@@ -83,14 +91,6 @@ namespace RocketWorks.Grouping
             newEntities.Add(entity);
         }
 
-       // private int OnEntityChanged(IComponent comp, Entity entity)
-        //{
-            //if (!entity.HasComponents(composition))
-            //    entities.Remove(entity);
-
-           // return -1;
-        //}
-
         public bool HasComponents(int components)
         {
             if (mustMatch) return composition == components;
@@ -99,6 +99,8 @@ namespace RocketWorks.Grouping
 
         public void RemoveEntity(Entity entity)
         {
+            if (!entities.Contains(entity))
+                return;
             onEntityRemoved(entity);
             entities.Remove(entity);
             newEntities.Remove(entity);

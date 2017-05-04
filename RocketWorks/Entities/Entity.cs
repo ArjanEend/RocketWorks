@@ -83,6 +83,7 @@ namespace RocketWorks.Entities
 
         public void SetComponentCount(int componentAmount)
         {
+            alive = true;
             components = new IComponent[componentAmount];
         }
 
@@ -148,6 +149,7 @@ namespace RocketWorks.Entities
 
         public void Reset()
         {
+            alive = false;
             if (DestroyEvent != null)
                 DestroyEvent(this);
 
