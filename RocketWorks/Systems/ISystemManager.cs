@@ -4,7 +4,7 @@ namespace RocketWorks.Systems
 {
     public interface ISystemManager
     {
-        void AddSystem(ISystem system);
+        T AddSystem<T>(T system) where T : ISystem;
         void RemoveSystem(ISystem system);
         void UpdateSystems(float deltaTime);
     }

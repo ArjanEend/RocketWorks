@@ -58,4 +58,12 @@ namespace RocketWorks.Entities
     {
         public EntityContext() : base() { components.Add(typeof(T9), 8); }
     }
+    public class EntityContext<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> : EntityContext<T1, T2, T3, T4, T5, T6, T7, T8, T9>
+    {
+        public EntityContext() : base() { components.Add(typeof(T10), 9); }
+    }
+    public class EntityContext<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> : EntityContext<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>
+    {
+        public EntityContext() : base() { components.Add(typeof(T11), 10); }
+    }
 }
