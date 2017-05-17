@@ -46,7 +46,30 @@ namespace RocketWorks.Pooling
                 return typeGroups[bitMask];
             } else
             {
-                Group group = new Group(types);
+                Group group = new Group();
+                typeGroups.Add(bitMask, group);
+                group.Composition = bitMask;
+                return group;
+            }
+        }
+
+        public Group GetGroup(Type type, params Type[] types)
+        {
+            int bitMask = 0;
+            bitMask |= 1 << contextCallback(type);
+            if(types != null)
+            for (int i = 0; i < types.Length; i++)
+            {
+                bitMask |= 1 << contextCallback(types[i]);
+            }
+
+            if (typeGroups.ContainsKey(bitMask))
+            {
+                return typeGroups[bitMask];
+            }
+            else
+            {
+                Group group = new Group();
                 typeGroups.Add(bitMask, group);
                 group.Composition = bitMask;
                 return group;

@@ -12,6 +12,7 @@ namespace RocketWorks.Systems
         private SocketController socket;
         private Group componentGroup;
         private int compId;
+        private Type[] additionalTypes;
 
         public EstimateComponentsSystem(SocketController socket) : base()
         {
@@ -19,10 +20,16 @@ namespace RocketWorks.Systems
             this.tickRate = .2f;
         }
 
+        public EstimateComponentsSystem(SocketController socket, params Type[] types)
+        {
+            this.socket = socket;
+            this.additionalTypes = types;
+        }
+
         public override void Initialize(Contexts contexts)
         {
             compId = contexts.GetContext<S>().GetIndexOf(typeof(T));
-            componentGroup = contexts.GetContext<S>().Pool.GetGroup(typeof(T));
+            componentGroup = contexts.GetContext<S>().Pool.GetGroup(typeof(T), additionalTypes);
         }
 
         public override void Destroy()

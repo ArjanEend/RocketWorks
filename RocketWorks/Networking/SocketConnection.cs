@@ -100,7 +100,14 @@ namespace RocketWorks.Networking
             {
                 asyncResult = ar;
                 Socket sock = (Socket)ar.AsyncState;
-                int sent = sock.EndSend(ar);
+                try
+                {
+                    int sent = sock.EndSend(ar);
+                }
+                catch
+                {
+                    return;
+                }
                 if (sendBuffer.Position != 0)
                     SendAsync();
                 else

@@ -58,14 +58,10 @@ namespace RocketWorks.Grouping
        // private Dictionary<Type, List<IComponent>> componentBindings = 
        //     new Dictionary<Type, List<IComponent>>();
 
-        public Group(params Type[] types)
+        public Group()
         {
             entities = new List<Entity>();
             newEntities = new List<Entity>();
-            for(int i = 0; i < types.Length; i++)
-            {
-        //        componentBindings.Add(types[i], new List<IComponent>());
-            }
         }
 
         public Group SetMatching(bool matching)
