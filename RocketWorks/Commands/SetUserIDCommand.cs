@@ -8,8 +8,8 @@ namespace RocketWorks.Commands
     [Serializable]
     public partial class SetUserIDCommand : NetworkCommandBase<SocketController>
     {
-        private int uid;
-        private DateTime timeStamp;
+        public int uid;
+        public DateTime timeStamp;
 
         public SetUserIDCommand()
         {

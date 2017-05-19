@@ -13,13 +13,6 @@ namespace RocketWorks.Commands
             }
         }
 
-        private int targetIndex;
-        public int TargetIndex
-        {
-            get { return targetIndex; }
-            set { TargetIndex = value; }
-        }
-
         public abstract void Execute(T target);
 
         public virtual void Execute(object target)

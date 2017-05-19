@@ -22,6 +22,8 @@ namespace RocketWorks.CodeGeneration
             FieldInfo[] fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             for (int i = 0; i < fields.Length; i++)
             {
+                if (fields[i].IsPrivate && !fields[i].IsFamily)
+                    continue;
                 ParseType(fields[i].FieldType, fields[i].Name);
             }
             BuildMethod("Rocketize", "public", "void", generationLines, "Rocketizer", "BinaryWriter");
