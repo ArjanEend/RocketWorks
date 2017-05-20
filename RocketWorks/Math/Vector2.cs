@@ -179,6 +179,11 @@ namespace RocketWorks
             return string.Format("x: {0}, y: {1}", x, y);
         }
 
+        public static implicit operator Vector2(Vector3 v)
+        {
+            return new Vector2(v.x, v.y);
+        }
+
 #if UNITY_EDITOR || UNITY_5
         public static implicit operator UnityEngine.Vector2(Vector2 v)
         {
