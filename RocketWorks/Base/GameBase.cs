@@ -3,7 +3,6 @@ using RocketWorks.Pooling;
 using System.Diagnostics;
 using System;
 using System.Threading;
-using Implementation.Components;
 
 #if UNITY_EDITOR || UNITY_5
 using UnityEngine;
@@ -44,6 +43,5 @@ namespace RocketWorks.Base
             events.OnUpdate += UpdateGame;
         }
     }
-
 #endif
 }
