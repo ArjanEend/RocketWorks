@@ -63,7 +63,7 @@ namespace RocketWorks.Networking
 
         public void SendAsync()
         {
-            WriteAsync(sendBuffer.GetBuffer(), (int)sendBuffer.Position, socket);
+            WriteAsync(sendBuffer.ToArray(), (int)sendBuffer.Position, socket);
             sendBuffer = new MemoryStream();
         }
 
