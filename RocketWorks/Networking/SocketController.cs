@@ -233,7 +233,7 @@ namespace RocketWorks.Networking
             rocketizer.WriteObject(obj, bWriter);
             size = (int)memStream.Position;
             memStream.SetLength(size);
-            byte[] returnValue = memStream.ToArray();
+            byte[] returnValue = memStream.GetBuffer();
 
             memStream.Position = 0;
             bWriter.Write(size - 4);
