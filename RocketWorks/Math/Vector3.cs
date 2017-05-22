@@ -35,6 +35,11 @@ namespace RocketWorks
             return new Vector3(position1.x + deltaTime * (position2.x - position1.x), position1.y + deltaTime * (position2.y - position1.y), position1.z+ deltaTime * (position2.z - position1.z));
         }
 
+        public static float Distance(Vector3 pos1, Vector3 pos2)
+        {
+            return (pos1 - pos2).Magnitude();
+        }
+
         public float Magnitude()
         {
             return Mathf.Sqrt(x * x + y * y + z * z);

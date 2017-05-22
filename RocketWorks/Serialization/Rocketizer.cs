@@ -26,11 +26,15 @@ namespace RocketWorks.Serialization
 
         public short GetIDFor(Type type)
         {
+            if (type == null || !typeToId.ContainsKey(type))
+                return -1;
             return typeToId[type];
         }
 
         public Type GetTypeFor(short id)
         {
+            if (!idToType.ContainsKey(id))
+                return null;
             return idToType[id];
         }
 
@@ -83,7 +87,8 @@ namespace RocketWorks.Serialization
                     if (instance is EntityReference)
                     {
                         var entRef = (EntityReference)instance;
-                        entRef.pool = (EntityPool)instanceProviders[entRef.contextType];
+                        if(entRef.contextType != null && instanceProviders.ContainsKey(entRef.contextType))
+                            entRef.pool = (EntityPool)instanceProviders[entRef.contextType];
                         instance = entRef;
                     }
                 }

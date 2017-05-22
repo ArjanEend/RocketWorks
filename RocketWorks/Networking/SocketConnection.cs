@@ -69,7 +69,7 @@ namespace RocketWorks.Networking
 
         private void WriteAsync(byte[] bytes, int size, Socket socket)
         {
-            lock (this)
+            lock (sendBuffer)
             {
                 try
                 {
@@ -96,7 +96,7 @@ namespace RocketWorks.Networking
 
         private void WriteCompleted(IAsyncResult ar)
         {
-            lock(this)
+            lock(sendBuffer)
             {
                 asyncResult = ar;
                 Socket sock = (Socket)ar.AsyncState;

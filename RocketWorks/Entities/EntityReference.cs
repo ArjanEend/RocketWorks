@@ -18,7 +18,7 @@ namespace RocketWorks.Entities
         public Entity Entity
         {
             get {
-                if (entity != null)
+                if (entity != null || pool == null)
                     return entity;
                 return entity =  pool.GetEntity(creationIndex, owner);
             }

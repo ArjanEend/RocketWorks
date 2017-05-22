@@ -97,7 +97,10 @@ namespace RocketWorks.Pooling
         public void AddEntity(Entity entity, int uid = 0, bool rewriteIndex = false)
         {
             if (entity == null)
+            {
+                RocketLog.Log("!!!!!!!!!! ENTITY IS NULL", this);
                 return;
+            }
             if (!statedObjects.ContainsKey(uid))
                 statedObjects.Add(uid, new Dictionary<uint, Entity>());
 
