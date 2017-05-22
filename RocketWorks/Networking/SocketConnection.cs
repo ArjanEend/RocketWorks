@@ -27,7 +27,7 @@ namespace RocketWorks.Networking
     {
         private MemoryStream writeStream;
         private MemoryStream readStream;
-        private byte[] buffer;
+        private byte[] readBuffer;
         private MemoryStream sendBuffer;
         private SocketState state;
         public SocketState State { get { return state; } }
@@ -51,7 +51,7 @@ namespace RocketWorks.Networking
             this.id = id;
             sendBuffer = new MemoryStream();
             readStream = new MemoryStream();
-            buffer = new byte[0];
+            readBuffer = new byte[0];
         }
 
         public void Write(byte[] buffer, int v, int size)
@@ -69,12 +69,11 @@ namespace RocketWorks.Networking
 
         private void WriteAsync(byte[] bytes, int size, Socket socket)
         {
-            lock (sendBuffer)
+            lock (this)
             {
                 try
                 {
                     SocketError err;
-                    //RocketLog.Log("Start sending " + size);
                     asyncResult = null;
                     socket.BeginSend(bytes, 0, size, SocketFlags.None, out err, WriteCompleted, socket);
                     state = SocketState.SENDING;
@@ -96,7 +95,7 @@ namespace RocketWorks.Networking
 
         private void WriteCompleted(IAsyncResult ar)
         {
-            lock(sendBuffer)
+            lock (this)
             {
                 asyncResult = ar;
                 Socket sock = (Socket)ar.AsyncState;
@@ -109,11 +108,15 @@ namespace RocketWorks.Networking
                     return;
                 }
                 if (sendBuffer.Position != 0)
+                {
+                    RocketLog.Log("Start new sendasync", this);
+                    //state = SocketState.PENDING;
                     SendAsync();
+                }
                 else
                     state = SocketState.IDLE;
-
             }
+                
             //RocketLog.Log("Packet sent: " + sent + " bytes " + sock.Connected, this);
         }
 
@@ -136,7 +139,7 @@ namespace RocketWorks.Networking
             
             isReading = true;
             byte[] buffer = new byte[4];
-            this.buffer = buffer;
+            this.readBuffer = buffer;
             SocketError err;
             socket.BeginReceive(buffer, 0, 4, SocketFlags.Partial, out err, ReadPacketSize, promise);
             if (err != null && err != SocketError.Success)
@@ -146,32 +149,34 @@ namespace RocketWorks.Networking
         private void ReadPacketSize(IAsyncResult ar)
         {
             IPromise<StreamResult> promise = (IPromise<StreamResult>)ar.AsyncState;
-            
-            try
+            lock (this)
             {
-                int packets = socket.EndReceive(ar);
-                if (packets > 0)
+                try
                 {
-                    BinaryReader reader = new BinaryReader(new MemoryStream(buffer));
-                    int size = reader.ReadInt32();
-                    buffer = new byte[size];
-                    socket.BeginReceive(buffer, 0, size, SocketFlags.Partial, ReadCommandPacket, promise);
+                    int packets = socket.EndReceive(ar);
+                    if (packets > 0)
+                    {
+                        BinaryReader reader = new BinaryReader(new MemoryStream(readBuffer));
+                        int size = reader.ReadInt32();
+                        readBuffer = new byte[size];
+                        socket.BeginReceive(readBuffer, 0, size, SocketFlags.Partial, ReadCommandPacket, promise);
+                    }
+                    else
+                    {
+                        RocketLog.Log("!!!!!!!!packet size failure", this);
+                        readBuffer = new byte[0];
+                        promise.Fail(new StreamResult(null, this));
+                        promise.Complete(new StreamResult(null, this));
+                        isReading = false;
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    RocketLog.Log("!!!!!!!!packet size failure", this);
-                    buffer = new byte[0];
+                    RocketLog.Log("ReadError: " + ex.Message, this);
                     promise.Fail(new StreamResult(null, this));
                     promise.Complete(new StreamResult(null, this));
                     isReading = false;
                 }
-            }
-            catch(Exception ex)
-            {
-                RocketLog.Log("ReadError: " + ex.Message, this);
-                promise.Fail(new StreamResult(null, this));
-                promise.Complete(new StreamResult(null, this));
-                isReading = false;
             }
         }
 
@@ -186,13 +191,13 @@ namespace RocketWorks.Networking
                 {
                     if (packets > 0)
                     {
-                        MemoryStream mem = new MemoryStream(buffer);
+                        MemoryStream mem = new MemoryStream(readBuffer);
                         promise.Succeed(new StreamResult(mem, this));
                     }
                     else
                     {
                         RocketLog.Log("!!!!!!!!!!!!Fail command read", this);
-                        buffer = new byte[0];
+                        readBuffer = new byte[0];
                         promise.Fail(new StreamResult(null, this));
                     }
                 }
@@ -204,7 +209,7 @@ namespace RocketWorks.Networking
                 }
 
                 promise.Complete(new StreamResult(null, this));
-                buffer = new byte[0];
+                readBuffer = new byte[0];
                 isReading = false;
             }
         }
