@@ -42,7 +42,7 @@ namespace RocketWorks
 
         public float Magnitude()
         {
-            return Mathf.Sqrt(x * x + y * y + z * z);
+            return Mathf.Sqrt((x * x) + (y * y) + (z * z));
         }
 
         public Vector3 Normalized()

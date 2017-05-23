@@ -102,6 +102,11 @@ namespace RocketWorks.Entities
             return components[i];
         }
 
+        public int GetIndex<T>() where T : IComponent
+        {
+            return context(typeof(T));
+        }
+
         public bool HasComponents(int components)
         {
             return (composition & components) == components;
@@ -138,6 +143,16 @@ namespace RocketWorks.Entities
                     composition ^= 1 << i;
                     return;
                 }
+            }
+        }
+
+        public void RemoveComponent(int componentIndex)
+        {
+            if(components[componentIndex] != null)
+            {
+                components[componentIndex] = null;
+                composition ^= 1 << componentIndex;
+                return;
             }
         }
 
