@@ -107,6 +107,14 @@ namespace RocketWorks.Entities
             return context(typeof(T));
         }
 
+<<<<<<< f0469f7228c3710d26c784c4ac6089451b6849cd
+=======
+        public bool HasComponent<T>()
+        {
+            return HasComponents(1 << context(typeof(T)));
+        }
+
+>>>>>>> UPDATE utility functions
         public bool HasComponents(int components)
         {
             return (composition & components) == components;
@@ -146,6 +154,13 @@ namespace RocketWorks.Entities
             }
         }
 
+        public void RemoveComponent<T>() where T : IComponent
+        {
+            int i = context(typeof(T));
+            components[i] = null;
+            composition ^= 1 << i;
+        }
+
         public void RemoveComponent(int componentIndex)
         {
             if(components[componentIndex] != null)
@@ -177,6 +192,7 @@ namespace RocketWorks.Entities
         public void ReplaceComponent(IComponent component, int index)
         {
             components[index] = component;
+            composition |= 1 << index;
             CompositionChangeEvent(component, this);
         }
     }

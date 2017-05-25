@@ -70,6 +70,11 @@ namespace RocketWorks.Grouping
             return this;
         }
         
+        public bool Contains(Entity ent)
+        {
+            return entities.Contains(ent);
+        }
+
         public void DestroyAll()
         {
             for(int i = entities.Count - 1; i > 0; i--)

@@ -74,6 +74,7 @@ namespace RocketWorks.Serialization
                 //RocketLog.Log("Deserialize : " + idToType[type].Name, this);
                 IRocketable instance;
                 
+
                     if (instanceProviders.ContainsKey(idToType[type]))
                         instance = (IRocketable)instanceProviders[idToType[type]].GetInstance();
                     else

@@ -61,6 +61,16 @@ namespace RocketWorks.Entities
             return new EntityReference(ent);
         }
 
+        public static bool operator ==(EntityReference reference, Entity ent)
+        {
+            return reference.creationIndex == ent.CreationIndex;
+        }
+
+        public static bool operator !=(EntityReference reference, Entity ent)
+        {
+            return reference.creationIndex != ent.CreationIndex;
+        }
+
         public void Rocketize(Rocketizer rocketizer, BinaryWriter writer)
         {
             writer.Write(creationIndex);
