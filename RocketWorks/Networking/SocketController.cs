@@ -245,7 +245,7 @@ namespace RocketWorks.Networking
 
         private void ReadSocket(SocketConnection socket)
         {
-            if(!socket.IsReading)
+            if(!socket.IsReading && socket.CanRead)
             socket.StartRead(
                 new Promise<StreamResult>().OnSucces(ReadCommand).OnFail(ReadFail).OnComplete(ReadComplete)
                 );
@@ -253,6 +253,8 @@ namespace RocketWorks.Networking
 
         private void ReadCommand(StreamResult stream)
         {
+            if (addingCommand)
+                throw new Exception("Can't add 2 commands at the same time");
             addingCommand = true;
             lock (stream)
             {

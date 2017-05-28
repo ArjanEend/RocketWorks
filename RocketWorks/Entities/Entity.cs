@@ -106,15 +106,12 @@ namespace RocketWorks.Entities
         {
             return context(typeof(T));
         }
-
-<<<<<<< f0469f7228c3710d26c784c4ac6089451b6849cd
-=======
+        
         public bool HasComponent<T>()
         {
             return HasComponents(1 << context(typeof(T)));
         }
-
->>>>>>> UPDATE utility functions
+        
         public bool HasComponents(int components)
         {
             return (composition & components) == components;

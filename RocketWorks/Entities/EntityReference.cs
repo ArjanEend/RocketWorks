@@ -53,7 +53,7 @@ namespace RocketWorks.Entities
 
         public static implicit operator Entity(EntityReference ent)
         {
-            return ent.pool.GetEntity(ent.creationIndex, ent.owner);
+            return ent.Entity;
         }
 
         public static implicit operator EntityReference(Entity ent)

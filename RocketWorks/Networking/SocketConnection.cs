@@ -37,8 +37,12 @@ namespace RocketWorks.Networking
 
         private bool isReading = false;
         public bool IsReading { get { return isReading; } }
+        public bool CanRead { get { return socket.Connected && socket.Available >= 4; } }
         private Socket socket;
         private int id;
+
+        private int packetsSent = 0;
+        private int packetsRead = 0;
 
         private int readCounter;
 
@@ -76,6 +80,7 @@ namespace RocketWorks.Networking
                     SocketError err;
                     asyncResult = null;
                     socket.BeginSend(bytes, 0, size, SocketFlags.None, out err, WriteCompleted, socket);
+                    
                     state = SocketState.SENDING;
                     if (err != SocketError.Success)
                     {
@@ -109,7 +114,6 @@ namespace RocketWorks.Networking
                 }
                 if (sendBuffer.Position != 0)
                 {
-                    RocketLog.Log("Start new sendasync", this);
                     //state = SocketState.PENDING;
                     SendAsync();
                 }
@@ -136,7 +140,6 @@ namespace RocketWorks.Networking
                 RocketLog.Log("         THIS IS REALLY FAULTY", this);
                 return;
             }
-            
             isReading = true;
             byte[] buffer = new byte[4];
             this.readBuffer = buffer;
@@ -208,9 +211,9 @@ namespace RocketWorks.Networking
                     promise.Fail(new StreamResult(null, this));
                 }
 
-                promise.Complete(new StreamResult(null, this));
                 readBuffer = new byte[0];
                 isReading = false;
+                promise.Complete(new StreamResult(null, this));
             }
         }
 
