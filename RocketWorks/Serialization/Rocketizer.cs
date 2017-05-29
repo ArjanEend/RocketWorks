@@ -1,4 +1,5 @@
 ﻿using RocketWorks.Entities;
+using RocketWorks.Networking;
 using RocketWorks.Pooling;
 using System;
 using System.Collections.Generic;
@@ -8,11 +9,6 @@ namespace RocketWorks.Serialization
 {
     public partial class Rocketizer
     {
-        /*private BinaryWriter writer;
-        public BinaryWriter Writer { get { return writer; } }
-        private BinaryReader reader;
-        public BinaryReader Reader { get { return reader; } }*/
-
         private Dictionary<Type, IInstanceProvider> instanceProviders = new Dictionary<Type, IInstanceProvider>();
 
         //private MemoryStream memStream;
@@ -38,7 +34,7 @@ namespace RocketWorks.Serialization
             return idToType[id];
         }
 
-        public void WriteObject(object ob, BinaryWriter writer)
+        public void WriteObject(object ob, NetworkWriter writer)
         {
             try {
                 lock (writer)
@@ -62,11 +58,9 @@ namespace RocketWorks.Serialization
             {
                 RocketLog.Log(ex.ToString(), this);
             }
-            writer.Flush();
-
         }
 
-        public T ReadObject<T>(int ownerState, BinaryReader reader)
+        public T ReadObject<T>(int ownerState, NetworkReader reader)
         {
             short type = reader.ReadInt16();
             if (idToType.ContainsKey(type))

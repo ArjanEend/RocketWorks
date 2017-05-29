@@ -1,7 +1,7 @@
-﻿using RocketWorks.Pooling;
+﻿using RocketWorks.Networking;
+using RocketWorks.Pooling;
 using RocketWorks.Serialization;
 using System;
-using System.IO;
 
 namespace RocketWorks.Entities
 {
@@ -71,13 +71,13 @@ namespace RocketWorks.Entities
             return reference.creationIndex != ent.CreationIndex;
         }
 
-        public void Rocketize(Rocketizer rocketizer, BinaryWriter writer)
+        public void Rocketize(Rocketizer rocketizer, NetworkWriter writer)
         {
             writer.Write(creationIndex);
             writer.Write(rocketizer.GetIDFor(contextType));
         }
 
-        public void DeRocketize(Rocketizer rocketizer, int ownerState, BinaryReader reader)
+        public void DeRocketize(Rocketizer rocketizer, int ownerState, NetworkReader reader)
         {
             creationIndex = reader.ReadUInt32();
             owner = ownerState;

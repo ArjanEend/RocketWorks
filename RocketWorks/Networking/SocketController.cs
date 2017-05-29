@@ -125,9 +125,10 @@ namespace RocketWorks.Networking
 
             }
             IPEndPoint localEndPoint = new IPEndPoint(ipAddress, port);
-            
+
             socket.Connect(localEndPoint);
             socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+            socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontFragment, true);
             socket.NoDelay = true;
 
             connectedClients.Add(new SocketConnection(socket, connectedClients.Count));
@@ -167,8 +168,8 @@ namespace RocketWorks.Networking
             {
                 SocketConnection connection = connectedClients[toUser];
                 connection.Write(buffer, 0, size);
-                if (connection.CanWrite)
-                    connection.SendAsync();
+                //if (connection.CanWrite)
+                //    connection.SendAsync();
             }
             catch(Exception ex)
             {
@@ -194,18 +195,18 @@ namespace RocketWorks.Networking
 
         public void WriteSocket(SocketConnection socket)
         {
-            if(!socket.Connected)
+            //if(!socket.Connected)
             {
                 //connectedClients.Remove(socket);
-                return;
+            //    return;
             }
-            if (socket.CanWrite)
-                socket.SendAsync();
+            //if (socket.CanWrite)
+             //   socket.SendAsync();
         }
 
         public void RemoveConnection(int index)
         {
-            connectedClients[index].Close();
+            connectedClients[index].Disconnect();
             connectedClients.RemoveAt(index);
         }
 
@@ -230,7 +231,7 @@ namespace RocketWorks.Networking
             //BinaryWriter writer = new BinaryWriter(memStream);
 
             memStream.Position = 4;
-            rocketizer.WriteObject(obj, bWriter);
+            //rocketizer.WriteObject(obj, bWriter);
             size = (int)memStream.Position;
             memStream.SetLength(size);
             byte[] returnValue = memStream.GetBuffer();
@@ -245,39 +246,19 @@ namespace RocketWorks.Networking
 
         private void ReadSocket(SocketConnection socket)
         {
-            if(!socket.IsReading && socket.CanRead)
+            /*if(!socket.IsReading && socket.CanRead)
             socket.StartRead(
                 new Promise<StreamResult>().OnSucces(ReadCommand).OnFail(ReadFail).OnComplete(ReadComplete)
-                );
+                );*/
         }
 
-        private void ReadCommand(StreamResult stream)
+        private void ReadCommand(INetworkCommand command)
         {
             if (addingCommand)
                 throw new Exception("Can't add 2 commands at the same time");
             addingCommand = true;
-            lock (stream)
-            {
-                BinaryReader reader = new BinaryReader(stream.stream);
-                int index = connectedClients.IndexOf(stream.id);
-                INetworkCommand command = rocketizer.ReadObject<INetworkCommand>(index, reader);
-                if (command == null)
-                    throw new Exception("Command could not be read...");
-
-                commander.Execute(command, index);
-            }
+            //commander.Execute(command, index);
             addingCommand = false;
-        }
-
-        private void ReadFail(StreamResult result)
-        {
-            //Log some error here?
-            RocketLog.Log("Read failed", this);
-        }
-
-        private void ReadComplete(StreamResult result)
-        {
-            ReadSocket(result.id);
         }
 
         public void CloseSocket()
@@ -287,8 +268,7 @@ namespace RocketWorks.Networking
 
             for(int i = 0; i < connectedClients.Count; i++)
             {
-                connectedClients[i].Close();
-                //connectedClients[i].Disconnect(false);
+                connectedClients[i].Disconnect();
             }
 
 
