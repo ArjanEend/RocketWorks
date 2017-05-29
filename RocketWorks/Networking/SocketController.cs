@@ -20,10 +20,8 @@ namespace RocketWorks.Networking
 
         private NetworkCommander commander;
         
-        private BinaryFormatter formatter;
-        private BinaryWriter bWriter;
-        private BinaryReader bReader;
-        private MemoryStream memStream;
+        private NetworkWriter bWriter;
+        private NetworkReader bReader;
 
         private Rocketizer rocketizer;
 
@@ -47,9 +45,8 @@ namespace RocketWorks.Networking
 
             connectedClients = new List<SocketConnection>();
             
-            memStream = new MemoryStream(2048);
-            bWriter = new BinaryWriter(memStream);
-            bReader = new BinaryReader(memStream);
+            bWriter = new NetworkWriter();
+            bReader = new NetworkReader();
             this.commander = commander;
             commander.AddObject(this);
 
@@ -94,17 +91,11 @@ namespace RocketWorks.Networking
                     IPAddress ipAddress = serverIP == "127.0.0.1" ? IPAddress.Any : IPAddress.Parse(serverIP);
                     IPEndPoint localEndPoint = new IPEndPoint(ipAddress, port);
                     socket.Bind(localEndPoint);
-
                     socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
                     socket.Listen(10);
 
                     WaitForConnection(socket);
                 }
-
-                formatter = new BinaryFormatter();
-                formatter.AssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple;
-                formatter.TypeFormat = System.Runtime.Serialization.Formatters.FormatterTypeStyle.XsdString;
-                formatter.Binder = new UnityBinder();
 
                 socketReady = true;
             }
@@ -127,6 +118,7 @@ namespace RocketWorks.Networking
             IPEndPoint localEndPoint = new IPEndPoint(ipAddress, port);
             
             socket.Connect(localEndPoint);
+            
             socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
             socket.NoDelay = true;
 
@@ -212,31 +204,22 @@ namespace RocketWorks.Networking
 
         private byte[] CreateBuffer(object obj, out int size)
         {
-            //BinaryWriter writer = new BinaryWriter(memStream);
-
-            memStream.Position = 4;
+            bWriter.StartMessage();
             rocketizer.WriteObject(obj, bWriter);
-            size = (int)memStream.Position;
-            memStream.SetLength(size);
-            byte[] returnValue = memStream.GetBuffer();
+            size = (int)bWriter.Position;
+            bWriter.FinishMessage();
 
-            memStream.Position = 0;
-            bWriter.Write(size - 4);
-            bWriter.Flush();
-
-            return returnValue;
+            return bWriter.AsArray();
         }
 
-        private void ReadCommand(byte[] buffer, int id)
+        private void ReadCommand(NetworkReader reader, int id)
         {
             if (addingCommand)
                 throw new Exception("Can't add 2 commands at the same time");
             addingCommand = true;
             INetworkCommand command = null;
-            lock (buffer)
+            lock (reader)
             {
-                MemoryStream stream = new MemoryStream(buffer);
-                BinaryReader reader = new BinaryReader(stream);
                 command = rocketizer.ReadObject<INetworkCommand>(id, reader);
                 if (command == null)
                     throw new Exception("Command could not be read...");
@@ -253,13 +236,10 @@ namespace RocketWorks.Networking
             for(int i = 0; i < connectedClients.Count; i++)
             {
                 connectedClients[i].Close();
-                //connectedClients[i].Disconnect(false);
             }
 
 
             socket.Close();
-            //socket.Disconnect(false);
-
             
             socket = null;
 

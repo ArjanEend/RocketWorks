@@ -14,7 +14,7 @@ namespace RocketWorks.CodeGeneration
         private string deserializeLines = "";
         public ComponentBuilder(Type type)
         {
-            BuildImports("RocketWorks.Serialization", "System", "System.IO");
+            BuildImports("RocketWorks.Serialization", "System", "RocketWorks.Networking");
             string str = type.IsValueType ? "struct" : "class";
             BuildHeader(type.Namespace, type.ToGenericTypeString(), "IRocketable", true, str);
             name = type.Name;
@@ -26,8 +26,8 @@ namespace RocketWorks.CodeGeneration
                     continue;
                 ParseType(fields[i].FieldType, fields[i].Name);
             }
-            BuildMethod("Rocketize", "public", "void", generationLines, "Rocketizer", "BinaryWriter");
-            BuildMethod("DeRocketize", "public", "void", deserializeLines, "Rocketizer", "int", "BinaryReader");
+            BuildMethod("Rocketize", "public", "void", generationLines, "Rocketizer", "NetworkWriter");
+            BuildMethod("DeRocketize", "public", "void", deserializeLines, "Rocketizer", "int", "NetworkReader");
             BuildMethod("RocketizeReference", "public", "void", "", "Rocketizer");
 
             BuildEnding();
@@ -46,22 +46,22 @@ namespace RocketWorks.CodeGeneration
                 deserializeLines += string.Format("int {0}Length = var_rocketizer.Reader.ReadInt32();\n", fields[i].Name);
                 deserializeLines += string.Format("byte[] {0}Bytes = var_rocketizer.Reader.ReadBytes({0}Length);\n", fields[i].Name);
                 deserializeLines += string.Format("{0} = System.Text.Encoding.Unicode.GetString({0}Bytes);", fields[i].Name);*/
-                generationLines += string.Format("var_binarywriter.Write({0});", name);
-                deserializeLines += string.Format("{0} = var_binaryreader.ReadString();", name);
+                generationLines += string.Format("var_networkwriter.Write({0});", name);
+                deserializeLines += string.Format("{0} = var_networkreader.ReadString();", name);
             }
             else if (type.Name == "DateTime")
             {
                 generationLines += string.Format("ulong {0}Ticks = (ulong)({0} - new DateTime(1970, 1, 1)).TotalMilliseconds;", name);
-                generationLines += string.Format("var_binarywriter.Write({0}Ticks);", name);
+                generationLines += string.Format("var_networkwriter.Write({0}Ticks);", name);
 
-                deserializeLines += string.Format("{0} = new DateTime(1970, 1, 1).AddMilliseconds(var_binaryreader.ReadUInt64());", name);
+                deserializeLines += string.Format("{0} = new DateTime(1970, 1, 1).AddMilliseconds(var_networkreader.ReadUInt64());", name);
             }
             else if (type.IsPrimitive)
             {
-                generationLines += "var_binarywriter.Write(" + name + ");";
+                generationLines += "var_networkwriter.Write(" + name + ");";
                 string readerFunction = "Read" + type.Name;
 
-                deserializeLines += string.Format("{1} = var_binaryreader.{0}();", readerFunction, name);
+                deserializeLines += string.Format("{1} = var_networkreader.{0}();", readerFunction, name);
             }
             else if (type.IsArray)
             {
@@ -70,9 +70,9 @@ namespace RocketWorks.CodeGeneration
                 string newName = name + " =  new " + type.GetElementType().FullName + "[";
                 for (int i = 0; i < dimensions; i++)
                 {
-                    generationLines += string.Format("var_binarywriter.Write({0}.GetLength({1}));", name, i);
+                    generationLines += string.Format("var_networkwriter.Write({0}.GetLength({1}));", name, i);
                     
-                    deserializeLines += string.Format("int var_{0}_length{1} = var_binaryreader.ReadInt32();", name, i);
+                    deserializeLines += string.Format("int var_{0}_length{1} = var_networkreader.ReadInt32();", name, i);
 
                     varName += "i" + i;
                     newName += string.Format("var_{0}_length{1}", name, i);
@@ -103,22 +103,22 @@ namespace RocketWorks.CodeGeneration
             }
             else if (type.GetInterfaces().Contains(typeof(IList)))
             {
-                generationLines += string.Format("var_binarywriter.Write({0}.Count);", name);
+                generationLines += string.Format("var_networkwriter.Write({0}.Count);", name);
                 generationLines += string.Format("for (int i = 0; i < {0}.Count; i++)", name);
                 generationLines += "{";
-                generationLines += "var_rocketizer.WriteObject(" + name + "[i], var_binarywriter);";
+                generationLines += "var_rocketizer.WriteObject(" + name + "[i], var_networkwriter);";
                 generationLines += "}";
 
-                deserializeLines += string.Format("int var_{0}_length = var_binaryreader.ReadInt32();", name);
+                deserializeLines += string.Format("int var_{0}_length = var_networkreader.ReadInt32();", name);
                 deserializeLines += string.Format("for (int i = 0; i < var_{0}_length; i++)", name);
                 deserializeLines += "{";
-                deserializeLines += string.Format("{0}.Add(var_rocketizer.ReadObject<{1}>(var_int, var_binaryreader));", name, type.GetGenericArguments()[0].FullName);
+                deserializeLines += string.Format("{0}.Add(var_rocketizer.ReadObject<{1}>(var_int, var_networkreader));", name, type.GetGenericArguments()[0].FullName);
                 deserializeLines += "}";
             }
             else
             {
-                generationLines += "var_rocketizer.WriteObject(" + name + ", var_binarywriter);";
-                deserializeLines += string.Format("{1} = var_rocketizer.ReadObject<{0}>(var_int, var_binaryreader);", type.FullName, name);
+                generationLines += "var_rocketizer.WriteObject(" + name + ", var_networkwriter);";
+                deserializeLines += string.Format("{1} = var_rocketizer.ReadObject<{0}>(var_int, var_networkreader);", type.FullName, name);
             }
         }
 

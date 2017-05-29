@@ -13,14 +13,15 @@ namespace RocketWorks.Networking
         SENDING = 3
     }
 
-    public delegate void ResultDelegate(byte[] buffer, int id);
+    public delegate void ResultDelegate(NetworkReader reader, int id);
 
     public class SocketConnection
     {
-        private MemoryStream writeStream;
-        private MemoryStream readStream;
-        private byte[] readBuffer;
-        private MemoryStream sendBuffer;
+        private NetworkBuffer writeStream;
+        private NetworkBuffer readStream;
+        private NetworkBuffer readBuffer;
+        private NetworkReader reader;
+        private NetworkBuffer sendBuffer;
         private SocketState state;
         public SocketState State { get { return state; } }
 
@@ -44,9 +45,11 @@ namespace RocketWorks.Networking
             state = SocketState.IDLE;
             this.socket = socket;
             this.id = id;
-            sendBuffer = new MemoryStream();
-            readStream = new MemoryStream();
-            readBuffer = new byte[0];
+            sendBuffer = new NetworkBuffer();
+            writeStream = new NetworkBuffer();
+            readStream = new NetworkBuffer();
+            readBuffer = new NetworkBuffer();
+            reader = new NetworkReader();
 
             sendThread = new Thread(SendLoop);
             sendThread.Start();
@@ -67,13 +70,6 @@ namespace RocketWorks.Networking
                     Thread.Sleep(1);
                     try
                     {
-                        // We could use the ReadTimeout property and let Read()
-                        // block.  However, if no data is received prior to the
-                        // timeout period expiring, an IOException occurs.
-                        // While this can be handled, it leads to problems when
-                        // debugging if we are wanting to break when exceptions
-                        // are thrown (unless we explicitly ignore IOException,
-                        // which I always forget to do).
                         while (state != SocketState.PENDING)
                         {
                             // Give up the remaining time slice.
@@ -82,20 +78,36 @@ namespace RocketWorks.Networking
                         {
                             lock (sendBuffer)
                             {
+                                var cache = writeStream;
                                 writeStream = sendBuffer;
-                                sendBuffer = new MemoryStream();
+                                sendBuffer = cache;
+                                sendBuffer.SeekZero();
                             }
                             state = SocketState.SENDING;
                             //RocketLog.Log("Sending: " + writeStream.Position);
-                            if (socket.Send(writeStream.GetBuffer(), (int)writeStream.Position, SocketFlags.None) > 0)
+                            uint targetPos = writeStream.Position;
+                            uint pos = 0;
+                            uint prevPos = 0;
+                            while(pos < targetPos)
                             {
-                                state = SocketState.IDLE;
-                            }
-                            else
-                            {
-                                // The connection has closed gracefully, so stop the
-                                // thread.
-                                connected = false;
+                                prevPos = pos;
+                                pos = Math.Min(writeStream.Position, pos + 1024);
+                                lock (socket)
+                                {
+                                    ArraySegment<Byte> seg = writeStream.AsArraySegment();
+                                    if (socket.Send(seg.Array, (int)prevPos, (int)pos, SocketFlags.None) > 0)
+                                    {
+                                        RocketLog.Log("Packet sent: " + pos);
+                                        state = SocketState.IDLE;
+                                    }
+                                    else
+                                    {
+                                        // The connection has closed gracefully, so stop the
+                                        // thread.
+                                        connected = false;
+                                    }
+                                }
+                                Thread.Sleep(1);
                             }
                         }
                     }
@@ -118,6 +130,8 @@ namespace RocketWorks.Networking
         {
             try
             {
+
+                Thread.Sleep(200);
                 bool connected = true;
                 while (connected)
                 {
@@ -125,24 +139,16 @@ namespace RocketWorks.Networking
                     //RocketLog.Log("ReceiveLoop");
                     try
                     {
-                        // We could use the ReadTimeout property and let Read()
-                        // block.  However, if no data is received prior to the
-                        // timeout period expiring, an IOException occurs.
-                        // While this can be handled, it leads to problems when
-                        // debugging if we are wanting to break when exceptions
-                        // are thrown (unless we explicitly ignore IOException,
-                        // which I always forget to do).
-                        while (socket.Available < 4)
-                        {
+                        //while (socket.Available < 2 && socket.Connected)
+                        //{
                             // Give up the remaining time slice.
-                            Thread.Sleep(1);
-                        }
-                        readBuffer = new byte[4];
-                        if (socket.Receive(readBuffer, 4, SocketFlags.Partial) > 0)
+                        //    Thread.Sleep(100);
+                        //}
+                        reader.SeekZero();
+                        if (socket.Receive(readBuffer.AsArraySegment().Array, 2, SocketFlags.Partial) > 0)
                         {
-                            BinaryReader reader = new BinaryReader(new MemoryStream(readBuffer));
-                            int size = reader.ReadInt32();
-                            readBuffer = new byte[size];
+                            uint size = reader.ReadUInt16();
+                            reader.SeekZero();
                             //RocketLog.Log("Received packet size: " + size);
                             while (socket.Available < size)
                             {
@@ -151,10 +157,10 @@ namespace RocketWorks.Networking
                                 // Give up the remaining time slice.
                                 Thread.Sleep(1);
                             }
-                            if(socket.Receive(readBuffer, size, SocketFlags.Partial) > 0)
+                            if(socket.Receive(readBuffer.AsArraySegment().Array, (int)size, SocketFlags.Partial) > 0)
                             {
                                 //RocketLog.Log("Received packet");
-                                RecieveResultDelegate(readBuffer, id);
+                                RecieveResultDelegate(reader, id);
                             } else
                             {
                                 connected = false;
@@ -184,7 +190,7 @@ namespace RocketWorks.Networking
         {
             if (!Connected)
                 return;
-            sendBuffer.Write(buffer, v, size);
+            sendBuffer.WriteBytesAtOffset(buffer, (ushort)sendBuffer.Position, (ushort)size);
             if(sendBuffer.Position != 0 && state == SocketState.IDLE)
                 state = SocketState.PENDING;
         }
