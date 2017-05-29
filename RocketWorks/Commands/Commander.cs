@@ -31,7 +31,12 @@ namespace RocketWorks.Commands
         {
             Type type = command.targetType;
             if (typeBindings.ContainsKey(type))
-                command.Execute(typeBindings[type], uid);
+            {
+                lock(typeBindings[type])
+                {
+                    command.Execute(typeBindings[type], uid);
+                }
+            }
         }
     }
 }
