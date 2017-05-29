@@ -7,92 +7,92 @@ namespace RocketWorks.Networking
     // this is used instead of MemoryStream and BinaryReader/BinaryWriter to avoid allocations.
     public class NetworkBuffer
     {
-        byte[] m_Buffer;
-        uint m_Pos;
-        const int k_InitialSize = 64;
-        const float k_GrowthFactor = 1.5f;
-        const int k_BufferSizeWarning = 1024 * 1024 * 128;
+        byte[] buffer;
+        uint pos;
+        const int INITIAL_SIZE = 64;
+        const float GROWWTH_FACTOR = 1.5f;
+        const int BUFSIZE_WARNING = 1024 * 1024 * 128;
 
-        public uint Position { get { return m_Pos; } }
-        public int Length { get { return m_Buffer.Length; } }
+        public uint Position { get { return pos; } }
+        public int Length { get { return buffer.Length; } }
 
         public NetworkBuffer()
         {
-            m_Buffer = new byte[k_InitialSize];
+            buffer = new byte[INITIAL_SIZE];
         }
 
         // this does NOT copy the buffer
         public NetworkBuffer(byte[] buffer)
         {
-            m_Buffer = buffer;
+            this.buffer = buffer;
         }
 
         public byte ReadByte()
         {
-            if (m_Pos >= m_Buffer.Length)
+            if (pos >= buffer.Length)
             {
                 throw new IndexOutOfRangeException("NetworkReader:ReadByte out of range:" + ToString());
             }
 
-            return m_Buffer[m_Pos++];
+            return buffer[pos++];
         }
 
         public void ReadBytes(byte[] buffer, uint count)
         {
-            if (m_Pos + count > m_Buffer.Length)
+            if (pos + count > this.buffer.Length)
             {
                 throw new IndexOutOfRangeException("NetworkReader:ReadBytes out of range: (" + count + ") " + ToString());
             }
 
             for (ushort i = 0; i < count; i++)
             {
-                buffer[i] = m_Buffer[m_Pos + i];
+                buffer[i] = this.buffer[pos + i];
             }
-            m_Pos += count;
+            pos += count;
         }
 
         internal ArraySegment<byte> AsArraySegment()
         {
-            return new ArraySegment<byte>(m_Buffer, 0, (int)m_Pos);
+            return new ArraySegment<byte>(buffer, 0, (int)pos);
         }
 
         public void WriteByte(byte value)
         {
             WriteCheckForSpace(1);
-            m_Buffer[m_Pos] = value;
-            m_Pos += 1;
+            buffer[pos] = value;
+            pos += 1;
         }
 
         public void WriteByte2(byte value0, byte value1)
         {
             WriteCheckForSpace(2);
-            m_Buffer[m_Pos] = value0;
-            m_Buffer[m_Pos + 1] = value1;
-            m_Pos += 2;
+            buffer[pos] = value0;
+            buffer[pos + 1] = value1;
+            pos += 2;
         }
 
         public void WriteByte4(byte value0, byte value1, byte value2, byte value3)
         {
             WriteCheckForSpace(4);
-            m_Buffer[m_Pos] = value0;
-            m_Buffer[m_Pos + 1] = value1;
-            m_Buffer[m_Pos + 2] = value2;
-            m_Buffer[m_Pos + 3] = value3;
-            m_Pos += 4;
+            buffer[pos] = value0;
+            buffer[pos + 1] = value1;
+            buffer[pos + 2] = value2;
+            buffer[pos + 3] = value3;
+            pos += 4;
         }
 
         public void WriteByte8(byte value0, byte value1, byte value2, byte value3, byte value4, byte value5, byte value6, byte value7)
         {
             WriteCheckForSpace(8);
-            m_Buffer[m_Pos] = value0;
-            m_Buffer[m_Pos + 1] = value1;
-            m_Buffer[m_Pos + 2] = value2;
-            m_Buffer[m_Pos + 3] = value3;
-            m_Buffer[m_Pos + 4] = value4;
-            m_Buffer[m_Pos + 5] = value5;
-            m_Buffer[m_Pos + 6] = value6;
-            m_Buffer[m_Pos + 7] = value7;
-            m_Pos += 8;
+            buffer[pos] = value0;
+            buffer[pos + 1] = value1;
+            buffer[pos + 2] = value2;
+            buffer[pos + 3] = value3;
+            buffer[pos + 4] = value4;
+            buffer[pos + 5] = value5;
+            buffer[pos + 6] = value6;
+            buffer[pos + 7] = value7;
+            pos += 8;
         }
 
         // every other Write() function in this class writes implicitly at the end-marker m_Pos.
@@ -105,21 +105,21 @@ namespace RocketWorks.Networking
 
             if (targetOffset == 0 && count == buffer.Length)
             {
-                buffer.CopyTo(m_Buffer, (int)m_Pos);
+                buffer.CopyTo(this.buffer, (int)pos);
             }
             else
             {
                 //CopyTo doesnt take a count :(
                 for (int i = 0; i < count; i++)
                 {
-                    m_Buffer[targetOffset + i] = buffer[i];
+                    this.buffer[targetOffset + i] = buffer[i];
                 }
             }
 
             // although this writes within the buffer, it could move the end-marker
-            if (newEnd > m_Pos)
+            if (newEnd > pos)
             {
-                m_Pos = newEnd;
+                pos = newEnd;
             }
         }
 
@@ -129,29 +129,29 @@ namespace RocketWorks.Networking
 
             if (count == buffer.Length)
             {
-                buffer.CopyTo(m_Buffer, (int)m_Pos);
+                buffer.CopyTo(this.buffer, (int)pos);
             }
             else
             {
                 //CopyTo doesnt take a count :(
                 for (int i = 0; i < count; i++)
                 {
-                    m_Buffer[m_Pos + i] = buffer[i];
+                    this.buffer[pos + i] = buffer[i];
                 }
             }
-            m_Pos += count;
+            pos += count;
         }
 
         void WriteCheckForSpace(ushort count)
         {
-            if (m_Pos + count < m_Buffer.Length)
+            if (pos + count < buffer.Length)
                 return;
 
-            int newLen = (int)Math.Ceiling(m_Buffer.Length * k_GrowthFactor);
-            while (m_Pos + count >= newLen)
+            int newLen = (int)Math.Ceiling(buffer.Length * GROWWTH_FACTOR);
+            while (pos + count >= newLen)
             {
-                newLen = (int)Math.Ceiling(newLen * k_GrowthFactor);
-                if (newLen > k_BufferSizeWarning)
+                newLen = (int)Math.Ceiling(newLen * GROWWTH_FACTOR);
+                if (newLen > BUFSIZE_WARNING)
                 {
                     RocketLog.Log("NetworkBuffer size is " + newLen + " bytes!", this);
                 }
@@ -159,34 +159,34 @@ namespace RocketWorks.Networking
 
             // only do the copy once, even if newLen is increased multiple times
             byte[] tmp = new byte[newLen];
-            m_Buffer.CopyTo(tmp, 0);
-            m_Buffer = tmp;
+            buffer.CopyTo(tmp, 0);
+            buffer = tmp;
         }
 
         public void FinishMessage()
         {
             // two shorts (size and msgType) are in header.
-            ushort sz = (ushort)(m_Pos - (sizeof(ushort) * 2));
+            ushort sz = (ushort)(pos - (sizeof(ushort) * 2));
             //Mask the byte
-            m_Buffer[0] = (byte)(sz & 0xff);
+            buffer[0] = (byte)(sz & 0xff);
             //bit shift to get the last byte
-            m_Buffer[1] = (byte)((sz >> 8) & 0xff);
+            buffer[1] = (byte)((sz >> 8) & 0xff);
         }
 
         public void SeekZero()
         {
-            m_Pos = 0;
+            pos = 0;
         }
 
         public void Replace(byte[] buffer)
         {
-            m_Buffer = buffer;
-            m_Pos = 0;
+            this.buffer = buffer;
+            pos = 0;
         }
 
         public override string ToString()
         {
-            return String.Format("NetBuf sz:{0} pos:{1}", m_Buffer.Length, m_Pos);
+            return String.Format("NetBuf sz:{0} pos:{1}", buffer.Length, pos);
         }
     } // end NetBuffer
 
