@@ -154,6 +154,8 @@ namespace RocketWorks.Entities
         public void RemoveComponent<T>() where T : IComponent
         {
             int i = context(typeof(T));
+            if (components[i] == null)
+                return;
             components[i] = null;
             composition ^= 1 << i;
         }

@@ -125,13 +125,13 @@ namespace RocketWorks.Networking
 
             }
             IPEndPoint localEndPoint = new IPEndPoint(ipAddress, port);
-
+            
             socket.Connect(localEndPoint);
             socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
-            socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontFragment, true);
             socket.NoDelay = true;
 
             connectedClients.Add(new SocketConnection(socket, connectedClients.Count));
+            connectedClients[connectedClients.Count - 1].RecieveResultDelegate += ReadCommand;
         }
 
         private void WaitForConnection(Socket socket)
@@ -147,6 +147,8 @@ namespace RocketWorks.Networking
 
             SocketConnection connection = new SocketConnection(newSocket, connectedClients.Count);
             connectedClients.Add(connection);
+            connectedClients[connectedClients.Count - 1].RecieveResultDelegate += ReadCommand;
+
             WaitForConnection(socket);
             RocketLog.Log("New connection accepted", this);
 
@@ -168,8 +170,6 @@ namespace RocketWorks.Networking
             {
                 SocketConnection connection = connectedClients[toUser];
                 connection.Write(buffer, 0, size);
-                //if (connection.CanWrite)
-                //    connection.SendAsync();
             }
             catch(Exception ex)
             {
@@ -193,31 +193,15 @@ namespace RocketWorks.Networking
             }
         }
 
-        public void WriteSocket(SocketConnection socket)
-        {
-            //if(!socket.Connected)
-            {
-                //connectedClients.Remove(socket);
-            //    return;
-            }
-            //if (socket.CanWrite)
-             //   socket.SendAsync();
-        }
-
         public void RemoveConnection(int index)
         {
-            connectedClients[index].Disconnect();
+            connectedClients[index].Close();
             connectedClients.RemoveAt(index);
         }
 
         public void Update()
         {
             HandleCommands();
-            for(int i = 0; i < connectedClients.Count; i++)
-            {
-                ReadSocket(connectedClients[i]);
-                WriteSocket(connectedClients[i]);
-            }
         }
 
         private void HandleCommands()
@@ -231,7 +215,7 @@ namespace RocketWorks.Networking
             //BinaryWriter writer = new BinaryWriter(memStream);
 
             memStream.Position = 4;
-            //rocketizer.WriteObject(obj, bWriter);
+            rocketizer.WriteObject(obj, bWriter);
             size = (int)memStream.Position;
             memStream.SetLength(size);
             byte[] returnValue = memStream.GetBuffer();
@@ -243,21 +227,21 @@ namespace RocketWorks.Networking
             return returnValue;
         }
 
-
-        private void ReadSocket(SocketConnection socket)
-        {
-            /*if(!socket.IsReading && socket.CanRead)
-            socket.StartRead(
-                new Promise<StreamResult>().OnSucces(ReadCommand).OnFail(ReadFail).OnComplete(ReadComplete)
-                );*/
-        }
-
-        private void ReadCommand(INetworkCommand command)
+        private void ReadCommand(byte[] buffer, int id)
         {
             if (addingCommand)
                 throw new Exception("Can't add 2 commands at the same time");
             addingCommand = true;
-            //commander.Execute(command, index);
+            INetworkCommand command = null;
+            lock (buffer)
+            {
+                MemoryStream stream = new MemoryStream(buffer);
+                BinaryReader reader = new BinaryReader(stream);
+                command = rocketizer.ReadObject<INetworkCommand>(id, reader);
+                if (command == null)
+                    throw new Exception("Command could not be read...");
+            }
+            commander.Execute(command, id);
             addingCommand = false;
         }
 
@@ -268,7 +252,8 @@ namespace RocketWorks.Networking
 
             for(int i = 0; i < connectedClients.Count; i++)
             {
-                connectedClients[i].Disconnect();
+                connectedClients[i].Close();
+                //connectedClients[i].Disconnect(false);
             }
 
 
