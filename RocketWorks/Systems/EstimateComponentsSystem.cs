@@ -41,7 +41,8 @@ namespace RocketWorks.Systems
         {
             for (int i = 0; i < componentGroup.Count; i++)
             {
-                socket.WriteSocket(new EstimateComponentCommmand<S>(componentGroup[i].GetComponent<T>(compId), componentGroup[i].CreationIndex));
+                if(componentGroup[i].IsDirty)
+                    socket.WriteSocket(new EstimateComponentCommmand<S>(componentGroup[i].GetComponent<T>(compId), componentGroup[i].CreationIndex));
             }
         }
     }

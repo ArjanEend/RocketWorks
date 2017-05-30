@@ -18,6 +18,12 @@ namespace RocketWorks.Networking
             Initialize();
         }
 
+        public NetworkReader(NetworkBuffer buffer)
+        {
+            this.buffer = buffer;
+            Initialize();
+        }
+
         public NetworkReader(NetworkWriter writer)
         {
             buffer = new NetworkBuffer(writer.AsArray());

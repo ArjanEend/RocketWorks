@@ -49,7 +49,7 @@ namespace RocketWorks.Networking
             writeStream = new NetworkBuffer();
             readStream = new NetworkBuffer();
             readBuffer = new NetworkBuffer();
-            reader = new NetworkReader();
+            reader = new NetworkReader(readBuffer);
 
             sendThread = new Thread(SendLoop);
             sendThread.Start();
@@ -64,7 +64,7 @@ namespace RocketWorks.Networking
                 // ShutdownEvent is a ManualResetEvent signaled by
                 // Client when its time to close the socket.
                 bool connected = true;
-                while (connected)
+                while (connected && socket.Connected)
                 {
                     //RocketLog.Log("SendLoop");
                     Thread.Sleep(1);
@@ -88,16 +88,16 @@ namespace RocketWorks.Networking
                             uint targetPos = writeStream.Position;
                             uint pos = 0;
                             uint prevPos = 0;
-                            while(pos < targetPos)
-                            {
-                                prevPos = pos;
-                                pos = Math.Min(writeStream.Position, pos + 1024);
+                            //while(pos < targetPos)
+                            //{
+                                //prevPos = pos;
+                                //pos = Math.Min(writeStream.Position, pos + 1024);
                                 lock (socket)
                                 {
                                     ArraySegment<Byte> seg = writeStream.AsArraySegment();
-                                    if (socket.Send(seg.Array, (int)prevPos, (int)pos, SocketFlags.None) > 0)
+                                    if (socket.Send(seg.Array, (int)prevPos, (int)targetPos, SocketFlags.Partial) > 0)
                                     {
-                                        RocketLog.Log("Packet sent: " + pos);
+                                        //RocketLog.Log("Packet sent: " + pos);
                                         state = SocketState.IDLE;
                                     }
                                     else
@@ -107,8 +107,9 @@ namespace RocketWorks.Networking
                                         connected = false;
                                     }
                                 }
-                                Thread.Sleep(1);
-                            }
+                                //if(pos < targetPos)
+                                 //   Thread.Sleep(5000);
+                            //}
                         }
                     }
                     catch (IOException ex)
@@ -130,56 +131,59 @@ namespace RocketWorks.Networking
         {
             try
             {
-
-                Thread.Sleep(200);
                 bool connected = true;
-                while (connected)
+                while (connected && socket.Connected)
                 {
-                    Thread.Sleep(1);
-                    //RocketLog.Log("ReceiveLoop");
                     try
                     {
-                        //while (socket.Available < 2 && socket.Connected)
-                        //{
+                        while (socket.Available < 2)
+                        {
                             // Give up the remaining time slice.
-                        //    Thread.Sleep(100);
-                        //}
+                            Thread.Sleep(1);
+                        }
                         reader.SeekZero();
+                        //RocketLog.Log("RecieveSocket: " + socket.Available);
                         if (socket.Receive(readBuffer.AsArraySegment().Array, 2, SocketFlags.Partial) > 0)
                         {
-                            uint size = reader.ReadUInt16();
+                            ushort size = reader.ReadUInt16();
+                            //RocketLog.Log("Recieve size: " + size);
+                            readBuffer.WriteCheckForSpace(size);
                             reader.SeekZero();
                             //RocketLog.Log("Received packet size: " + size);
                             while (socket.Available < size)
                             {
-
                                 //RocketLog.Log("Waiting for actual packet");
                                 // Give up the remaining time slice.
                                 Thread.Sleep(1);
                             }
-                            if(socket.Receive(readBuffer.AsArraySegment().Array, (int)size, SocketFlags.Partial) > 0)
+                            if(socket.Receive(readBuffer.AsArraySegment().Array, 0, (int)size, SocketFlags.Partial) > 0)
                             {
                                 //RocketLog.Log("Received packet");
-                                RecieveResultDelegate(reader, id);
+                                lock (reader)
+                                {
+                                    RecieveResultDelegate(reader, id);
+                                }
                             } else
                             {
+                                RocketLog.Log("Receive went wrong");
                                 connected = false;
                             }
                         }
                         else
                         {
+                            RocketLog.Log("Receive went wrong");
                             connected = false;
                         }
                     }
-                    catch (IOException ex)
+                    catch (Exception ex)
                     {
-                        RocketLog.Log(ex.ToString(), ex);
+                        RocketLog.Log("Read exception: " + ex, ex);
                     }
                 }
             }
             catch (Exception ex)
             {
-                RocketLog.Log(ex.ToString(), ex);
+                RocketLog.Log("Read exception: " + ex, ex);
             }
             finally
             {
@@ -198,6 +202,8 @@ namespace RocketWorks.Networking
         public void Close()
         {
             socket.Close();
+            recieveThread.Abort();
+            sendThread.Abort();
             state = SocketState.DISCONNECTED;
         }
     }

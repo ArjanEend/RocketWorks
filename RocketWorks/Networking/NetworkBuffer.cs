@@ -142,7 +142,7 @@ namespace RocketWorks.Networking
             pos += count;
         }
 
-        void WriteCheckForSpace(ushort count)
+        public void WriteCheckForSpace(ushort count)
         {
             if (pos + count < buffer.Length)
                 return;
@@ -166,7 +166,7 @@ namespace RocketWorks.Networking
         public void FinishMessage()
         {
             // two shorts (size and msgType) are in header.
-            ushort sz = (ushort)(pos - (sizeof(ushort) * 2));
+            ushort sz = (ushort)(pos - (sizeof(ushort)));
             //Mask the byte
             buffer[0] = (byte)(sz & 0xff);
             //bit shift to get the last byte

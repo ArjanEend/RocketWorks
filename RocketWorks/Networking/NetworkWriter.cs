@@ -376,5 +376,5 @@ namespace RocketWorks.Networking
             // writes correct size into space at start of buffer
             buffer.FinishMessage();
         }
-    };
+    }
 }

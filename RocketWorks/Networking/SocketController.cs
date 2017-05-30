@@ -156,7 +156,7 @@ namespace RocketWorks.Networking
             if (toUser == -1)
                 return;
             
-            int size = 0;
+            ushort size = 0;
             byte[] buffer = CreateBuffer(command, out size);
             try
             {
@@ -202,11 +202,11 @@ namespace RocketWorks.Networking
                 commander.Execute(commandQueue.Dequeue(), clientQueue.Dequeue());
         }
 
-        private byte[] CreateBuffer(object obj, out int size)
+        private byte[] CreateBuffer(object obj, out ushort size)
         {
             bWriter.StartMessage();
             rocketizer.WriteObject(obj, bWriter);
-            size = (int)bWriter.Position;
+            size = (ushort)bWriter.Position;
             bWriter.FinishMessage();
 
             return bWriter.AsArray();
@@ -238,11 +238,8 @@ namespace RocketWorks.Networking
                 connectedClients[i].Close();
             }
 
-
             socket.Close();
-            
             socket = null;
-
             socketReady = false;
         }
     }
