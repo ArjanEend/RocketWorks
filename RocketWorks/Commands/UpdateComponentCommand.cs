@@ -17,6 +17,8 @@ namespace RocketWorks.Commands
 
         public UpdateComponentCommand(IComponent component, uint hash)
         {
+            if (component == null)
+                RocketLog.Log("Empty component spotted", this);
             this.component = component;
             this.hash = hash;
         }

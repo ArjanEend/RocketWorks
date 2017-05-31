@@ -35,6 +35,11 @@ namespace RocketWorks
             return Math.Min(Math.Max(value, v1), v2);
         }
 
+        public static float Min(float min, float max)
+        {
+            return Math.Min(min, max);
+        }
+
         public static float Abs(float v)
         {
             return Math.Abs(v);

@@ -16,10 +16,12 @@ namespace RocketWorks.Systems
 
         private bool autoDestroy;
         private bool sendDestroy;
+        private bool sendCreate;
 
-        public SendEntitiesSystem(SocketController socket, bool autoDestroy = false, bool sendDestroy = false) : base()
+        public SendEntitiesSystem(SocketController socket, bool sendCreate = true, bool autoDestroy = false, bool sendDestroy = false) : base()
         {
             this.socket = socket;
+            this.sendCreate = sendCreate;
             this.autoDestroy = autoDestroy;
             this.sendDestroy = sendDestroy;
         }
@@ -28,7 +30,8 @@ namespace RocketWorks.Systems
         {
             compId = contexts.GetContext<S>().GetIndexOf(typeof(T));
             componentGroup = contexts.GetContext<S>().Pool.GetGroup(typeof(T));
-            componentGroup.OnEntityAdded += WriteEntity;
+            if(sendCreate)
+                componentGroup.OnEntityAdded += WriteEntity;
             if(sendDestroy)
                 componentGroup.OnEntityRemoved += DestroyEntity;
         }

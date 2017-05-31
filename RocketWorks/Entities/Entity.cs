@@ -13,6 +13,8 @@ namespace RocketWorks.Entities
         [field: NonSerialized]
         public event ComponentChanged CompositionChangeEvent;
         [field: NonSerialized]
+        public event ComponentChanged CompositionSubtractEvent;
+        [field: NonSerialized]
         public event TriggerStarted TriggerEvent;
         [field: NonSerialized]
         public event EntityEvent DestroyEvent;
@@ -145,7 +147,8 @@ namespace RocketWorks.Entities
                 if(components[i] == component)
                 {
                     components[i] = null;
-                    composition ^= 1 << i;
+                    composition &= ~(1 << i);
+                    CompositionSubtractEvent(null, this);
                     return;
                 }
             }
@@ -157,7 +160,8 @@ namespace RocketWorks.Entities
             if (components[i] == null)
                 return;
             components[i] = null;
-            composition ^= 1 << i;
+            composition &= ~(1 << i);
+            CompositionSubtractEvent(null, this);
         }
 
         public void RemoveComponent(int componentIndex)
@@ -165,7 +169,8 @@ namespace RocketWorks.Entities
             if(components[componentIndex] != null)
             {
                 components[componentIndex] = null;
-                composition ^= 1 << componentIndex;
+                composition &= ~(1 << componentIndex);
+                CompositionSubtractEvent(null, this);
                 return;
             }
         }
@@ -186,6 +191,8 @@ namespace RocketWorks.Entities
             composition = 0;
             TriggerEvent = null;
             DestroyEvent = null;
+            CompositionChangeEvent = null;
+            CompositionSubtractEvent = null;
         }
 
         public void ReplaceComponent(IComponent component, int index)

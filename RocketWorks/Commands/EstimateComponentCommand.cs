@@ -32,7 +32,8 @@ namespace RocketWorks.Commands
             Entity ent = target.Pool.GetEntity(hash, uid);
             IEstimatable comp = (IEstimatable)ent.GetComponent(target.Pool.GetIndexOf(component.GetType()));
             ulong ticksNow = (ulong)(ServerTimeStamp.ServerNow - new DateTime(1970, 1, 1)).TotalMilliseconds;
-            comp.Estimate(component, (ticksNow - ticks) * .001f, ent.IsLocal);
+            float timeDiff = Mathf.Min((ticksNow - ticks) * .001f, .5f);
+            comp.Estimate(component, timeDiff, ent.IsLocal);
         }
     }
 }

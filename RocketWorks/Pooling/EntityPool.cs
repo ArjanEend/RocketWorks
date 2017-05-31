@@ -81,7 +81,8 @@ namespace RocketWorks.Pooling
             Entity entity = new Entity();
             entity.CreationIndex = creationCount++;
             entity.SetComponentCount(componentAmount);
-            entity.CompositionChangeEvent += OnCompositionChanged;
+            entity.CompositionChangeEvent += OnCompositionAdded;
+            entity.CompositionSubtractEvent += OnCompositionSubtracted;
             entity.Context = contextCallback;
             entity.TriggerEvent += OnTriggerAdded;
             entity.DestroyEvent += OnEntityDestroyed;
@@ -119,7 +120,8 @@ namespace RocketWorks.Pooling
 
             statedObjects[uid].Add(entity.CreationIndex, entity);
             entity.Owner = uid;
-            entity.CompositionChangeEvent += OnCompositionChanged;
+            entity.CompositionChangeEvent += OnCompositionAdded;
+            entity.CompositionSubtractEvent += OnCompositionSubtracted;
             entity.TriggerEvent += OnTriggerAdded;
             entity.DestroyEvent += OnEntityDestroyed;
 
@@ -231,13 +233,24 @@ namespace RocketWorks.Pooling
             }
         }
 
-        protected void OnCompositionChanged(IComponent comp, Entity entity)
+        protected void OnCompositionAdded(IComponent comp, Entity entity)
         {
             foreach(KeyValuePair<int, Group> group in typeGroups)
             {
                 if(group.Value.HasComponents(entity.Composition))
                 {
                     group.Value.AddEntity(entity);
+                }
+            }
+        }
+
+        protected void OnCompositionSubtracted(IComponent comp, Entity entity)
+        {
+            foreach (KeyValuePair<int, Group> group in typeGroups)
+            {
+                if (!group.Value.HasComponents(entity.Composition))
+                {
+                    group.Value.RemoveEntity(entity);
                 }
             }
         }
@@ -267,7 +280,8 @@ namespace RocketWorks.Pooling
             entity.CreationIndex = creationCount++;
             entity.Owner = -1;
             entity.SetComponentCount(componentAmount);
-            entity.CompositionChangeEvent += OnCompositionChanged;
+            entity.CompositionChangeEvent += OnCompositionAdded;
+            entity.CompositionSubtractEvent += OnCompositionSubtracted;
             entity.Context = contextCallback;
             entity.TriggerEvent += OnTriggerAdded;
             entity.DestroyEvent += OnEntityDestroyed;
