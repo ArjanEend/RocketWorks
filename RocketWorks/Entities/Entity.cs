@@ -65,6 +65,14 @@ namespace RocketWorks.Entities
         }
         
         protected IComponent[] components;
+        public IComponent[] Components
+        {
+            get { return components; }
+        }
+        public int ComponentCount
+        {
+            get { return components.Length; }
+        }
 
         protected int composition = 0;
         public int Composition
