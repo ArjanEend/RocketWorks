@@ -12,6 +12,8 @@ namespace RocketWorks.Systems
             get{ return 0f; }
         }
 
+        protected Contexts contexts;
+
         public static T Initialize<T>(Contexts contexts) where T : UnitySystemBase
         {
             string className = typeof(T).Name;
@@ -23,7 +25,10 @@ namespace RocketWorks.Systems
             instance.Initialize(contexts);
             return instance;
         }
-        public abstract void Initialize(Contexts contexts);
+        public virtual void Initialize(Contexts contexts)
+        {
+            this.contexts = contexts;
+        }
         public abstract void Execute(float deltaTime);
         public abstract void Destroy();
     }

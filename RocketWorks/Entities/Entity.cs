@@ -167,9 +167,10 @@ namespace RocketWorks.Entities
             int i = context(typeof(T));
             if (components[i] == null)
                 return;
+            IComponent comp = components[i];
             components[i] = null;
             composition &= ~(1 << i);
-            CompositionSubtractEvent(null, this);
+            CompositionSubtractEvent(comp, this);
         }
 
         public void RemoveComponent(int componentIndex)
