@@ -63,6 +63,8 @@ namespace RocketWorks.Entities
 
         public static bool operator ==(EntityReference reference, Entity ent)
         {
+            if (ent == null)
+                return reference.entity == ent;
             return reference.creationIndex == ent.CreationIndex;
         }
 

@@ -33,7 +33,10 @@ namespace RocketWorks.Commands
             IEstimatable comp = (IEstimatable)ent.GetComponent(target.Pool.GetIndexOf(component.GetType()));
             ulong ticksNow = (ulong)(ServerTimeStamp.ServerNow - new DateTime(1970, 1, 1)).TotalMilliseconds;
             float timeDiff = Mathf.Min((ticksNow - ticks) * .001f, .5f);
-            comp.Estimate(component, timeDiff, ent.IsLocal);
+            lock (comp)
+            {
+                comp.Estimate(component, timeDiff, ent.IsLocal);
+            }
         }
     }
 }
