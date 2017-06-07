@@ -59,6 +59,7 @@ namespace RocketWorks.Networking
 
         private void SendLoop()
         {
+            Thread.Sleep(200);
             try
             {
                 // ShutdownEvent is a ManualResetEvent signaled by
@@ -129,6 +130,7 @@ namespace RocketWorks.Networking
 
         private void RecieveLoop()
         {
+            Thread.Sleep(10);
             try
             {
                 bool connected = true;
