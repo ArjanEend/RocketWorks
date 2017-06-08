@@ -214,11 +214,12 @@ namespace RocketWorks.Networking
 
         public void Write(uint value)
         {
-            buffer.WriteByte4(
+            WritePackedUInt32(value);
+            /*buffer.WriteByte4(
                 (byte)(value & 0xff),
                 (byte)((value >> 8) & 0xff),
                 (byte)((value >> 16) & 0xff),
-                (byte)((value >> 24) & 0xff));
+                (byte)((value >> 24) & 0xff));*/
         }
 
         public void Write(long value)
@@ -236,7 +237,8 @@ namespace RocketWorks.Networking
 
         public void Write(ulong value)
         {
-            buffer.WriteByte8(
+            WritePackedUInt64(value);
+            /*buffer.WriteByte8(
                 (byte)(value & 0xff),
                 (byte)((value >> 8) & 0xff),
                 (byte)((value >> 16) & 0xff),
@@ -244,7 +246,7 @@ namespace RocketWorks.Networking
                 (byte)((value >> 32) & 0xff),
                 (byte)((value >> 40) & 0xff),
                 (byte)((value >> 48) & 0xff),
-                (byte)((value >> 56) & 0xff));
+                (byte)((value >> 56) & 0xff));*/
         }
 
         static UIntFloat s_FloatConverter;

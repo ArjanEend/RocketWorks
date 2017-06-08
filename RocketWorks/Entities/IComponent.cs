@@ -2,6 +2,5 @@
 {
     public interface IComponent
     {
-        //int bitIndex { get; set; }
     }
 }

@@ -187,12 +187,13 @@ namespace RocketWorks.Networking
 
         public uint ReadUInt32()
         {
-            uint value = 0;
+            return ReadPackedUInt32();
+            /*uint value = 0;
             value |= buffer.ReadByte();
             value |= (uint)(buffer.ReadByte() << 8);
             value |= (uint)(buffer.ReadByte() << 16);
             value |= (uint)(buffer.ReadByte() << 24);
-            return value;
+            return value;*/
         }
 
         public long ReadInt64()
@@ -228,7 +229,8 @@ namespace RocketWorks.Networking
 
         public ulong ReadUInt64()
         {
-            ulong value = 0;
+            return ReadPackedUInt64();
+            /*ulong value = 0;
             ulong other = buffer.ReadByte();
             value |= other;
 
@@ -252,7 +254,7 @@ namespace RocketWorks.Networking
 
             other = ((ulong)buffer.ReadByte()) << 56;
             value |= other;
-            return value;
+            return value;*/
         }
 
         public decimal ReadDecimal()

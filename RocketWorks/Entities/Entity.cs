@@ -29,7 +29,7 @@ namespace RocketWorks.Entities
             get { return creationIndex; }
             set { creationIndex = value; }
         }
-
+        
         private int owner = 0;
         public int Owner
         {
