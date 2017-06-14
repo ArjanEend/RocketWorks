@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Net.Sockets;
-using System.IO;
-using System.Text;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Net;
 using System.Collections.Generic;
 using RocketWorks.Commands;
 using RocketWorks.Serialization;
-using RocketWorks.Promises;
 
 namespace RocketWorks.Networking
 {
@@ -33,9 +29,12 @@ namespace RocketWorks.Networking
         {
             get { return userId; }
         }
+
+
         private bool receive = false;
         public Action<int> UserConnectedEvent = delegate { };
         public Action<int> UserIDSetEvent = delegate { };
+        public Action DisconnectEvent = delegate { };
 
         private bool addingCommand;
 
@@ -241,6 +240,7 @@ namespace RocketWorks.Networking
             socket.Close();
             socket = null;
             socketReady = false;
+            DisconnectEvent();
         }
     }
 }
