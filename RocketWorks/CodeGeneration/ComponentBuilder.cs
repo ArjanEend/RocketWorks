@@ -63,6 +63,14 @@ namespace RocketWorks.CodeGeneration
 
                 deserializeLines += string.Format("{1} = var_networkreader.{0}();", readerFunction, name);
             }
+            else if (type.IsEnum)
+            {
+                generationLines += "var_networkwriter.Write((ushort)" + name + ");";
+                string readerFunction = "Read" + "UInt16";
+
+                string typeName = type.Name.Replace("+", ".");
+                deserializeLines += string.Format("{1} = ({2})var_networkreader.{0}();", readerFunction, name, typeName);
+            }
             else if (type.IsArray)
             {
                 int dimensions = type.GetArrayRank();

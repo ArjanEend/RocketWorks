@@ -22,4 +22,12 @@ public partial class Contexts
         }
         return null;
     }
+
+    public void ClearPools()
+    {
+        for(int i = 0; i < contexts.Count; i++)
+        {
+            contexts[i].Pool.ResetAll();
+        }
+    }
 }

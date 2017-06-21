@@ -264,6 +264,14 @@ namespace RocketWorks.Pooling
         {
             return GetCleanObject();
         }
+
+        public void ResetAll()
+        {
+            for(int i = 0; i < activeObjects.Count; i++)
+            {
+                activeObjects[i].Reset();
+            }
+        }
     }
 
     public class EntityPool<T> : EntityPool where T : Entity, new()

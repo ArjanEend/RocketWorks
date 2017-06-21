@@ -74,7 +74,7 @@ namespace RocketWorks.CodeGeneration
 
         private void ParseType(Type type)
         {
-            if (type.IsInterface || type.IsAbstract)
+            if (type.IsInterface || type.IsAbstract || type.IsEnum)
                 return;
             if (types.Contains(type) || type.GetInterface("IRocketable") != null || (!string.IsNullOrEmpty(type.Namespace) && !type.Namespace.Contains("RocketWorks") && !type.Namespace.Contains("Components")))
                 return;
