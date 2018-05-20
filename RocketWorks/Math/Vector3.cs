@@ -13,6 +13,7 @@ namespace RocketWorks
 
 
         public static Vector3 zero = new Vector3();
+        public static Vector3 one = new Vector3(1, 1, 1);
 
         public Vector3(float x = 0f, float y = 0f, float z = 0f)
         {

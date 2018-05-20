@@ -33,7 +33,7 @@ namespace RocketWorks.Pooling
             statedObjects.Add(-1, new Dictionary<uint, Entity>());
         }
 
-        public Group GetGroup(params Type[] types)
+        public virtual Group GetGroup(params Type[] types)
         {
             int bitMask = 0;
             for(int i = 0; i < types.Length; i++)
@@ -49,6 +49,11 @@ namespace RocketWorks.Pooling
                 Group group = new Group();
                 typeGroups.Add(bitMask, group);
                 group.Composition = bitMask;
+                for (int i = 0; i < activeObjects.Count; i++)
+                {
+                    if(group.HasComponents(activeObjects[i].Composition))
+                        group.AddEntity(activeObjects[i]);
+                }
                 return group;
             }
         }
@@ -72,6 +77,11 @@ namespace RocketWorks.Pooling
                 Group group = new Group();
                 typeGroups.Add(bitMask, group);
                 group.Composition = bitMask;
+                for (int i = 0; i < activeObjects.Count; i++)
+                {
+                    if (group.HasComponents(activeObjects[i].Composition))
+                        group.AddEntity(activeObjects[i]);
+                }
                 return group;
             }
         }
@@ -272,6 +282,11 @@ namespace RocketWorks.Pooling
                 activeObjects[i].Reset();
             }
         }
+
+        internal object GetEntity()
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class EntityPool<T> : EntityPool where T : Entity, new()
@@ -281,6 +296,8 @@ namespace RocketWorks.Pooling
         public EntityPool(ContextType contextFunction, int amountOfComponents) : base (contextFunction, amountOfComponents)
         {
         }
+
+        
         
         protected override Entity CreateObject()
         {

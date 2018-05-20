@@ -4,13 +4,18 @@ using System.Collections.Generic;
 
 namespace RocketWorks.Grouping
 {
-    public class Group
+    public class Group : Group<Entity>
+    {
+
+    }
+
+    public class Group<T> where T : Entity
     {
         public int Count
         {
             get { return entities.Count; }
         }
-        public Entity this[int index]
+        public T this[int index]
         {
             get { return entities[index]; }
         }
@@ -22,33 +27,33 @@ namespace RocketWorks.Grouping
             internal set { composition = value; }
         }
 
-        private Action<Entity> onEntityAdded = delegate { };
-        public Action<Entity> OnEntityAdded
+        private Action<T> onEntityAdded = delegate { };
+        public Action<T> OnEntityAdded
         {
             get { return onEntityAdded; }
             set { onEntityAdded = value; }
         }
 
-        private Action<Entity> onEntityRemoved = delegate { };
-        public Action<Entity> OnEntityRemoved
+        private Action<T> onEntityRemoved = delegate { };
+        public Action<T> OnEntityRemoved
         {
             get { return onEntityRemoved; }
             set { onEntityRemoved = value; }
         }
 
-        private List<Entity> entities;
-        public List<Entity> Entities
+        private List<T> entities;
+        public List<T> Entities
         {
             get { return entities; }
             set { entities = value; }
         }
 
-        private List<Entity> newEntities;
-        public List<Entity> NewEntities
+        private List<T> newEntities;
+        public List<T> NewEntities
         {
             get {
-                List<Entity> returnValue = newEntities;
-                newEntities = new List<Entity>();
+                List<T> returnValue = newEntities;
+                newEntities = new List<T>();
                 return returnValue;
             }
         }
@@ -60,17 +65,17 @@ namespace RocketWorks.Grouping
 
         public Group()
         {
-            entities = new List<Entity>();
-            newEntities = new List<Entity>();
+            entities = new List<T>();
+            newEntities = new List<T>();
         }
 
-        public Group SetMatching(bool matching)
+        public Group<T> SetMatching(bool matching)
         {
             mustMatch = matching;
             return this;
         }
         
-        public bool Contains(Entity ent)
+        public bool Contains(T ent)
         {
             return entities.Contains(ent);
         }
@@ -83,7 +88,7 @@ namespace RocketWorks.Grouping
             }
         }
 
-        public void AddEntity(Entity entity)
+        public void AddEntity(T entity)
         {
             onEntityAdded(entity);
             if (entities.Contains(entity))
@@ -98,7 +103,7 @@ namespace RocketWorks.Grouping
             return (composition & components) == composition;
         }
 
-        public void RemoveEntity(Entity entity)
+        public void RemoveEntity(T entity)
         {
             if (!entities.Contains(entity))
                 return;

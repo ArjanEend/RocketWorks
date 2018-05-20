@@ -14,7 +14,7 @@ namespace RocketWorks.Systems
 
         protected Contexts contexts;
 
-        public static T Initialize<T>(Contexts contexts) where T : UnitySystemBase
+        public static T Create<T>() where T : UnitySystemBase
         {
             string className = typeof(T).Name;
             RocketLog.LogFormat("New [{0}]", null, className);
@@ -22,7 +22,6 @@ namespace RocketWorks.Systems
             T instance = go.AddComponent<T>();
             DontDestroyOnLoad(go);
             DontDestroyOnLoad(instance);
-            instance.Initialize(contexts);
             return instance;
         }
         public virtual void Initialize(Contexts contexts)

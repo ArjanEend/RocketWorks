@@ -51,6 +51,11 @@ namespace RocketWorks.Entities
             contextType = pool.ObjectType;
         }
 
+        public T GetComponent<T>() where T : IComponent
+        {
+            return Entity.GetComponent<T>();
+        }
+
         public static implicit operator Entity(EntityReference ent)
         {
             return ent.Entity;

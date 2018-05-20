@@ -1,6 +1,4 @@
-﻿using RocketWorks.Serialization;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Reflection;
 
 namespace RocketWorks.CodeGeneration
@@ -9,7 +7,7 @@ namespace RocketWorks.CodeGeneration
     {
         public ContextsBuilder(List<string> serializeableTypes)
         {
-            BuildImports("Implementation.Components", "RocketWorks.Entities", "System.Collections.Generic");
+            BuildImports("RocketWorks.Entities", "System.Collections.Generic");
             BuildHeader("", "Contexts", "", true);
             string lines = "";
 

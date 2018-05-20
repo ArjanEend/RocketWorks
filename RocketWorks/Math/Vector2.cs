@@ -8,6 +8,7 @@ namespace RocketWorks
         private const float Eps = 1e-7f;
 
         public static Vector2 zero = new Vector2();
+        public static Vector2 up = new Vector2(0, 1);
 
         public float x;
         public float y;
