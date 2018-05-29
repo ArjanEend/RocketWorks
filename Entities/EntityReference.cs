@@ -10,7 +10,7 @@ namespace RocketWorks.Entities
         public uint creationIndex;
         public int owner;
 
-        public EntityPool pool;
+        public IEntityPool pool;
 
         public Type contextType;
 
@@ -42,7 +42,7 @@ namespace RocketWorks.Entities
             contextType = ent.GetType();
         }
 
-        public EntityReference(uint creationIndex, int owner, EntityPool pool)
+        public EntityReference(uint creationIndex, int owner, IEntityPool pool)
         {
             this.creationIndex = creationIndex;
             this.owner = owner;

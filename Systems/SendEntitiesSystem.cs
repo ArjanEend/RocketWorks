@@ -11,7 +11,7 @@ namespace RocketWorks.Systems
     public class SendEntitiesSystem<T, S> : SystemBase where T : IComponent where S : EntityContext
     {
         private SocketController socket;
-        private Group componentGroup;
+        private IGroup componentGroup;
         private int compId;
 
         private bool autoDestroy;

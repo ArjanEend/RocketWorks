@@ -6,7 +6,7 @@ namespace RocketWorks.Systems
 {
     public abstract class SystemBase : ISystem
     {
-        protected List<Group> groups = new List<Group>();
+        protected List<IGroup> groups = new List<IGroup>();
 
         protected Contexts contexts;
 
@@ -27,7 +27,7 @@ namespace RocketWorks.Systems
 
         }
 
-        public Group AddGroup(Group group)
+        public IGroup AddGroup(IGroup group)
         {
             groups.Add(group);
             return group;

@@ -8,10 +8,10 @@ using System.Collections.Generic;
 
 namespace RocketWorks.Systems
 {
-    public class SendComponentsSystem<T, S> : SystemBase where T : IComponent where S : EntityContext
+    public class SendComponentsSystem<T, E, S> : SystemBase where T : IComponent where S : EntityContext where E : Entity, new()
     {
         private SocketController socket;
-        private Group componentGroup;
+        private Group<E> componentGroup;
         private int compId;
 
         private bool newOnly;
@@ -20,13 +20,13 @@ namespace RocketWorks.Systems
         {
             this.socket = socket;
             this.tickRate = .2f;
-            newOnly = newOnly;
+            this.newOnly = newOnly;
         }
 
         public override void Initialize(Contexts contexts)
         {
             compId = contexts.GetContext<S>().GetIndexOf(typeof(T));
-            componentGroup = contexts.GetContext<S>().Pool.GetGroup(typeof(T));
+            componentGroup = contexts.GetContext<S>().GetPool<E>().GetGroup(typeof(T));
         }
 
         public override void Destroy()
@@ -36,7 +36,7 @@ namespace RocketWorks.Systems
 
         public override void Execute(float deltaTime)
         {
-            List<Entity> entities = newOnly ? componentGroup.NewEntities : componentGroup.Entities;
+            List<E> entities = newOnly ? componentGroup.NewEntities : componentGroup.Entities;
             for(int i = 0; i < entities.Count; i++)
             {
                 socket.WriteSocket(new UpdateComponentCommand<S>(entities[i].GetComponent<T>(compId), entities[i].CreationIndex));

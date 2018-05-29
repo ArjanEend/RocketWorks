@@ -17,7 +17,16 @@ namespace RocketWorks.CodeGeneration
             BuildImports("System", "RocketWorks.Pooling");
             BuildHeader(type.Namespace, fieldName + "Context", type.ToGenericTypeString());
 
-            BuildConstructor(string.Format("this.pool = new EntityPool<{0}>(GetIndexOf, components.Count);", fieldName + "Entity"));
+            string variableName = fieldName.ToLower() + "Pool";
+
+            BuildVariable(string.Format("EntityPool<{0}>", fieldName + "Entity"), variableName, true, false);
+
+            BuildConstructor(string.Format("this.pool = this.{1} = new EntityPool<{0}>(GetIndexOf, components.Count);", fieldName + "Entity", variableName));
+
+            string groupLines = "";
+            groupLines += "return this.pool as EntityPool<T>;";
+
+            BuildMethod("GetPool<T>", "public override", "EntityPool<T>", groupLines);
             
             BuildEnding();
 

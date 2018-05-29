@@ -1,4 +1,4 @@
-﻿#if UNITY_EDITOR || UNITY_5
+﻿#if RW_UNITY
 using UnityEngine;
 using System;
 

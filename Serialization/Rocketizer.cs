@@ -83,7 +83,7 @@ namespace RocketWorks.Serialization
                     {
                         var entRef = (EntityReference)instance;
                         if(entRef.contextType != null && instanceProviders.ContainsKey(entRef.contextType))
-                            entRef.pool = (EntityPool)instanceProviders[entRef.contextType];
+                            entRef.pool = (IEntityPool)instanceProviders[entRef.contextType];
                         instance = entRef;
                     }
                 }

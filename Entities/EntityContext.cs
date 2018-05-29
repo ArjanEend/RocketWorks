@@ -6,11 +6,18 @@ namespace RocketWorks.Entities
 {
     public delegate int ContextType(Type type);
 
-    public class EntityContext
+    public abstract class EntityContext
     {
         protected Dictionary<Type, int> components = new Dictionary<Type, int>();
-        protected EntityPool pool;
-        public EntityPool Pool { get { return pool; } }
+
+        protected IEntityPool pool;
+        public IEntityPool Pool { get {return pool; } }
+
+        public virtual EntityPool<T> GetPool<T>() where T : Entity, new()
+        {
+            throw new NotImplementedException();
+            return null;
+        }
 
         public EntityContext()
         {

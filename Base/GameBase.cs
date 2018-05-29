@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System;
 using System.Threading;
 
-#if UNITY_EDITOR || UNITY_5
+#if RW_UNITY
 using UnityEngine;
 using RocketWorks.Scene;
 #endif
@@ -29,7 +29,7 @@ namespace RocketWorks.Base
         }
     }
 
-#if UNITY_EDITOR || UNITY_5
+#if RW_UNITY
     public abstract class UnityGameBase : GameBase
     {
         protected SceneHandler sceneHandler;

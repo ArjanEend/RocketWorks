@@ -82,27 +82,32 @@ public class ClassBuilder
         stringBuilder.AppendLine("}");
     }
 
-    protected string BuildVariable(Type variableType, string variableName, bool getter, bool setter)
+    protected void BuildVariable(Type variableType, string variableName, bool getter, bool setter)
+    {
+        BuildVariable(variableType.FullName, variableName, getter, setter);
+    }
+
+    protected void BuildVariable(string variableType, string variableName, bool getter, bool setter)
     {
         string str = "";
+        variableName = variableName.Replace(variableName.Substring(0, 1), variableName.Substring(0, 1).ToLower());
         string publicName = variableName;
         publicName = publicName.Substring(1);
-        publicName = str.Substring(0, 1).ToUpper() + publicName;
+        publicName = variableName.Substring(0, 1).ToUpper() + publicName;
 
-        str += "private {0} {2}";
+        str += string.Format("private {0} {1};", variableType, variableName);
         if (getter || setter)
         {
-            str += "public {0} {2}";
-            str += "{";
+            str += string.Format("public {0} {1}", variableType, publicName);;
+            str += "{ ";
             if (getter)
-                str += "get {return {0}}";
+                str += "get { return " + variableName + "; }";
             if (setter)
-                str += "set {{0} = value}";
+                str += "set { " + variableName + " = value; }";
 
-            str += "}";
+            str += " }";
         }
-
-        return str;
+        stringBuilder.AppendLine(str);
     }
 
     protected void BuildEnding()

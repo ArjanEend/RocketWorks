@@ -148,7 +148,7 @@ namespace RocketWorks
             return new Vector3(v.x, v.y, 0f);
         }
 
-#if UNITY_EDITOR || UNITY_5
+#if RW_UNITY
         public static implicit operator UnityEngine.Vector3(Vector3 v)
         {
             return new UnityEngine.Vector3(v.x, v.y, v.z);

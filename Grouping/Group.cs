@@ -1,15 +1,22 @@
 ﻿using RocketWorks.Entities;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace RocketWorks.Grouping
 {
-    public class Group : Group<Entity>
+    public interface IGroup
     {
-
+        int Count { get; }
+        Entity this[int index] { get; }
+        int Composition { get; }
+        Action<Entity> OnEntityAdded { get; set; }
+        Action<Entity> OnEntityRemoved { get; set; }
+        void RemoveEntity(Entity entity);
+        bool HasComponents(int components);
     }
 
-    public class Group<T> where T : Entity
+    public class Group<T> : IGroup where T : Entity
     {
         public int Count
         {
@@ -19,6 +26,7 @@ namespace RocketWorks.Grouping
         {
             get { return entities[index]; }
         }
+        Entity IGroup.this[int index] { get { return this[index] as Entity; } }
 
         private int composition;
         public int Composition
@@ -27,15 +35,15 @@ namespace RocketWorks.Grouping
             internal set { composition = value; }
         }
 
-        private Action<T> onEntityAdded = delegate { };
-        public Action<T> OnEntityAdded
+        private Action<Entity> onEntityAdded = delegate { };
+        public Action<Entity> OnEntityAdded
         {
             get { return onEntityAdded; }
             set { onEntityAdded = value; }
         }
 
-        private Action<T> onEntityRemoved = delegate { };
-        public Action<T> OnEntityRemoved
+        private Action<Entity> onEntityRemoved = delegate { };
+        public Action<Entity> OnEntityRemoved
         {
             get { return onEntityRemoved; }
             set { onEntityRemoved = value; }
@@ -59,9 +67,6 @@ namespace RocketWorks.Grouping
         }
 
         private bool mustMatch = false;
-
-       // private Dictionary<Type, List<IComponent>> componentBindings = 
-       //     new Dictionary<Type, List<IComponent>>();
 
         public Group()
         {
@@ -103,6 +108,10 @@ namespace RocketWorks.Grouping
             return (composition & components) == composition;
         }
 
+        public void RemoveEntity(Entity entity)
+        {
+            RemoveEntity(entity as T);
+        }
         public void RemoveEntity(T entity)
         {
             if (!entities.Contains(entity))
