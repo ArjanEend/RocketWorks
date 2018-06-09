@@ -26,7 +26,7 @@ namespace RocketWorks.CodeGeneration
             generatedContexts = new List<string>();
             generatedCommands = new List<string>();
 
-            PropertyInfo[] info = contexts.GetType().GetProperties();
+            FieldInfo[] info = contexts.GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
 
             Type type = typeof(ICommand);
             var commandsTypes = AppDomain.CurrentDomain.GetAssemblies().
@@ -35,11 +35,13 @@ namespace RocketWorks.CodeGeneration
             
             for (int i = 0; i < info.Length; i++)
             {
+                if(!info[i].Name.Contains("Context"))
+                    continue;
                 RocketLog.Log("FieldInfo: " + info[i].Name);
-                Type contextType = info[i].PropertyType;
+                Type contextType = info[i].FieldType;
 
-                var value = info[i].GetValue(contexts, null);
-                builders.Add(new ContextBuilder(value.GetType(), info[i].Name));
+                var value = info[i].GetValue(contexts);
+                builders.Add(new ContextBuilder(value.GetType(), info[i].Name.Replace("Context", "")));
 
                 Type[] componentsToUse = value.GetType().GetGenericArguments();
 

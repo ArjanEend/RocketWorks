@@ -15,6 +15,7 @@ namespace RocketWorks.CodeGeneration
                 BuildImports(components[i].Namespace);
             }
             BuildImports("System", "RocketWorks.Pooling");
+            fieldName = fieldName.Substring(0, 1).ToUpper() + fieldName.Substring(1, fieldName.Length - 1);
             BuildHeader(type.Namespace, fieldName + "Context", type.ToGenericTypeString());
 
             string variableName = fieldName.ToLower() + "Pool";

@@ -16,7 +16,8 @@ namespace RocketWorks.Pooling
         void AddEntity(Entity entity, int uid = 0, bool rewriteIndex = false);
         void ReplaceComponent(IComponent component, uint hash, int uid = -1);
         IGroup GetGroup(Type type, params Type[] types);
-        IGroup GetGroup(params Type[] types);
+		IGroup GetGroup(params Type[] types);
+		T GetObject<T> (bool stated = false, int stateHolder = -1) where T : Entity, new();
     }
     public class EntityPool<T> : ObjectPool<T>, IInstanceProvider<T>, IEntityPool where T : Entity, new()
     {
@@ -208,12 +209,12 @@ namespace RocketWorks.Pooling
             return contextCallback(t);
         }
 
-        public T GetObject(bool stated = false, int stateHolder = -1)
+		public E GetObject<E> (bool stated = false, int stateHolder = -1) where E : Entity, new()
         {
-            T ent = base.GetObject();
+			E ent = base.GetObject() as E;
             ent.Owner = stateHolder;
             if (stated)
-                statedObjects[stateHolder].Add(ent.CreationIndex, ent);
+				statedObjects[stateHolder].Add(ent.CreationIndex, ent as T);
             return ent;
         }
 

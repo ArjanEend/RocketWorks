@@ -21,7 +21,9 @@ namespace RocketWorks.CodeGeneration
                     if(serializeableTypes[i].ToLower().Contains(info[j].Name.Replace("Context", "").ToLower()))
                     {
                         string typeName = serializeableTypes[i];
-                        lines += string.Format("contexts.Add({0} = new {1}());", info[j].Name, typeName);
+                        lines += string.Format("contexts.Add({0} = {1} = new {2}());", info[j].Name, info[j].Name.Replace("Context", ""), typeName);
+
+						BuildVariable (typeName, typeName.Replace ("Context", ""), true, false);
                     }
                 }
             }
