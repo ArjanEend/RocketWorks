@@ -2,6 +2,7 @@
 using RocketWorks.Entities;
 using UnityEngine;
 
+[RequireComponent(typeof(EntityVisualizer))]
 public abstract class ComponentVisualizerBase : MonoBehaviour, IComponentVisualizer
 {
     public abstract void Init(IComponent component);
