@@ -8,7 +8,7 @@ namespace RocketWorks.Base
     public class UnityEvents : MonoBehaviour
     {
         public Action<float> OnUpdate;
-        public Action OnFixedUpdate;
+        public Action<float> OnFixedUpdate;
 
         private void Update()
         {
@@ -19,7 +19,7 @@ namespace RocketWorks.Base
         private void FixedUpdate()
         {
             if (OnFixedUpdate != null)
-                OnFixedUpdate();
+                OnFixedUpdate(Time.deltaTime);
         }
 
     }

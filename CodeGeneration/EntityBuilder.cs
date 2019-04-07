@@ -20,7 +20,9 @@ namespace RocketWorks.CodeGeneration
             for(int i = 0; i < components.Length; i++)
             {
                 string lines = string.Format("return ({1})components[{0}];", i, components[i].Name);
-                BuildMethod(components[i].Name, "public", components[i].Name, lines);
+                BuildProperty(components[i].Name, components[i].Name, 
+                    $"return ({components[i].Name})components[{i}];",
+                    $"components[{i}] = ({components[i].Name})value;");
             }
             
             BuildEnding();

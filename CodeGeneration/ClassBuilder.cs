@@ -109,6 +109,19 @@ public class ClassBuilder
         }
         stringBuilder.AppendLine(str);
     }
+    
+    protected void BuildProperty(string propertyName, string propertyType, string getLines = "", string setLines = "")
+    {
+        stringBuilder.Append("public "  + propertyType + " " + propertyName + "{");
+        
+        stringBuilder.Append("get {");
+        stringBuilder.AppendLine(getLines);
+        stringBuilder.AppendLine("}");
+        stringBuilder.Append("set {");
+        stringBuilder.AppendLine(setLines);
+        stringBuilder.AppendLine("}");
+        stringBuilder.Append("}");
+    }
 
     protected void BuildEnding()
     {

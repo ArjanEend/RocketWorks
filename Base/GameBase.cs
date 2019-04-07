@@ -40,7 +40,7 @@ namespace RocketWorks.Base
             systemManager.AddSystem(sceneHandler);
             GameObject eventObject = new GameObject("[UpdateEvents]");
             UnityEvents events = eventObject.AddComponent<UnityEvents>();
-            events.OnUpdate += UpdateGame;
+            events.OnFixedUpdate += UpdateGame;
         }
     }
 #endif

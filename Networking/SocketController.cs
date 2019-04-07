@@ -11,6 +11,9 @@ namespace RocketWorks.Networking
     {
         bool socketReady = false;
         
+        private bool isReliable = false;
+        public bool IsReliable { get { return isReliable; } }
+
         private Socket socket;
         private List<SocketConnection> connectedClients;
 
@@ -38,9 +41,10 @@ namespace RocketWorks.Networking
 
         private bool addingCommand;
 
-        public SocketController(NetworkCommander commander, Rocketizer rocketizer)
+        public SocketController(NetworkCommander commander, Rocketizer rocketizer, bool reliable = true)
         {
             SetTimeStamp(DateTime.UtcNow);
+            this.isReliable = reliable;
 
             connectedClients = new List<SocketConnection>();
             
@@ -82,7 +86,7 @@ namespace RocketWorks.Networking
             }
             try
             {
-                socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, isReliable ? ProtocolType.Tcp : ProtocolType.Udp);
                 if (server)
                 {
 

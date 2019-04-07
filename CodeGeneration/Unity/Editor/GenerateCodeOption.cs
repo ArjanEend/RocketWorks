@@ -9,8 +9,25 @@ namespace RocketWorks.CodeGeneration
 {
     public class GenerateCodeOption
     {
+        [MenuItem("RocketWorks/CodeGeneration/Prepare")]
+        static void PrepareForGeneration()
+        {
+            if (Directory.Exists("./Assets/Source/Generated"))
+                Directory.Delete("./Assets/Source/Generated", true);
+            var info = Directory.CreateDirectory("./Assets/Source/Generated");
+            RocketLog.Log(info.FullName + " created");
+
+            if(!Directory.Exists("./Temp/Source/"))
+                Directory.CreateDirectory("./Temp/Source");
+
+            if(Directory.Exists("./Assets/Source/Implementation"))
+                Directory.Move("./Assets/Source/Implementation", "./Temp/Source/Implemenation");
+
+            AssetDatabase.Refresh();
+        }
+
         [MenuItem("RocketWorks/CodeGeneration/Generate")]
-        static void DoSomething()
+        static void GenerateCode()
         {
             ContextGenerator generator = new ContextGenerator();
             if (Directory.Exists("./Assets/Source/Generated"))
@@ -21,6 +38,9 @@ namespace RocketWorks.CodeGeneration
             {
                 //kind of a hack, but this shit works
             }
+
+            AssetDatabase.Refresh();
+
             for (int i = 0; i < generator.Builders.Count; i++)
             {
                 FileStream fStream = new FileStream("./Assets/Source/Generated/" + generator.Builders[i].Name + ".cs", FileMode.Create);
@@ -36,6 +56,19 @@ namespace RocketWorks.CodeGeneration
             }
 
             RocketLog.Log("Finished generating code");
+
+            AssetDatabase.Refresh();
+
+        }
+
+        
+        [MenuItem("RocketWorks/CodeGeneration/Restore")]
+        static void RestoreAfterGeneration()
+        {
+            if(Directory.Exists("./Temp/Source/Implemenation"))
+                Directory.Move("./Temp/Source/Implemenation", "./Assets/Source/Implementation");
+
+            AssetDatabase.Refresh();
         }
     }
 }
