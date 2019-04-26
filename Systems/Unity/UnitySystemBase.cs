@@ -5,7 +5,7 @@ using System;
 
 namespace RocketWorks.Systems
 {
-    public abstract class UnitySystemBase : MonoBehaviour, ISystem
+    public abstract class UnitySystemBase : ScriptableObject, ISystem
     {
         public float TickRate
         {
@@ -14,15 +14,15 @@ namespace RocketWorks.Systems
 
         protected Contexts contexts;
 
-        public static T Create<T>() where T : UnitySystemBase
+        public static void Create<T>(SystemManager manager) where T : UnitySystemBase
         {
             string className = typeof(T).Name;
             RocketLog.LogFormat("New [{0}]", null, className);
-            GameObject go = new GameObject(string.Format("[{0}]", className));
-            T instance = go.AddComponent<T>();
-            DontDestroyOnLoad(go);
-            DontDestroyOnLoad(instance);
-            return instance;
+            var loadOp = UnityEngine.AddressableAssets.Addressables.LoadAsset<T>(className);
+            loadOp.Completed += x => 
+            {
+                manager.AddSystem(x.Result);
+            };
         }
         public virtual void Initialize(Contexts contexts)
         {

@@ -132,6 +132,15 @@ namespace RocketWorks.Entities
             return this.composition == composition;
         }
 
+        public void AddComponent(IComponent component)
+        {
+            int index = context(component.GetType());
+            components[index] = component;
+            composition |= 1 << index;
+
+            CompositionChangeEvent(component, this);
+        }
+
         public T AddComponent<T>() where T : IComponent, new()
         {
             T component = new T();

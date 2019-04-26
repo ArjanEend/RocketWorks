@@ -7,6 +7,7 @@ using RocketWorks.State;
 
 namespace RocketWorks.Scene
 {
+    [CreateAssetMenu]
     public class SceneHandler : UnitySystemBase
     {
         private SceneBase currentScene;

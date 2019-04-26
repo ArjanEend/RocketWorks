@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System;
 using System.Threading;
 
-#if RW_UNITY
+#if UNITY
 using UnityEngine;
 using RocketWorks.Scene;
 #endif
@@ -29,15 +29,14 @@ namespace RocketWorks.Base
         }
     }
 
-#if RW_UNITY
+#if UNITY
     public abstract class UnityGameBase : GameBase
     {
         protected SceneHandler sceneHandler;
 
         public UnityGameBase(): base()
         {
-            sceneHandler = UnitySystemBase.Create<SceneHandler>();
-            systemManager.AddSystem(sceneHandler);
+            UnitySystemBase.Create<SceneHandler>(systemManager);
             GameObject eventObject = new GameObject("[UpdateEvents]");
             UnityEvents events = eventObject.AddComponent<UnityEvents>();
             events.OnFixedUpdate += UpdateGame;

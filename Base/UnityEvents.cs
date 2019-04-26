@@ -1,4 +1,4 @@
-﻿#if RW_UNITY
+﻿#if UNITY
 using UnityEngine;
 using System;
 

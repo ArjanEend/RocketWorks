@@ -5,6 +5,7 @@ using UnityEngine;
 using System;
 using System.Reflection;
 using UnityEngine.AddressableAssets;
+using System.Linq;
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditorInternal;
@@ -58,13 +59,16 @@ public class EntityPrototypeEditor : Editor
     private ReorderableList list;
     private Type[] componentTypes;
     
-    string[] _choices = new [] { "foo", "foobar" };
+    string[] choices = new [] {""};
     
-    private int _choiceIndex = 0;
+    private int choiceIndex = -1;
 
     private void OnEnable()
     {
         list = new ReorderableList(this.serializedObject, serializedObject.FindProperty("component"));
+
+        var componentTypes = Assembly.GetAssembly(this.GetType()).GetTypes().Where(x => typeof(IComponent).IsAssignableFrom(x) && x.IsClass && !x.IsAbstract && !x.IsGenericType);
+        choices = componentTypes.Select(x => x.Name).ToArray();
     }
 
     public override void OnInspectorGUI()
@@ -75,8 +79,16 @@ public class EntityPrototypeEditor : Editor
 
         foreach(var comp in prototype.CachedComponents)
         {
+            GUILayout.BeginHorizontal();
             EditorGUILayout.LabelField(comp.GetType().Name);
             var fields = comp.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
+
+            if(GUILayout.Button("-"))
+            {
+
+            }
+
+            GUILayout.EndHorizontal();
 
             foreach(var field in fields)
             {
@@ -84,22 +96,26 @@ public class EntityPrototypeEditor : Editor
                 {
                     AssetReference assetRef = field.GetValue(comp) as AssetReference;
                     assetRef.SetEditorAsset(EditorGUILayout.ObjectField(assetRef.editorAsset, typeof(GameObject)));
-                } else {
+                } else if(typeof(UnityEngine.Object).IsAssignableFrom(field.FieldType)) {
                     field.SetValue(comp, EditorGUILayout.ObjectField(field.GetValue(comp) as UnityEngine.Object, field.FieldType));
+                } else if(field.FieldType == typeof(Vector3))
+                {
+                    field.SetValue(comp, EditorGUILayout.Vector3Field(field.Name, (Vector3)field.GetValue(comp)));
                 }
             }
         }
 
-        _choiceIndex = EditorGUILayout.Popup(_choiceIndex, _choices);
+        EditorGUILayout.LabelField("Add component");
+        choiceIndex = EditorGUILayout.Popup(choiceIndex, choices);
         // Update the selected choice in the underlying object
         //_choiceIndex = _choices[_choiceIndex];
-        if(_choiceIndex != 0)
+        if(choiceIndex != -1)
         {
-            var component = new UnityGO();
-            prototype.AddComponent(component);
+            var component = Activator.CreateInstance(Type.GetType(choices[choiceIndex]));
+            prototype.AddComponent(component as IComponent);
             EditorUtility.SetDirty(target);
         }
-        _choiceIndex = 0;
+        choiceIndex = -1;
 
     }
 }
