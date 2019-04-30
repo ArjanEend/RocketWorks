@@ -13,10 +13,10 @@ using UnityEditorInternal;
 [CreateAssetMenu]
 public class EntityPrototype : ScriptableObject
 {
-    [SerializeField]
+    [SerializeField, HideInInspector]
     private List<string> components = new List<string>();
     
-    [SerializeField]
+    [SerializeField, HideInInspector]
     private List<string> types = new List<string>();
 
     private List<IComponent> cachedComponents = new List<IComponent>();
@@ -50,6 +50,14 @@ public class EntityPrototype : ScriptableObject
         this.cachedComponents.Add(component);
     }
 
+    public void RemoveComponent(IComponent component)
+    {
+        var index = cachedComponents.IndexOf(component);
+        cachedComponents.RemoveAt(index);
+        components.RemoveAt(index);
+        types.RemoveAt(index);
+    }
+
 }
 
 #if UNITY_EDITOR
@@ -58,6 +66,8 @@ public class EntityPrototypeEditor : Editor
 {
     private ReorderableList list;
     private Type[] componentTypes;
+
+    private List<bool> foldEditors = new List<bool>();
     
     string[] choices = new [] {""};
     
@@ -67,7 +77,7 @@ public class EntityPrototypeEditor : Editor
     {
         list = new ReorderableList(this.serializedObject, serializedObject.FindProperty("component"));
 
-        var componentTypes = Assembly.GetAssembly(this.GetType()).GetTypes().Where(x => typeof(IComponent).IsAssignableFrom(x) && x.IsClass && !x.IsAbstract && !x.IsGenericType);
+        var componentTypes = Assembly.GetAssembly(this.GetType()).GetTypes().Where(x => x.GetInterfaces().Length == 2 && x.GetInterfaces().Contains(typeof(IComponent)) && x.IsClass && !x.IsAbstract && !x.IsGenericType);
         choices = componentTypes.Select(x => x.Name).ToArray();
     }
 
@@ -79,16 +89,21 @@ public class EntityPrototypeEditor : Editor
 
         foreach(var comp in prototype.CachedComponents)
         {
+            EditorGUILayout.BeginVertical("box");
             GUILayout.BeginHorizontal();
             EditorGUILayout.LabelField(comp.GetType().Name);
             var fields = comp.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
 
             if(GUILayout.Button("-"))
             {
-
+                prototype.RemoveComponent(comp);
             }
 
             GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Space(30);
+            EditorGUILayout.BeginVertical();
 
             foreach(var field in fields)
             {
@@ -103,6 +118,10 @@ public class EntityPrototypeEditor : Editor
                     field.SetValue(comp, EditorGUILayout.Vector3Field(field.Name, (Vector3)field.GetValue(comp)));
                 }
             }
+            EditorGUILayout.EndVertical();
+            EditorGUILayout.EndVertical();
+            GUILayout.EndHorizontal();
+            GUILayout.Space(20);
         }
 
         EditorGUILayout.LabelField("Add component");

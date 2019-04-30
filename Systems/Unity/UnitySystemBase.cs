@@ -21,7 +21,10 @@ namespace RocketWorks.Systems
             var loadOp = UnityEngine.AddressableAssets.Addressables.LoadAsset<T>(className);
             loadOp.Completed += x => 
             {
-                manager.AddSystem(x.Result);
+                if(loadOp.OperationException != null)
+                    manager.AddSystem(ScriptableObject.CreateInstance<T>());
+                else
+                    manager.AddSystem(x.Result);
             };
         }
         public virtual void Initialize(Contexts contexts)
