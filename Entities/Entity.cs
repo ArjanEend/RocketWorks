@@ -138,7 +138,7 @@ namespace RocketWorks.Entities
             components[index] = component;
             composition |= 1 << index;
 
-            CompositionChangeEvent(component, this);
+            CompositionChangeEvent?.Invoke(component, this);
         }
 
         public T AddComponent<T>() where T : IComponent, new()
@@ -153,7 +153,7 @@ namespace RocketWorks.Entities
             components[index] = component;
             composition |= 1 << index;
 
-            CompositionChangeEvent(component, this);
+            CompositionChangeEvent?.Invoke(component, this);
             return component;
         }
 
@@ -165,7 +165,7 @@ namespace RocketWorks.Entities
                 {
                     components[i] = null;
                     composition &= ~(1 << i);
-                    CompositionSubtractEvent(null, this);
+                    CompositionSubtractEvent?.Invoke(null, this);
                     return;
                 }
             }
@@ -179,7 +179,7 @@ namespace RocketWorks.Entities
             IComponent comp = components[i];
             components[i] = null;
             composition &= ~(1 << i);
-            CompositionSubtractEvent(comp, this);
+            CompositionSubtractEvent?.Invoke(comp, this);
         }
 
         public void RemoveComponent(int componentIndex)
@@ -188,7 +188,7 @@ namespace RocketWorks.Entities
             {
                 components[componentIndex] = null;
                 composition &= ~(1 << componentIndex);
-                CompositionSubtractEvent(null, this);
+                CompositionSubtractEvent?.Invoke(null, this);
                 return;
             }
         }
@@ -217,7 +217,7 @@ namespace RocketWorks.Entities
         {
             components[index] = component;
             composition |= 1 << index;
-            CompositionChangeEvent(component, this);
+            CompositionChangeEvent?.Invoke(component, this);
         }
     }
 }
