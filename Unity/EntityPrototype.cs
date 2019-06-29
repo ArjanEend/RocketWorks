@@ -77,7 +77,7 @@ public class EntityPrototypeEditor : Editor
     {
         list = new ReorderableList(this.serializedObject, serializedObject.FindProperty("component"));
 
-        var componentTypes = Assembly.GetAssembly(this.GetType()).GetTypes().Where(x => x.GetInterfaces().Length == 2 && x.GetInterfaces().Contains(typeof(IComponent)) && x.IsClass && !x.IsAbstract && !x.IsGenericType);
+        var componentTypes = Assembly.GetAssembly(this.GetType()).GetTypes().Where(x => x.GetInterfaces().Length >= 2 && x.GetInterfaces().Contains(typeof(IComponent)) && x.IsClass && !x.IsAbstract && !x.IsGenericType);
         choices = componentTypes.Select(x => x.Name).ToArray();
     }
 
