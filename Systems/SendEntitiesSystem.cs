@@ -51,11 +51,6 @@ namespace RocketWorks.Systems
 
         public override void Destroy()
         {
-            throw new NotImplementedException();
-        }
-
-        public override void Execute(float deltaTime)
-        {
         }
     }
 }

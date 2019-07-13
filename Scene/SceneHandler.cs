@@ -76,14 +76,8 @@ namespace RocketWorks.Scene
             currentScene.OnLoaded();
         }
 
-        public override void Execute(float deltaTime)
-        {
-            //throw new NotImplementedException();
-        }
-
         public override void Destroy()
         {
-            throw new NotImplementedException();
         }
     }
 }

@@ -16,7 +16,13 @@ namespace RocketWorks.Grouping
         bool HasComponents(int components);
     }
 
-    public class Group<T> : IGroup where T : Entity
+    public interface IGroup<T> : IGroup
+    {
+        new Action<T> OnEntityAdded { get; set; }
+        new Action<T> OnEntityRemoved { get; set; }
+    }
+
+    public class Group<T> : IGroup<T> where T : Entity
     {
         public int Count
         {
@@ -35,19 +41,30 @@ namespace RocketWorks.Grouping
             internal set { composition = value; }
         }
 
-        private Action<Entity> onEntityAdded = delegate { };
-        public Action<Entity> OnEntityAdded
+        private Action<T> onEntityAdded = delegate { };
+        Action<Entity> IGroup.OnEntityAdded
+        {
+            get { return (Action<Entity>)onEntityAdded; }
+            set { onEntityAdded = value; }
+        }
+        public Action<T> OnEntityAdded
         {
             get { return onEntityAdded; }
             set { onEntityAdded = value; }
         }
 
-        private Action<Entity> onEntityRemoved = delegate { };
-        public Action<Entity> OnEntityRemoved
+        private Action<T> onEntityRemoved = delegate { };
+        Action<Entity> IGroup.OnEntityRemoved
+        {
+            get { return (Action<Entity>)onEntityRemoved; }
+            set { onEntityRemoved = value; }
+        }
+        public Action<T> OnEntityRemoved
         {
             get { return onEntityRemoved; }
             set { onEntityRemoved = value; }
         }
+        
 
         private List<T> entities;
         public List<T> Entities

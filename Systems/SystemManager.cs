@@ -10,20 +10,23 @@ namespace RocketWorks.Systems
 
         private List<ISystem> systems;
 
-        private Dictionary<ISystem, float> storedDelays;
+        private Dictionary<ISystem, float> storedExecutionDelays;
+        private Dictionary<ISystem, float> storedUpdateDelays;
 
         public SystemManager(Contexts contexts)
         {
             this.contexts = contexts;
             systems = new List<ISystem>();
-            storedDelays = new Dictionary<ISystem, float>();
+            storedExecutionDelays = new Dictionary<ISystem, float>();
+            storedUpdateDelays = new Dictionary<ISystem, float>();
         }
 
         public T AddSystem<T>(T system) where T : ISystem
         {
             system.Initialize(contexts);
             systems.Add(system);
-            storedDelays.Add(system, system.TickRate);
+            storedExecutionDelays.Add(system, system.TickRate);
+            storedUpdateDelays.Add(system, system.TickRate);
             return (T)system;
         }
 
@@ -32,7 +35,8 @@ namespace RocketWorks.Systems
             if (systems.Contains(system))
             {
                 systems.Remove(system);
-                storedDelays.Remove(system);
+                storedExecutionDelays.Remove(system);
+                storedUpdateDelays.Remove(system);
             }
         }
 
@@ -40,12 +44,27 @@ namespace RocketWorks.Systems
         {
             for (int i = 0; i < systems.Count; i++)
             {
-                if(storedDelays[systems[i]] <= 0f)
+                if(storedExecutionDelays[systems[i]] <= 0f)
                 {
-                    storedDelays[systems[i]] = systems[i].TickRate;
-                    systems[i].Execute(deltaTime);
+                    storedExecutionDelays[systems[i]] = systems[i].TickRate;
+                    if(systems[i] is ISystemExecute executor)
+                        executor.Execute(deltaTime);
                 }
-                storedDelays[systems[i]] -= deltaTime;
+                storedExecutionDelays[systems[i]] -= deltaTime;
+            }
+        }
+
+        public void UpdateSystemsFrame(float deltaTime)
+        {
+            for (int i = 0; i < systems.Count; i++)
+            {
+                if(storedUpdateDelays[systems[i]] <= 0f)
+                {
+                    storedUpdateDelays[systems[i]] = systems[i].TickRate;
+                    if(systems[i] is ISystemUpdateFrame frame)
+                        frame.Update(deltaTime);
+                }
+                storedUpdateDelays[systems[i]] -= deltaTime;
             }
         }
     }

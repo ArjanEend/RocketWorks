@@ -35,7 +35,9 @@ public class EntityPrototype : ScriptableObject
         {
             components[i] = JsonUtility.ToJson(cachedComponents[i]);
         }
+#if UNITY_EDITOR
         EditorUtility.SetDirty(this);
+#endif
     }
 
     private void OnBeforeSerialize()

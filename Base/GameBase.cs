@@ -27,6 +27,11 @@ namespace RocketWorks.Base
         {
             systemManager.UpdateSystems(deltaTime);
         }
+
+        public virtual void UpdateFrame(float deltaTime)
+        {
+            systemManager.UpdateSystemsFrame(deltaTime);
+        }
     }
 
 #if UNITY
@@ -40,6 +45,7 @@ namespace RocketWorks.Base
             GameObject eventObject = new GameObject("[UpdateEvents]");
             UnityEvents events = eventObject.AddComponent<UnityEvents>();
             events.OnFixedUpdate += UpdateGame;
+            events.OnUpdate += UpdateFrame;
         }
     }
 #endif

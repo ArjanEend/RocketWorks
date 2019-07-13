@@ -31,7 +31,6 @@ namespace RocketWorks.Systems
         {
             this.contexts = contexts;
         }
-        public abstract void Execute(float deltaTime);
         public abstract void Destroy();
     }
 }

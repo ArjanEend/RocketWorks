@@ -7,7 +7,7 @@ using RocketWorks.Commands;
 
 namespace RocketWorks.Systems
 {
-    public class EstimateComponentsSystem<T, S> : SystemBase where T : IComponent where S : EntityContext
+    public class EstimateComponentsSystem<T, S> : SystemBase where T : IComponent where S : EntityContext, ISystemExecute
     {
         private SocketController socket;
         private IGroup componentGroup;
@@ -37,7 +37,7 @@ namespace RocketWorks.Systems
             throw new NotImplementedException();
         }
 
-        public override void Execute(float deltaTime)
+        public void Execute(float deltaTime)
         {
             for (int i = 0; i < componentGroup.Count; i++)
             {

@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace RocketWorks.Systems
 {
-    public class SendComponentsSystem<T, E, S> : SystemBase where T : IComponent where S : EntityContext where E : Entity, new()
+    public class SendComponentsSystem<T, E, S> : SystemBase where T : IComponent where S : EntityContext where E : Entity, ISystemExecute, new()
     {
         private SocketController socket;
         private Group<E> componentGroup;
@@ -34,7 +34,7 @@ namespace RocketWorks.Systems
             throw new NotImplementedException();
         }
 
-        public override void Execute(float deltaTime)
+        public void Execute(float deltaTime)
         {
             List<E> entities = newOnly ? componentGroup.NewEntities : componentGroup.Entities;
             for(int i = 0; i < entities.Count; i++)
