@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using RocketWorks.Pooling;
 using RocketWorks.State;
+using UnityScenes = UnityEngine.SceneManagement.SceneManager;
+using RocketWorks.Controllers;
 
 namespace RocketWorks.Scene
 {
@@ -17,19 +19,11 @@ namespace RocketWorks.Scene
 
         public override void Initialize(Contexts contexts)
         {
-            
-        }
-
-        private void Start()
-        {
+            base.Initialize(contexts);
             stateMachine = new StateMachine<SceneHandler>(this);
-
+            UnityScenes.sceneLoaded += OnSceneLoaded;
             RocketLog.Log("Start", this);
-        }
-
-        void Update()
-        {
-            stateMachine.Update();
+            OnSceneLoaded(UnityScenes.GetActiveScene(), LoadSceneMode.Single);
         }
 
         public void RegisterScene(SceneBase scene)
@@ -71,9 +65,17 @@ namespace RocketWorks.Scene
             return gScene;
         }
 
-        void OnLevelWasLoaded()
+        private void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, LoadSceneMode mode)
         {
-            currentScene.OnLoaded();
+            var objects = scene.GetRootGameObjects();
+            foreach(var obj in objects)
+            {
+                var controllers = obj.GetComponentsInChildren<IController>();
+                foreach(var controller in controllers)
+                {
+                    controller.Init(contexts);
+                }
+            }
         }
 
         public override void Destroy()

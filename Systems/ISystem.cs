@@ -16,6 +16,6 @@ namespace RocketWorks.Systems
 
     public interface ISystemUpdateFrame
     {
-        void Update(float deltaTime);
+        void UpdateFrame(float deltaTime);
     }
 }

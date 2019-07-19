@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace RocketWorks.Controllers
 {
-    public class Controller : MonoBehaviour, IController
+    public abstract class UnityControllerBase : MonoBehaviour, IController
     {
         protected Contexts contexts;
 

@@ -41,7 +41,6 @@ namespace RocketWorks.Base
 
         public UnityGameBase(): base()
         {
-            UnitySystemBase.Create<SceneHandler>(systemManager);
             GameObject eventObject = new GameObject("[UpdateEvents]");
             UnityEvents events = eventObject.AddComponent<UnityEvents>();
             events.OnFixedUpdate += UpdateGame;

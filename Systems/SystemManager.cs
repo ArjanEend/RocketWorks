@@ -62,7 +62,7 @@ namespace RocketWorks.Systems
                 {
                     storedUpdateDelays[systems[i]] = systems[i].TickRate;
                     if(systems[i] is ISystemUpdateFrame frame)
-                        frame.Update(deltaTime);
+                        frame.UpdateFrame(deltaTime);
                 }
                 storedUpdateDelays[systems[i]] -= deltaTime;
             }
