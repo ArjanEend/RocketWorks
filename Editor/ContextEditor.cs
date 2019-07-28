@@ -1,4 +1,7 @@
-﻿using UnityEditor;
+﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
+using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -28,6 +31,28 @@ public class ContextEditor : EditorWindow
     }
 }
 
+public class GameContextData
+{
+    public List<ContextData> contexts;
+    public List<ContextData> componentTypes;
+}
+
+public class ContextData
+{
+    public string name;
+    public List<string> componentNames;
+}
+
+public class ComponentData
+{
+    public string name;
+}
+
+public class FieldData
+{
+    
+}
+
 public class NodeCanvas : VisualElement
 {
     private VisualElement menu;
@@ -55,9 +80,10 @@ public class NodeCanvas : VisualElement
 
 public class RightClickMenu : VisualElement
 {
+    private Type[] options = {typeof(ComponentData), typeof(ContextData)};
+
     public RightClickMenu()
     {
-        int[] options = {0, 1, 2, 3};
         
         this.style.width = 200f;
         this.style.paddingBottom = 3f;
@@ -67,18 +93,19 @@ public class RightClickMenu : VisualElement
 
         this.CaptureMouse();
 
-        for(int i = 0; i < options.Length; i++)
+        foreach(var option in options)
         {
-            var option = new Button(() => SelectOption(i));
-            option.style.height = 20f;
-            option.Add(new Label($"option {i}"));
-            Add(option);
+            var button = new Button(() => SelectOption(option));
+            button.style.height = 20f;
+            button.Add(new Label($"Create {option.Name}"));
+            Add(button);
         }
     }
 
-    private void SelectOption(int option)
+    private void SelectOption(Type option)
     {
-        var node = new Node();
+        Debug.Log(option);
+        Node node = Activator.CreateInstance(typeof(Node<>).MakeGenericType(option)) as Node;
         node.style.top = style.top;
         node.style.left = style.left;
         parent.Add(node);
@@ -86,7 +113,7 @@ public class RightClickMenu : VisualElement
     }
 }
 
-public class Node : VisualElement
+public abstract class Node : VisualElement
 {
     bool drag = false;
     private Vector2 startPos;
@@ -111,6 +138,30 @@ public class Node : VisualElement
         Add(button);
 
         this.AddManipulator(new NodeDragger());
+    }
+}
+
+public class Node<T> : Node where T : new()
+{
+    protected T data;
+    public T Data => data;
+
+    public Node() : base()
+    {
+        data = new T();
+
+        var fields = data.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public);
+        for(int i = 0; i < fields.Length; i++)
+        {
+            if(fields[i].FieldType.IsValueType)
+            {
+                Add(new Label($"{fields[i].Name}:"));
+                var input = new TextField();
+                input.value = fields[i].GetValue(data) as string;
+                Add(input);
+                input.RegisterValueChangedCallback(value => fields[i].SetValue(data, value));
+            }
+        }
     }
 }
 
