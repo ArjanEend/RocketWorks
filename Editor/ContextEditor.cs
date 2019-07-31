@@ -1,25 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using RocketWorks.Entities;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
  
-public class ContextEditor : EditorWindow
+public class ContextEditor : NodeCanvasEditor<GameContextData>
 {
     [MenuItem("RocketWorks/Context Editor")]
-    public static void Open()
+    public static void OpenWindow()
     {
         ContextEditor window = (ContextEditor)EditorWindow.GetWindow(typeof(ContextEditor));
         window.Show();
     }
+}
 
+public class EntityEditor : NodeCanvasEditor<Entity>
+{ 
+    [MenuItem("RocketWorks/Entity Editor")]
+    public static void OpenWindow()
+    {
+        EntityEditor window = (EntityEditor)EditorWindow.GetWindow(typeof(EntityEditor));
+        window.Show();
+    }
+}
+
+public abstract class NodeCanvasEditor<T> : EditorWindow
+{
     public void OnEnable()
     {
         var root = this.rootVisualElement;
 
-        var nodeCanvas = new NodeCanvas();
+        var nodeCanvas = new NodeCanvas<T>();
         root.Add(nodeCanvas);
         nodeCanvas.StretchToParentSize();
 
@@ -34,18 +49,18 @@ public class ContextEditor : EditorWindow
 public class GameContextData
 {
     public List<ContextData> contexts;
-    public List<ContextData> componentTypes;
+    public List<ComponentData> componentTypes;
 }
 
 public class ContextData
 {
-    public string name;
-    public List<string> componentNames;
+    public string contextName;
+    public List<ComponentData> components;
 }
 
 public class ComponentData
 {
-    public string name;
+    public string componentName;
 }
 
 public class FieldData
@@ -53,13 +68,13 @@ public class FieldData
     
 }
 
-public class NodeCanvas : VisualElement
+public class NodeCanvas<T> : VisualElement
 {
     private VisualElement menu;
 
     public NodeCanvas() : base()
     {
-        menu = new RightClickMenu();
+        menu = new RightClickMenu<T>();
     }
 
     override public void HandleEvent(EventBase evt)
@@ -78,12 +93,55 @@ public class NodeCanvas : VisualElement
     }
 }
 
-public class RightClickMenu : VisualElement
+public class RightClickMenu<T> : VisualElement
 {
-    private Type[] options = {typeof(ComponentData), typeof(ContextData)};
+    private List<Type> options = new List<Type>();
 
     public RightClickMenu()
     {
+        
+        List<Type> typesToCheck = new List<Type>{typeof(T)};
+        int iter = 0;
+        while(typesToCheck.Count > 0 && iter < 100)
+        {
+            iter++;
+            var checkingType = typesToCheck[0];
+            typesToCheck.RemoveAt(0);
+            
+            if(typesToCheck.Contains(checkingType) || options.Contains(checkingType))
+                continue;
+
+            var fields = checkingType.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            for(int i = 0; i < fields.Length; i++)
+            {
+                var fieldType = fields[i].FieldType;
+                typesToCheck.Add(fieldType);
+            }
+
+            if(checkingType.IsGenericType)
+            {
+                var generics = checkingType.GetGenericArguments();
+                typesToCheck.AddRange(generics);
+            }
+
+            if(checkingType.IsArray)
+            {
+                typesToCheck.Add(checkingType.GetElementType());
+                continue;
+            }
+
+            if(checkingType.IsInterface)
+            {
+                typesToCheck.AddRange(
+                    Assembly.GetAssembly(checkingType).GetTypes().Where(x => x.GetInterfaces().Length >= 1 && x.GetInterfaces().Contains(checkingType) && x.IsClass && !x.IsAbstract)
+                    );
+                continue;
+            }
+
+            if(checkingType.IsValueType)
+                continue;
+            options.Add(checkingType);
+        }
         
         this.style.width = 200f;
         this.style.paddingBottom = 3f;
@@ -117,6 +175,9 @@ public abstract class Node : VisualElement
 {
     bool drag = false;
     private Vector2 startPos;
+
+    protected Label mainLabel;
+
     public Node()
     {
         style.borderTopWidth = style.borderBottomWidth = style.borderLeftWidth = style.borderRightWidth = 1f;
@@ -127,11 +188,8 @@ public abstract class Node : VisualElement
         style.height = 200f;
         style.position = Position.Absolute;
         style.backgroundColor = Color.grey * .9f;
-        var label = new Label(this.name);
-        Add(label);
-        Add(new Label("name:"));
-        var nameInput = new TextField();
-        Add(nameInput);
+        mainLabel = new Label(this.name);
+        Add(mainLabel);
 
         var button = new Button(() => parent.Remove(this));
         button.Add(new Label("delete"));
@@ -148,18 +206,24 @@ public class Node<T> : Node where T : new()
 
     public Node() : base()
     {
+        mainLabel.text = typeof(T).Name;
         data = new T();
 
         var fields = data.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public);
         for(int i = 0; i < fields.Length; i++)
         {
-            if(fields[i].FieldType.IsValueType)
+            var field = fields[i];
+            if(field.FieldType.IsValueType || field.FieldType == typeof(string))
             {
-                Add(new Label($"{fields[i].Name}:"));
+                Add(new Label($"{field.Name}:"));
                 var input = new TextField();
-                input.value = fields[i].GetValue(data) as string;
+                input.value = field.GetValue(data) as string;
                 Add(input);
-                input.RegisterValueChangedCallback(value => fields[i].SetValue(data, value));
+                input.RegisterValueChangedCallback(value => {
+                    field.SetValue(data, value.newValue);
+                    Debug.Log(JsonUtility.ToJson(data));
+                    });
+                
             }
         }
     }

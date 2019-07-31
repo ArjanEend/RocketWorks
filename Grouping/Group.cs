@@ -1,5 +1,6 @@
 ﻿using RocketWorks.Entities;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -16,7 +17,7 @@ namespace RocketWorks.Grouping
         bool HasComponents(int components);
     }
 
-    public interface IGroup<T> : IGroup
+    public interface IGroup<T> : IGroup, IEnumerable<T>
     {
         new Action<T> OnEntityAdded { get; set; }
         new Action<T> OnEntityRemoved { get; set; }
@@ -136,6 +137,16 @@ namespace RocketWorks.Grouping
             onEntityRemoved(entity);
             entities.Remove(entity);
             newEntities.Remove(entity);
+        }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            return entities.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return (IEnumerator) GetEnumerator();
         }
     }
 }
