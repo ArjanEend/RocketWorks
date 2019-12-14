@@ -201,6 +201,7 @@ namespace RocketWorks.Entities
 
         public void Reset()
         {
+            UnityEngine.Debug.LogError("RESET " + creationIndex);
             alive = false;
             if (DestroyEvent != null)
                 DestroyEvent(this);

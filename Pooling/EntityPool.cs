@@ -119,6 +119,18 @@ namespace RocketWorks.Pooling
             return entity;
         }
 
+        protected override T RecycleObject(T entity)
+        {
+            UnityEngine.Debug.Log("Recycle: " + entity.CreationIndex);
+            entity.SetComponentCount(componentAmount);
+            entity.CompositionChangeEvent += OnCompositionAdded;
+            entity.CompositionSubtractEvent += OnCompositionSubtracted;
+            entity.Context = contextCallback;
+            entity.TriggerEvent += OnTriggerAdded;
+            entity.DestroyEvent += OnEntityDestroyed;
+            return entity;
+        }
+
         protected Entity CreateObject(bool stated)
         {
             Entity entity = CreateObject();

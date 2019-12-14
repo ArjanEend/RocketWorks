@@ -12,4 +12,10 @@ namespace RocketWorks.Controllers
         void Init(Contexts contexts, Entity entity);
         void Destroy();
     }
+
+    public interface IController<T> : IController where T : Entity
+    {
+        new T Entity { get; }
+        void Init(Contexts contexts, T entity);
+    }
 }

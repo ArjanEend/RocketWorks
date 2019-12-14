@@ -33,12 +33,16 @@
 
         override public T GetObject()
         {
-            if(idleObjects.Count > 0)
+            if(idleObjects.Count == 0)
             {
                 for (int i = 0; i < activeObjects.Count; i++)
                 {
                     if (!activeObjects[i].Alive)
+                    {
+                        UnityEngine.Debug.Log(activeObjects[i]);
+                        RecycleObject(activeObjects[i]);
                         return activeObjects[i];
+                    }
                 }
             }
             return base.GetObject();

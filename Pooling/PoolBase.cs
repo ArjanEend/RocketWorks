@@ -38,6 +38,7 @@ namespace RocketWorks.Pooling
             {
                 T value = idleObjects[0];
                 idleObjects.RemoveAt(0);
+                RecycleObject(value);
                 activeObjects.Add(value);
                 return value;
             }
@@ -72,6 +73,11 @@ namespace RocketWorks.Pooling
         {
             throw new Exception("Poolbase can't create objects");
             return default(T);
+        }
+
+        protected virtual T RecycleObject(T item)
+        {
+            return item;
         }
     }
 

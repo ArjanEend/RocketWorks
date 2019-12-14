@@ -7,12 +7,8 @@ namespace RocketWorks.Controllers
     public abstract class UnityControllerBase : MonoBehaviour, IController
     {
         protected Contexts contexts;
-
-        private Entity entity = null;
-        public Entity Entity
-        {
-            get { return entity; }
-        }
+        protected Entity entity;
+        public Entity Entity => entity;
 
         public virtual void Init(Contexts contexts)
         {
@@ -21,12 +17,37 @@ namespace RocketWorks.Controllers
 
         public virtual void Init(Contexts contexts, Entity entity)
         {
-            Init(contexts);
             this.entity = entity;
+            Init(contexts);
         }
 
         public virtual void Destroy()
         {
+        }
+    }
+
+    public abstract class UnityControllerBase<EntityType> : UnityControllerBase, IController<EntityType> where EntityType : Entity
+    {
+        private new EntityType entity = null;
+        public new EntityType Entity => entity;
+
+        public override void Init(Contexts contexts, Entities.Entity entity)
+        {
+            if (entity is EntityType typedEntity)
+            {
+                Init(contexts, typedEntity);
+            }
+        }
+
+        public virtual void Init(Contexts contexts, EntityType entity)
+        {
+            Init(contexts);
+            this.entity = entity;
+        }
+
+        void IController<EntityType>.Init(Contexts contexts, EntityType entity)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }
