@@ -17,7 +17,7 @@ namespace RocketWorks.Base
         [SerializeField] public string typeName;
         [SerializeField] public string fieldName;
 
-        public VariableConfig() {}
+        public VariableConfig() { }
     }
 
     public class ComponentConfig : ScriptableObject
@@ -28,15 +28,19 @@ namespace RocketWorks.Base
         public void AddVariable(VariableConfig variable)
         {
             variables.Add(variable);
+
+            EditorUtility.SetDirty(this);
         }
 
         public void RemoveVariable(VariableConfig variable)
         {
             variables.Remove(variable);
+
+            EditorUtility.SetDirty(this);
         }
     }
 
-    #if UNITY_EDITOR
+#if UNITY_EDITOR
     [CustomEditor(typeof(ComponentConfig))]
     public class VariableConfigEditor : Editor
     {
@@ -52,16 +56,16 @@ namespace RocketWorks.Base
             var config = (ComponentConfig)target;
             EditorGUILayout.BeginVertical();
 
-            foreach(var variable in config.Variables)
+            foreach (var variable in config.Variables)
             {
-                if(variable == null)
+                if (variable == null)
                 {
                     config.RemoveVariable(variable);
                     return;
                 }
-                
+
                 GUILayout.BeginHorizontal();
-                if(GUILayout.Button("-"))
+                if (GUILayout.Button("-"))
                 {
                     config.RemoveVariable(variable);
                     return;
@@ -75,9 +79,9 @@ namespace RocketWorks.Base
             inputText = EditorGUILayout.TextField(inputText);
             // Update the selected choice in the underlying object
             //_choiceIndex = _choices[_choiceIndex];
-            if(GUILayout.Button("Add"))
+            if (GUILayout.Button("Add"))
             {
-                var component = new VariableConfig(){typeName = inputText, fieldName = "new" + inputText};
+                var component = new VariableConfig() { typeName = inputText, fieldName = "new" + inputText };
                 config.AddVariable(component);
                 EditorUtility.SetDirty(target);
             }
@@ -102,5 +106,5 @@ namespace RocketWorks.Base
             EditorGUILayout.EndVertical();
         }
     }
-    #endif
+#endif
 }

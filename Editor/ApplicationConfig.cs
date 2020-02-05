@@ -2,10 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Reflection;
+using RocketWorks.CodeGeneration;
 using UnityEditor;
-using UnityEditorInternal;
 #endif
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -21,10 +19,10 @@ namespace RocketWorks.Base
         [SerializeField] private List<ContextConfig> contexts = new List<ContextConfig>();
         public List<ContextConfig> Contexts => contexts;
 
-    #if UNITY_EDITOR
+#if UNITY_EDITOR
         private void OnEnable()
         {
-            for(int i = 0; i < contexts.Count; i++)
+            for (int i = 0; i < contexts.Count; i++)
             {
                 contexts[i].SetChoices(components);
             }
@@ -36,19 +34,31 @@ namespace RocketWorks.Base
             newComponent.name = "New Component";
             string path = AssetDatabase.GetAssetPath(this);
             path = Path.GetDirectoryName(path);
-            if(!Directory.Exists(path + "/Components_" + name))
+            if (!Directory.Exists(path + "/Components_" + name))
                 AssetDatabase.CreateFolder(path, "Components_" + name);
             AssetDatabase.CreateAsset(newComponent, path + "/Components_" + name + "/" + newComponent.name + ".asset");
+
+            EditorUtility.SetDirty(this);
         }
 
         public void RemoveComponent(ComponentConfig comp)
         {
             components.Remove(comp);
             AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(comp));
+
+            EditorUtility.SetDirty(this);
         }
 
         public void GenerateCode()
         {
+            var builders = new List<ClassBuilder>();
+            for (int i = 0; i < components.Count; i++)
+            {
+                builders.Add(new ComponentBaseBuilder(components[i]));
+            }
+            builders.Add(new ContextBaseBuilder(contexts));
+
+            GenerateCodeOption.GenerateECS(builders);
         }
 
         public void AddContext(ContextConfig newContext)
@@ -57,10 +67,11 @@ namespace RocketWorks.Base
             newContext.name = "New Context";
             string path = AssetDatabase.GetAssetPath(this);
             path = Path.GetDirectoryName(path);
-            if(!Directory.Exists(path + "/Contexts_" + name))
+            if (!Directory.Exists(path + "/Contexts_" + name))
                 AssetDatabase.CreateFolder(path, "Contexts_" + name);
             AssetDatabase.CreateAsset(newContext, path + "/Contexts_" + name + "/" + newContext.name + ".asset");
             newContext.SetChoices(components);
+            EditorUtility.SetDirty(this);
         }
 
         public void RemoveContext(ContextConfig context)
@@ -71,7 +82,7 @@ namespace RocketWorks.Base
 #endif
     }
 
-    #if UNITY_EDITOR
+#if UNITY_EDITOR
     [CustomEditor(typeof(ApplicationConfig))]
     public class ApplicationConfigEditor : Editor
     {
@@ -94,9 +105,9 @@ namespace RocketWorks.Base
             {
                 config.GenerateCode();
             }
-            foreach(var comp in config.Components)
+            foreach (var comp in config.Components)
             {
-                if(comp == null)
+                if (comp == null)
                 {
                     config.RemoveComponent(comp);
                     return;
@@ -104,7 +115,7 @@ namespace RocketWorks.Base
                 GUILayout.BeginHorizontal();
                 //EditorGUILayout.LabelField(comp.GetType().Name);var fields = comp.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
                 EditorGUILayout.LabelField(comp.name);
-                if(GUILayout.Button("-"))
+                if (GUILayout.Button("-"))
                 {
                     config.RemoveComponent(comp);
                     return;
@@ -121,9 +132,9 @@ namespace RocketWorks.Base
             }
 
             GUILayout.Space(20);
-            foreach(var context in config.Contexts)
+            foreach (var context in config.Contexts)
             {
-                if(context == null)
+                if (context == null)
                 {
                     config.RemoveContext(context);
                     return;
@@ -131,7 +142,7 @@ namespace RocketWorks.Base
                 GUILayout.BeginHorizontal();
                 //EditorGUILayout.LabelField(comp.GetType().Name);var fields = comp.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
                 EditorGUILayout.LabelField(context.name);
-                if(GUILayout.Button("-"))
+                if (GUILayout.Button("-"))
                 {
                     config.RemoveContext(context);
                     return;
@@ -154,14 +165,14 @@ namespace RocketWorks.Base
         {
             EditorGUILayout.BeginVertical("box");
             UnityEditor.Editor editor = null;
-            
+
             if (obj == null)
             {
                 EditorGUILayout.LabelField(obj != null ? "loop: " + obj : "Back to start");
                 EditorGUILayout.EndVertical();
                 return;
             }
-            
+
             if (cachedEditors.ContainsKey(obj))
             {
                 editor = cachedEditors[obj];
@@ -170,7 +181,7 @@ namespace RocketWorks.Base
             CreateCachedEditor(obj, null, ref editor);
 
             cachedEditors[obj] = editor;
-    
+
             if (editor != null)
             {
                 EditorGUILayout.BeginHorizontal();
@@ -179,7 +190,7 @@ namespace RocketWorks.Base
 
                 EditorGUILayout.BeginHorizontal();
                 obj.name = EditorGUILayout.TextField(obj.name);
-                if(GUILayout.Button("Rename"))
+                if (GUILayout.Button("Rename"))
                 {
                     AssetDatabase.RenameAsset(AssetDatabase.GetAssetPath(obj), obj.name);
                 }
@@ -194,5 +205,5 @@ namespace RocketWorks.Base
             EditorGUILayout.EndVertical();
         }
     }
-    #endif
+#endif
 }
