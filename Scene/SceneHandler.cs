@@ -3,7 +3,7 @@ using RocketWorks.Systems;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using RocketWorks.Pooling;
-using RocketWorks.State;
+using RocketWorks.States;
 using UnityScenes = UnityEngine.SceneManagement.SceneManager;
 using RocketWorks.Controllers;
 
@@ -20,7 +20,7 @@ namespace RocketWorks.Scene
         public override void Initialize(Contexts contexts)
         {
             base.Initialize(contexts);
-            stateMachine = new StateMachine<SceneHandler>(this);
+            //stateMachine = new StateMachine<SceneHandler>(this);
             UnityScenes.sceneLoaded += OnSceneLoaded;
             RocketLog.Log("Start", this);
             OnSceneLoaded(UnityScenes.GetActiveScene(), LoadSceneMode.Single);
@@ -30,14 +30,12 @@ namespace RocketWorks.Scene
         {
             if (currentScene != null)
                 UnregisterScene(currentScene);
-            scene.OnFinish += LoadScene;
             scene.onPause += HandlePause;
             currentScene = scene;
         }
 
         public void UnregisterScene(SceneBase scene)
         {
-            scene.OnFinish -= LoadScene;
             scene.onPause += HandlePause;
         }
 
@@ -46,7 +44,7 @@ namespace RocketWorks.Scene
 
         }
 
-        private SceneBase LoadScene(IState<SceneHandler> scene)
+        private SceneBase LoadScene(State<SceneHandler> scene)
         {
             SceneBase gScene = (SceneBase)scene;
             //and add the new one!
@@ -55,7 +53,7 @@ namespace RocketWorks.Scene
             return gScene;
         }
 
-        private SceneBase LoadSceneWithLoader(IState<SceneHandler> scene)
+        private SceneBase LoadSceneWithLoader(State<SceneHandler> scene)
         {
             SceneBase gScene = (SceneBase)scene;
             RegisterScene(gScene);
@@ -68,10 +66,10 @@ namespace RocketWorks.Scene
         private void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, LoadSceneMode mode)
         {
             var objects = scene.GetRootGameObjects();
-            foreach(var obj in objects)
+            foreach (var obj in objects)
             {
                 var controllers = obj.GetComponentsInChildren<IController>();
-                foreach(var controller in controllers)
+                foreach (var controller in controllers)
                 {
                     controller.Init(contexts);
                 }

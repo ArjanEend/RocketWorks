@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
-using RocketWorks.State;
+using RocketWorks.States;
 
 namespace RocketWorks.Scene
 {
-    public abstract class SceneBase : StateBase<SceneHandler>
+    public abstract class SceneBase : State<SceneHandler>
     {
         public delegate void OnPause(bool paused);
 
@@ -16,7 +16,7 @@ namespace RocketWorks.Scene
 
         public SceneBase()
         {
-            RocketLog.Log("Constructor", this );
+            RocketLog.Log("Constructor", this);
             onPause = delegate { };
 
             paused = false;
@@ -29,8 +29,6 @@ namespace RocketWorks.Scene
 
         public virtual void Finish(SceneBase next)
         {
-            OnFinish.Invoke(next);
-            OnFinish = null;
             onPause = null;
         }
 
