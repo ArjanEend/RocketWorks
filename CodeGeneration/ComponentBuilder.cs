@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using RocketWorks.Base;
 
 namespace RocketWorks.CodeGeneration
 {
@@ -18,7 +19,7 @@ namespace RocketWorks.CodeGeneration
             string str = type.IsValueType ? "struct" : "class";
             BuildHeader(type.Namespace, type.ToGenericTypeString(), "IRocketable", true, str);
             name = type.Name;
-            
+
             FieldInfo[] fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             for (int i = 0; i < fields.Length; i++)
             {
@@ -79,14 +80,14 @@ namespace RocketWorks.CodeGeneration
                 for (int i = 0; i < dimensions; i++)
                 {
                     generationLines += string.Format("var_networkwriter.Write({0}.GetLength({1}));", name, i);
-                    
+
                     deserializeLines += string.Format("int var_{0}_length{1} = var_networkreader.ReadInt32();", name, i);
 
                     varName += "i" + i;
                     newName += string.Format("var_{0}_length{1}", name, i);
                     if (i != dimensions - 1)
                     {
-                        varName += ","; 
+                        varName += ",";
                         newName += ",";
                     }
                 }

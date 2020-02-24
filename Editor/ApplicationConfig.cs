@@ -2,10 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Reflection;
+using RocketWorks.CodeGeneration;
 using UnityEditor;
-using UnityEditorInternal;
 #endif
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -40,16 +38,28 @@ namespace RocketWorks.Base
             if (!Directory.Exists(path + "/Components_" + name))
                 AssetDatabase.CreateFolder(path, "Components_" + name);
             AssetDatabase.CreateAsset(newComponent, path + "/Components_" + name + "/" + newComponent.name + ".asset");
+
+            EditorUtility.SetDirty(this);
         }
 
         public void RemoveComponent(ComponentConfig comp)
         {
             components.Remove(comp);
             AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(comp));
+
+            EditorUtility.SetDirty(this);
         }
 
         public void GenerateCode()
         {
+            var builders = new List<ClassBuilder>();
+            for (int i = 0; i < components.Count; i++)
+            {
+                builders.Add(new ComponentBaseBuilder(components[i]));
+            }
+            builders.Add(new ContextBaseBuilder(contexts));
+
+            GenerateCodeOption.GenerateECS(builders);
         }
 
         public void AddContext(ContextConfig newContext)
@@ -62,6 +72,7 @@ namespace RocketWorks.Base
                 AssetDatabase.CreateFolder(path, "Contexts_" + name);
             AssetDatabase.CreateAsset(newContext, path + "/Contexts_" + name + "/" + newContext.name + ".asset");
             newContext.SetChoices(components);
+            EditorUtility.SetDirty(this);
         }
 
         public void RemoveContext(ContextConfig context)

@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
+using RocketWorks.Base;
 
 namespace RocketWorks.CodeGeneration
 {
     public class ContextBuilder : ClassBuilder
-    { 
+    {
         public ContextBuilder(Type type, string fieldName)
         {
             Type[] components = type.GetGenericArguments();
@@ -28,7 +29,7 @@ namespace RocketWorks.CodeGeneration
             groupLines += "return this.pool as EntityPool<T>;";
 
             BuildMethod("GetPool<T>", "public override", "EntityPool<T>", groupLines);
-            
+
             BuildEnding();
 
             RocketLog.Log(StringBuilder.ToString());

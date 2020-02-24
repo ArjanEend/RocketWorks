@@ -17,6 +17,7 @@ namespace RocketWorks.Base
     {
         public List<ComponentConfig> components = new List<ComponentConfig>();
 
+        [SerializeField]
         private List<ComponentConfig> componentChoices = new List<ComponentConfig>();
         public List<ComponentConfig> ComponentChoices => componentChoices;
 
@@ -29,11 +30,15 @@ namespace RocketWorks.Base
         public void AddComponent(ComponentConfig newComponent)
         {
             components.Add(newComponent);
+
+            EditorUtility.SetDirty(this);
         }
 
         public void RemoveComponent(ComponentConfig comp)
         {
             components.Remove(comp);
+
+            EditorUtility.SetDirty(this);
         }
 #endif
     }
@@ -72,18 +77,17 @@ namespace RocketWorks.Base
                 GUILayout.EndHorizontal();
             }
 
-            string[] choices = config.ComponentChoices
+            var choices = config.ComponentChoices
                 .Where(_ => !config.components.Contains(_))
-                .Select(_ => _.name)
-                .ToArray();
+                .ToDictionary(_ => _.name, _ => _);
 
             EditorGUILayout.LabelField("Add component");
-            choiceIndex = EditorGUILayout.Popup(choiceIndex, choices);
+            choiceIndex = EditorGUILayout.Popup(choiceIndex, choices.Keys.ToArray());
             // Update the selected choice in the underlying object
             //_choiceIndex = _choices[_choiceIndex];
             if (choiceIndex != -1)
             {
-                config.AddComponent(config.ComponentChoices.Where(_ => _.name == choices[choiceIndex]).FirstOrDefault());
+                config.AddComponent(choices[choices.Keys.ElementAt(choiceIndex)]);
                 EditorUtility.SetDirty(target);
             }
             choiceIndex = -1;

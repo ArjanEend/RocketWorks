@@ -36,11 +36,15 @@ namespace RocketWorks.Base
         public void AddVariable(VariableConfig variable)
         {
             variables.Add(variable);
+
+            EditorUtility.SetDirty(this);
         }
 
         public void RemoveVariable(VariableConfig variable)
         {
             variables.Remove(variable);
+
+            EditorUtility.SetDirty(this);
         }
     }
 
