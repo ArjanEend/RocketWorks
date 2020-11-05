@@ -1,21 +1,14 @@
-﻿using RocketWorks.Entities;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace RocketWorks.Controllers
+public interface IController
 {
-    public interface IController
-    {
-        Entity Entity { get; }
-        void Init(Contexts contexts);
-        void Init(Contexts contexts, Entity entity);
-        void Destroy();
-    }
+    void Init();
+    void DeInit();
+}
 
-    public interface IController<T> : IController where T : Entity
-    {
-        new T Entity { get; }
-        void Init(Contexts contexts, T entity);
-    }
+public interface IController<T> : IController
+{
+    void Init(T data);
 }

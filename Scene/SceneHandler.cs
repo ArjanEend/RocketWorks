@@ -68,7 +68,7 @@ namespace RocketWorks.Scene
             var objects = scene.GetRootGameObjects();
             foreach (var obj in objects)
             {
-                var controllers = obj.GetComponentsInChildren<IController>();
+                var controllers = obj.GetComponentsInChildren<IEntityController>();
                 foreach (var controller in controllers)
                 {
                     controller.Init(contexts);

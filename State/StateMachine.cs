@@ -16,6 +16,8 @@ namespace RocketWorks.States
 
         private Dictionary<Type, State<T>> stateDictionary;
 
+        private Dictionary<StateTrigger, bool> triggerStates = new Dictionary<StateTrigger, bool>();
+
         private bool stateInitialized = false;
 
         public System.Type currentType
@@ -52,8 +54,14 @@ namespace RocketWorks.States
                 stateInitialized = true;
                 currentState.Enter(owner);
             }
-            if (currentState != null)
-                currentState.OnUpdate(owner);
+            if (currentState == null)
+                return;
+
+            currentState.OnUpdate(owner);
+
+            var newState = currentState.CheckTransitions(triggerStates) as State<T>;
+            if (newState != currentState)
+                ChangeState(newState);
         }
 
         private void FixedUpdate()
@@ -95,11 +103,15 @@ namespace RocketWorks.States
             if (currentState != null)
             {
                 currentState.Exit(owner);
+                currentState.OnTriggerRaised -= OnStateTriggerRaised;
+                currentState.OnTriggerLowered -= OnStateTriggerLowered;
             }
 
             currentState = newState;
             if (newState != null)
             {
+                currentState.OnTriggerRaised += OnStateTriggerRaised;
+                currentState.OnTriggerLowered += OnStateTriggerLowered;
             }
             stateInitialized = false;
 
@@ -107,6 +119,18 @@ namespace RocketWorks.States
                 StateChanged(newState);
 
             return newState;
+        }
+
+        private void OnStateTriggerRaised(StateTrigger obj, object subject)
+        {
+            if (subject == null || subject == owner)
+                triggerStates[obj] = true;
+        }
+
+        private void OnStateTriggerLowered(StateTrigger obj, object subject)
+        {
+            if (subject == null || subject == owner)
+                triggerStates[obj] = false;
         }
 
         public void RevertToPreviousState()

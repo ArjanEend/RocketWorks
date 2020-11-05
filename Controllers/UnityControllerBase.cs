@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace RocketWorks.Controllers
 {
-    public abstract class UnityControllerBase : MonoBehaviour, IController
+    public abstract class UnityControllerBase : MonoBehaviour, IEntityController
     {
         protected Contexts contexts;
         protected Entity entity;
@@ -26,7 +26,7 @@ namespace RocketWorks.Controllers
         }
     }
 
-    public abstract class UnityControllerBase<EntityType> : UnityControllerBase, IController<EntityType> where EntityType : Entity
+    public abstract class UnityControllerBase<EntityType> : UnityControllerBase, IEntityController<EntityType> where EntityType : Entity
     {
         private new EntityType entity = null;
         public new EntityType Entity => entity;
@@ -45,7 +45,7 @@ namespace RocketWorks.Controllers
             this.entity = entity;
         }
 
-        void IController<EntityType>.Init(Contexts contexts, EntityType entity)
+        void IEntityController<EntityType>.Init(Contexts contexts, EntityType entity)
         {
             throw new System.NotImplementedException();
         }

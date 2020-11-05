@@ -11,18 +11,16 @@ namespace RocketWorks.States
         public StateTrigger[] triggers;
         public bool[] logicGate;
 
-        public bool IsSatisFied(Dictionary<string, StateTrigger> localTriggers)
+        public bool IsSatisFied(Dictionary<StateTrigger, bool> localTriggers)
         {
             for (int i = 0; i < triggers.Length; i++)
             {
-                if (localTriggers.ContainsKey(triggers[i].name))
+                if (localTriggers.ContainsKey(triggers[i]))
                 {
-                    if (localTriggers[triggers[i].name].active == logicGate[i])
+                    if (localTriggers[triggers[i]] == logicGate[i])
                         continue;
                     return false;
                 }
-                if (triggers[i].active == logicGate[i])
-                    continue;
                 return false;
             }
             return true;
@@ -35,7 +33,22 @@ namespace RocketWorks.States
         [SerializeField]
         private StateTransition[] transitions;
 
-        public State CheckTransitions(Dictionary<string, StateTrigger> localTriggers)
+        public delegate void TriggerDelegate(StateTrigger trigger, object subject = null);
+
+        public TriggerDelegate OnTriggerRaised;
+        public TriggerDelegate OnTriggerLowered;
+
+        protected void FireTriggerRaised(StateTrigger trigger, object subject = null)
+        {
+            OnTriggerRaised?.Invoke(trigger, subject);
+        }
+
+        protected void FireTriggerLowered(StateTrigger trigger, object subject = null)
+        {
+            OnTriggerLowered?.Invoke(trigger, subject);
+        }
+
+        public State CheckTransitions(Dictionary<StateTrigger, bool> localTriggers)
         {
             for (int i = 0; i < transitions.Length; i++)
             {
@@ -46,40 +59,10 @@ namespace RocketWorks.States
             }
             return this;
         }
-        /*public virtual void Enter(MonoBehaviour subject)
-        {
-
-        }
-        public virtual void Exit(MonoBehaviour subject)
-        {
-
-        }
-        public virtual void OnUpdate(MonoBehaviour subject)
-        {
-        }
-        public virtual void OnFixedUpdate(MonoBehaviour subject)
-        {
-        }*/
     }
 
     public abstract class State<T> : State where T : class
     {
-        /*override public void OnUpdate(MonoBehaviour subject)
-        {
-            OnUpdate(subject as T);
-        }
-        override public void OnFixedUpdate(MonoBehaviour subject)
-        {
-            OnFixedUpdate(subject as T);
-        }
-        override public void Enter(MonoBehaviour subject)
-        {
-            Enter(subject as T);
-        }
-        override public void Exit(MonoBehaviour subject)
-        {
-            Exit(subject as T);
-        }*/
         public abstract void OnUpdate(T subject);
         public abstract void OnFixedUpdate(T subject);
 
