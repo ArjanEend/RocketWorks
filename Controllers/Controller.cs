@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
@@ -8,7 +6,7 @@ using UnityEngine;
 public abstract class Controller : ScriptableObject, IController
 {
     private Action onInit = delegate { };
-    public event Action OnInit
+    public event Action OnInitialized
     {
         add
         {
@@ -21,14 +19,20 @@ public abstract class Controller : ScriptableObject, IController
         remove { onInit -= value; }
     }
 
-    public abstract void Init();
+    public void Init(GameHookBase bootStrap)
+    {
+        initialized = false;
+        OnInit(bootStrap);
+    }
+
+    public abstract void OnInit(GameHookBase bootStrap);
     public abstract void DeInit();
 
     private bool initialized = false;
 
     public bool Initialized => initialized;
 
-    protected void OnInitialized()
+    protected void InitializeComplete()
     {
         initialized = true;
         onInit();
@@ -49,7 +53,7 @@ public abstract class Controller : ScriptableObject, IController
 
 public abstract class Controller<T> : Controller, IController<T>
 {
-    override public void Init()
+    override public void OnInit(GameHookBase bootStrapper)
     {
         // Empty
     }

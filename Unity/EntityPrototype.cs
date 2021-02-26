@@ -4,7 +4,7 @@ using RocketWorks.Entities;
 using UnityEngine;
 using System;
 using System.Reflection;
-using UnityEngine.AddressableAssets;
+//using UnityEngine.AddressableAssets;
 using System.Linq;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -15,7 +15,7 @@ public class EntityPrototype : ScriptableObject
 {
     [SerializeField, HideInInspector]
     private List<string> components = new List<string>();
-    
+
     [SerializeField, HideInInspector]
     private List<string> types = new List<string>();
 
@@ -24,14 +24,14 @@ public class EntityPrototype : ScriptableObject
 
     private void OnEnable()
     {
-        for(int i = 0; i < components.Count; i++)
+        for (int i = 0; i < components.Count; i++)
         {
             cachedComponents.Add(JsonUtility.FromJson(components[i], Type.GetType(types[i])) as IComponent);
         }
     }
     private void OnDisable()
     {
-        for(int i = 0; i < cachedComponents.Count; i++)
+        for (int i = 0; i < cachedComponents.Count; i++)
         {
             components[i] = JsonUtility.ToJson(cachedComponents[i]);
         }
@@ -70,9 +70,9 @@ public class EntityPrototypeEditor : Editor
     private Type[] componentTypes;
 
     private List<bool> foldEditors = new List<bool>();
-    
-    string[] choices = new [] {""};
-    
+
+    string[] choices = new[] { "" };
+
     private int choiceIndex = -1;
 
     private void OnEnable()
@@ -89,14 +89,14 @@ public class EntityPrototypeEditor : Editor
 
         var prototype = (EntityPrototype)target;
 
-        foreach(var comp in prototype.CachedComponents)
+        foreach (var comp in prototype.CachedComponents)
         {
             EditorGUILayout.BeginVertical("box");
             GUILayout.BeginHorizontal();
             EditorGUILayout.LabelField(comp.GetType().Name);
             var fields = comp.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
 
-            if(GUILayout.Button("-"))
+            if (GUILayout.Button("-"))
             {
                 prototype.RemoveComponent(comp);
             }
@@ -107,15 +107,18 @@ public class EntityPrototypeEditor : Editor
             GUILayout.Space(30);
             EditorGUILayout.BeginVertical();
 
-            foreach(var field in fields)
+            foreach (var field in fields)
             {
-                if(field.FieldType.IsSubclassOf(typeof(AssetReference)))
+                if (false)//field.FieldType.IsSubclassOf(typeof(AssetReference)))
                 {
-                    AssetReference assetRef = field.GetValue(comp) as AssetReference;
-                    assetRef.SetEditorAsset(EditorGUILayout.ObjectField(assetRef.editorAsset, typeof(GameObject)));
-                } else if(typeof(UnityEngine.Object).IsAssignableFrom(field.FieldType)) {
+                    // AssetReference assetRef = field.GetValue(comp) as AssetReference;
+                    //assetRef.SetEditorAsset(EditorGUILayout.ObjectField(assetRef.editorAsset, typeof(GameObject)));
+                }
+                else if (typeof(UnityEngine.Object).IsAssignableFrom(field.FieldType))
+                {
                     field.SetValue(comp, EditorGUILayout.ObjectField(field.GetValue(comp) as UnityEngine.Object, field.FieldType));
-                } else if(field.FieldType == typeof(Vector3))
+                }
+                else if (field.FieldType == typeof(Vector3))
                 {
                     field.SetValue(comp, EditorGUILayout.Vector3Field(field.Name, (Vector3)field.GetValue(comp)));
                 }
@@ -130,7 +133,7 @@ public class EntityPrototypeEditor : Editor
         choiceIndex = EditorGUILayout.Popup(choiceIndex, choices);
         // Update the selected choice in the underlying object
         //_choiceIndex = _choices[_choiceIndex];
-        if(choiceIndex != -1)
+        if (choiceIndex != -1)
         {
             var component = Activator.CreateInstance(Type.GetType(choices[choiceIndex]));
             prototype.AddComponent(component as IComponent);

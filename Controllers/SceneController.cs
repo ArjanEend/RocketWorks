@@ -2,8 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using DG.Tweening;
 using UnityEngine;
+using DG.Tweening;
 using UnityEngine.SceneManagement;
 
 [CreateAssetMenu(menuName = "Controllers/Application/Scene", fileName = "SceneController")]
@@ -23,7 +23,7 @@ public class SceneController : Controller
         DontDestroyOnLoad(loadingInstance);
     }
 
-    public override void Init()
+    public override void OnInit(GameHookBase bootStrapper)
     {
     }
 

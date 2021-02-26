@@ -6,9 +6,9 @@ using UnityEngine;
 public class RocketFontStyle : ScriptableObject
 {
     [SerializeField]
-    private Font font;
+    private TMPro.TMP_FontAsset  font;
 
-    public Font Font => font;
+    public TMPro.TMP_FontAsset Font => font;
 
     [SerializeField]
     private int fontSize;
@@ -31,9 +31,9 @@ public class RocketFontStyle : ScriptableObject
     public Color OutlineColor => outlineColor;
 
     [SerializeField]
-    private FontStyle fontStyle = FontStyle.Normal;
+    private TMPro.FontStyles fontStyle = TMPro.FontStyles.Normal;
 
-    public FontStyle FontStyle => fontStyle;
+    public TMPro.FontStyles FontStyle => fontStyle;
 
     [SerializeField]
     private float lineSpacing = 1f;

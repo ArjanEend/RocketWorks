@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,20 +10,28 @@ namespace RocketWorks.Unity.Lists
     {
         [SerializeField] private ObjectList list;
         [SerializeField] private Component behaviour;
+        [SerializeField] private bool ghostMode = true;
 
         public Component Behaviour
         {
             set => behaviour = value;
         }
 
-        private void Start()
+        private void OnEnable()
         {
-            list.Add(behaviour);
+            if(!list.Contains(behaviour))
+                list.Add(behaviour);
         }
 
         private void OnDestroy()
         {
             list.Remove(behaviour);
+        }
+
+        private void OnDisable()
+        {
+            if(!ghostMode)
+                list.Remove(behaviour);
         }
     }
 }

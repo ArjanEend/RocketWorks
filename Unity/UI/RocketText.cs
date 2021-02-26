@@ -1,65 +1,76 @@
 ﻿using System.Reflection;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
-
-public class RocketText : Text
-{
-    [SerializeField]
-    private RocketFontData rocketFontData = new RocketFontData();
-
-    [SerializeField, NonEditable]
-    private bool hasTextController;
-    public bool HasTextController => hasTextController;
-
 #if UNITY_EDITOR
-    override protected void OnValidate()
-    {
-        base.OnValidate();
-        if (rocketFontData == null)
-            rocketFontData = new RocketFontData();
-        var fontData = GetType().BaseType.GetField("m_FontData",
-            BindingFlags.Instance | BindingFlags.NonPublic);
-
-        var value = fontData.GetValue(this);
-        if (value.GetType() == typeof(FontData))
-        {
-            fontData.SetValue(this, rocketFontData);
-        }
-
-        UpdateTextValues();
-    }
+using TMPro;
+using UnityEditor;
 #endif
 
-    private void UpdateTextValues()
+namespace RocketWorks
+{
+    public class RocketText : TextMeshProUGUI
     {
-        if (Application.isPlaying)
-            return;
-        if (GetComponent<ITextController>() is ITextController controller)
+        [SerializeField, NonEditable]
+        private bool hasTextController;
+        public bool HasTextController => hasTextController;
+
+        [SerializeField] private RocketFontStyle rocketFont;
+
+#if UNITY_EDITOR
+        override protected void OnValidate()
         {
-            hasTextController = true;
-            text = controller.PreviewText;
+            base.OnValidate();
+
+            if (fontStyle == null)
+                return;
+            
+            UpdateTextValues();
         }
-        else
+        
+        [MenuItem("CONTEXT/TextMeshProUGUI/Replace RocketText")]
+        public static void ReplaceTMPPro(MenuCommand command)
         {
-            hasTextController = false;
+            
+            TextMeshProUGUI tmpPro = (TextMeshProUGUI) command.context;
+            var go = tmpPro.gameObject;
+            DestroyImmediate(tmpPro);
+            go.AddComponent<RocketText>();
+        }
+#endif
+
+        private void UpdateTextValues()
+        {
+            if (Application.isPlaying)
+                return;
+            if (GetComponent<ITextController>() is ITextController controller)
+            {
+                hasTextController = true;
+                text = controller.PreviewText;
+            }
+            else
+            {
+                hasTextController = false;
+            }
+
+            font = rocketFont.Font;
+            color = rocketFont.Color;
+            fontSize = rocketFont.FontSize;
+            base.fontStyle = rocketFont.FontStyle;
+            lineSpacing = rocketFont.LineSpacing;
+            
         }
 
-        font = rocketFontData.FontStyle.Font;
-        color = rocketFontData.Color;
-        fontSize = rocketFontData.FontStyle.FontSize;
-        fontStyle = rocketFontData.FontStyle.FontStyle;
-        lineSpacing = rocketFontData.FontStyle.LineSpacing;
-    }
+        protected override void UpdateGeometry()
+        {
+            UpdateTextValues();
+            base.UpdateGeometry();
+        }
 
-    protected override void UpdateGeometry()
-    {
-        UpdateTextValues();
-        base.UpdateGeometry();
-    }
-
-    public override void Rebuild(CanvasUpdate update)
-    {
-        UpdateTextValues();
-        base.Rebuild(update);
+        public override void Rebuild(CanvasUpdate update)
+        {
+            UpdateTextValues();
+            base.Rebuild(update);
+        }
     }
 }

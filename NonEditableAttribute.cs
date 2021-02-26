@@ -1,23 +1,24 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
-[System.AttributeUsage(AttributeTargets.Field, Inherited = true, AllowMultiple = false)]
-public sealed class NonEditableAttribute : PropertyAttribute
+namespace RocketWorks
 {
-    public NonEditableAttribute()
+    [System.AttributeUsage(AttributeTargets.Field, Inherited = true, AllowMultiple = false)]
+    public class NonEditableAttribute : PropertyAttribute
     {
+        public NonEditableAttribute()
+        {
+        }
     }
-}
 
 #if UNITY_EDITOR
-namespace UnityEditor
-{
     [CustomPropertyDrawer(typeof(NonEditableAttribute))]
-    internal sealed class NonEditableDrawer : PropertyDrawer
+    public class NonEditableDrawer : PropertyDrawer
     {
-        private static Dictionary<object, Editor> editors = new Dictionary<object, Editor>();
-
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             GUI.enabled = false;
@@ -25,5 +26,5 @@ namespace UnityEditor
             GUI.enabled = true;
         }
     }
-}
 #endif
+}

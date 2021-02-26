@@ -10,6 +10,7 @@ namespace RocketWorks.Unity.DataDisplay
         private DisplayRoot prefab;
 
         private List<DisplayRoot> displays = new List<DisplayRoot>();
+        public List<DisplayRoot> Displays => displays;
         private List<DisplayRoot> inactiveDisplays = new List<DisplayRoot>();
 
         public override void OnSetData()

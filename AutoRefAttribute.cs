@@ -1,21 +1,25 @@
 ﻿using System;
 using System.Reflection;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+using UnityEngine.UIElements;
 
-[System.AttributeUsage(AttributeTargets.Field, Inherited = true, AllowMultiple = false)]
-public sealed class AutoRefAttribute : PropertyAttribute
+#endif
+
+namespace RocketWorks
 {
-
-    public AutoRefAttribute()
+    [System.AttributeUsage(AttributeTargets.Field, Inherited = true, AllowMultiple = false)]
+    public class AutoRefAttribute : PropertyAttribute
     {
+        public AutoRefAttribute()
+        {
+        }
     }
-}
 
 #if UNITY_EDITOR
-namespace UnityEditor
-{
     [CustomPropertyDrawer(typeof(AutoRefAttribute))]
-    internal sealed class AutoRefDrawer : PropertyDrawer
+    public class AutoRefDrawer : PropertyDrawer
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
@@ -33,9 +37,9 @@ namespace UnityEditor
             }
             var propertyType = field.FieldType;
 
-            if (propertyType.IsSubclassOf(typeof(MonoBehaviour)))
+            if (propertyType.IsSubclassOf(typeof(Behaviour)))
             {
-                var monoBehaviour = (MonoBehaviour)property.serializedObject.targetObject;
+                var monoBehaviour = (Behaviour)property.serializedObject.targetObject;
 
                 var foundBehaviour = monoBehaviour.GetComponentInChildren(this.fieldInfo.FieldType);
                 if (property.objectReferenceValue == foundBehaviour)
@@ -63,5 +67,5 @@ namespace UnityEditor
 
         }
     }
-}
 #endif
+}

@@ -9,7 +9,7 @@ namespace RocketWorks.Systems
     {
         public float TickRate
         {
-            get{ return 0f; }
+            get { return 0f; }
         }
 
         protected Contexts contexts;
@@ -18,14 +18,14 @@ namespace RocketWorks.Systems
         {
             string className = typeof(T).Name;
             RocketLog.LogFormat("New [{0}]", null, className);
-            var loadOp = UnityEngine.AddressableAssets.Addressables.LoadAsset<T>(className);
+            /*var loadOp = UnityEngine.AddressableAssets.Addressables.LoadAsset<T>(className);
             loadOp.Completed += x => 
             {
                 if(loadOp.OperationException != null)
                     manager.AddSystem(ScriptableObject.CreateInstance<T>());
                 else
                     manager.AddSystem(x.Result);
-            };
+            };*/
         }
         public virtual void Initialize(Contexts contexts)
         {

@@ -1,4 +1,7 @@
 ﻿using System.Reflection;
+using RocketWorks;
+using TMPro;
+using TMPro.EditorUtilities;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,7 +9,7 @@ namespace UnityEditor.UI
 {
     [CustomEditor(typeof(RocketText), true)]
     [CanEditMultipleObjects]
-    public class RocketTextEditor : TextEditor
+    public class RocketTextEditor : TMP_EditorPanelUI
     {
         SerializedProperty m_Text;
         SerializedProperty m_FontData;
@@ -15,23 +18,35 @@ namespace UnityEditor.UI
         {
             base.OnEnable();
 
-            m_Text = serializedObject.FindProperty("m_Text");
-            m_FontData = serializedObject.FindProperty("rocketFontData");
+            m_Text = serializedObject.FindProperty("m_text");
+            m_FontData = serializedObject.FindProperty("rocketFont");
         }
 
         public override void OnInspectorGUI()
         {
+            // Make sure Multi selection only includes TMP Text objects.
+            if (IsMixSelectionTypes()) return;
+
             serializedObject.Update();
 
             var rocketText = target as RocketText;
             if (!rocketText.HasTextController)
-                EditorGUILayout.PropertyField(m_Text);
+                DrawTextInput();
 
-            if (m_FontData != null)
-                EditorGUILayout.PropertyField(m_FontData);
-            AppearanceControlsGUI();
-            RaycastControlsGUI();
-            serializedObject.ApplyModifiedProperties();
+            EditorGUILayout.PropertyField(m_FontData);
+
+            DrawMainSettings();
+
+            DrawExtraSettings();
+
+            EditorGUILayout.Space();
+
+            if (serializedObject.ApplyModifiedProperties() || m_HavePropertiesChanged)
+            {
+                m_TextComponent.havePropertiesChanged = true;
+                m_HavePropertiesChanged = false;
+                EditorUtility.SetDirty(target);
+            }
         }
     }
 }

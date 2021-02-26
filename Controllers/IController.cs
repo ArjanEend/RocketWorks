@@ -4,7 +4,7 @@ using UnityEngine;
 
 public interface IController
 {
-    void Init();
+    void Init(GameHookBase gameHook);
     void DeInit();
 }
 
