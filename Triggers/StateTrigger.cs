@@ -10,7 +10,17 @@ public class StateTrigger : ScriptableObject
     private bool active = false;
 }
 
-public abstract class TriggerRequirement<T> : ScriptableObject
+public abstract class TriggerRequirement : ScriptableObject
 {
-    public abstract bool IsMet(T subject);
+    public abstract bool IsMetInternal<T>(T subject) where T : class;
+}
+
+public abstract class TriggerRequirement<R> : TriggerRequirement where R : class
+{
+    public override bool IsMetInternal<T>(T subject)
+    {
+        return IsMet(subject as R);
+    }
+
+    public abstract bool IsMet(R subject);
 }

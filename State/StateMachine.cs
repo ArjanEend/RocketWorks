@@ -59,7 +59,7 @@ namespace RocketWorks.States
 
             currentState.OnUpdate(owner);
 
-            var newState = currentState.CheckTransitions(triggerStates) as State<T>;
+            var newState = currentState.CheckTransitions(triggerStates, owner) as State<T>;
             if (newState != currentState)
                 ChangeState(newState);
         }

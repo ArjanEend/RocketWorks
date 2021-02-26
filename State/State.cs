@@ -7,20 +7,38 @@ namespace RocketWorks.States
     [System.Serializable]
     public class StateTransition
     {
+        [Serializable]
+        public class TriggerData
+        {
+            [SerializeField] public StateTrigger trigger;
+            [SerializeField] public bool logicGate;
+        }
+        [Serializable]
+        public class RequirementData
+        {
+            [SerializeField] public TriggerRequirement trigger;
+            [SerializeField] public bool logicGate;
+        }
         public State nextState;
-        public StateTrigger[] triggers;
-        public bool[] logicGate;
+        public TriggerData[] triggers;
+        public RequirementData[] requirements;
 
-        public bool IsSatisFied(Dictionary<StateTrigger, bool> localTriggers)
+        public bool IsSatisFied(Dictionary<StateTrigger, bool> localTriggers, object subject)
         {
             for (int i = 0; i < triggers.Length; i++)
             {
-                if (localTriggers.ContainsKey(triggers[i]))
+                if (localTriggers.ContainsKey(triggers[i].trigger))
                 {
-                    if (localTriggers[triggers[i]] == logicGate[i])
+                    if (localTriggers[triggers[i].trigger] == triggers[i].logicGate)
                         continue;
                     return false;
                 }
+                return false;
+            }
+            for (int i = 0; i < requirements.Length; i++)
+            {
+                if (requirements[i].trigger.IsMetInternal(subject) == requirements[i].logicGate)
+                    continue;
                 return false;
             }
             return true;
@@ -35,8 +53,8 @@ namespace RocketWorks.States
 
         public delegate void TriggerDelegate(StateTrigger trigger, object subject = null);
 
-        public TriggerDelegate OnTriggerRaised;
-        public TriggerDelegate OnTriggerLowered;
+        public event TriggerDelegate OnTriggerRaised;
+        public event TriggerDelegate OnTriggerLowered;
 
         protected void FireTriggerRaised(StateTrigger trigger, object subject = null)
         {
@@ -48,11 +66,11 @@ namespace RocketWorks.States
             OnTriggerLowered?.Invoke(trigger, subject);
         }
 
-        public State CheckTransitions(Dictionary<StateTrigger, bool> localTriggers)
+        public virtual State CheckTransitions(Dictionary<StateTrigger, bool> localTriggers, object subject)
         {
             for (int i = 0; i < transitions.Length; i++)
             {
-                if (transitions[i].IsSatisFied(localTriggers))
+                if (transitions[i].IsSatisFied(localTriggers, subject))
                 {
                     return transitions[i].nextState;
                 }
